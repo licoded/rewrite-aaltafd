@@ -46,7 +46,7 @@ namespace aalta {
         // aalta_formula *unique_ = nullptr; // 指向唯一指针标识
         // aalta_formula *simp_ = nullptr; // 指向化简后的公式指针
         static std::vector<std::string> names; // 存储操作符的名称以及原子变量的名称
-        static std::unordered_map<std::string, int> ids; // 名称和对应的位置映射
+        static std::unordered_map<std::string, int> name_id_map; // 名称和对应的位置映射
         //////////////////////////////////////////////////
 
     public:
@@ -59,6 +59,7 @@ namespace aalta {
         ~aalta_formula();
         void build (const ltl_formula *formula, bool is_not = false);
         void build_atom(const char *name, bool is_not = false);
+        int get_id_by_name(const char *name);
     };
 } // namespace aalta_formula
 

@@ -41,6 +41,22 @@ namespace aalta {
 
     aalta_formula::~aalta_formula() {}
 
+    inline int
+    aalta_formula::get_id_by_name(const char *name)
+    {
+        int id;
+        const auto& it = name_id_map.find(name);
+        if (it == name_id_map.end())
+        { // 此变量名未出现过，添加之
+            id = names.size();
+            name_id_map[name] = id;
+            names.push_back(name);
+        }
+        else
+            id = it->second;
+        return id;
+    }
+
     /**
      * 添加原子变量
      * @param name
@@ -49,18 +65,8 @@ namespace aalta {
     inline void
     aalta_formula::build_atom(const char *name, bool is_not)
     {
-        int id;
-        const auto& it = ids.find(name);
-        if (it == ids.end())
-        { // 此变量名未出现过，添加之
-            id = names.size();
-            ids[name] = id;
-            names.push_back(name);
-        }
-        else
-        {
-            id = it->second;
-        }
+        int id = get_id_by_name(name); // will add name to names, if no exist/added before
+        
         if (is_not)
             op_ = Not, right_ = &aalta_formula(id); // TODO: may cause BUG of memory
         else
