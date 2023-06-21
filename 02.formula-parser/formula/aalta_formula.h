@@ -19,17 +19,17 @@ namespace aalta {
     /* 操作符类型 */
     enum OperatorType
     {
-        True,
-        False,
-        Literal,
-        Not,
-        Or,
-        And,
-        Next,
-        WNext, // weak Next, for LTLf
-        Until,
-        Release,
-        Undefined
+        e_true,
+        e_false,
+        e_literal,
+        e_not,
+        e_or,
+        e_and,
+        e_next,
+        e_w_next, // weak Next, for LTLf
+        e_until,
+        e_release,
+        e_undefined
     };
 
     class aalta_formula; // 前置声明
