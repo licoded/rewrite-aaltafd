@@ -62,7 +62,7 @@ namespace aalta {
             id = it->second;
         }
         if (is_not)
-            op_ = Not, right_ = aalta_formula(id);
+            op_ = Not, right_ = &aalta_formula(id); // TODO: may cause BUG of memory
         else
             op_ = id;
     }
