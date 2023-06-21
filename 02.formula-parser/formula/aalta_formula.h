@@ -13,15 +13,49 @@
 #ifndef AALTA_FORMULA_H
 #define AALTA_FORMULA_H
 
+#include "ltlparser/ltl_formula.h"
+
 namespace aalta {
+    /* 操作符类型 */
+    enum OperatorType
+    {
+        True,
+        False,
+        Literal,
+        Not,
+        Or,
+        And,
+        Next,
+        WNext, // weak Next, for LTLf
+        Until,
+        Release,
+        Undefined
+    };
+
+    class aalta_formula; // 前置声明
     class aalta_formula
     {
     private:
-        /* data */
+        ////////////
+        //成员变量//
+        //////////////////////////////////////////////////
+        OperatorType op_ = Undefined; // 操作符
+        aalta_formula *left_ = nullptr; // 操作符左端公式
+        aalta_formula *right_ = nullptr; // 操作符右端公式
+        // int length_; //公式长度
+        // aalta_formula *unique_ = nullptr; // 指向唯一指针标识
+        // aalta_formula *simp_ = nullptr; // 指向化简后的公式指针
+        //////////////////////////////////////////////////
+
     public:
-        aalta_formula(/* args */);
+        aalta_formula(); // new 时调用
+        aalta_formula(const aalta_formula& orig); // 拷贝构造函数
+        aalta_formula(OperatorType op, aalta_formula *left, aalta_formula *right);
+        aalta_formula(const char *input);
+        aalta_formula(const ltl_formula *formula, bool is_not = false);
         ~aalta_formula();
+
     };
-}
+} // namespace aalta_formula
 
 #endif	/* AALTA_FORMULA_H */
