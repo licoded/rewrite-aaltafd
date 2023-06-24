@@ -115,10 +115,11 @@ namespace aalta {
     
     private:
         size_t hash_; // hash值
-        // added for af_prt_set identification, _id is set in unique ()
+        // added for af_prt_set TYPE identification, _id is set in unique ()
         int id_;
         static int max_id_;
     public:
+        // added for afp_set TYPE identification
         bool operator == (const aalta_formula& af) const; // 第2个const表示该函数不能修改成员变量
                                                           // TODO: 非静态按我的理解不能修改, 静态呢?
     };
