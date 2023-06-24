@@ -75,7 +75,7 @@ namespace aalta {
         int id = get_id_by_name(name); // will add name to names, if no exist/added before
         
         if (is_not)
-            op_ = Not, right_ = aalta_formula(id).unique();
+            op_ = e_not, right_ = aalta_formula(id).unique();
         else
             op_ = id;
     }
