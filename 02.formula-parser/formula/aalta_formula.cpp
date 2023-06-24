@@ -176,7 +176,9 @@ namespace aalta {
                 ltl_formula *new_left = create_operation(eOR, not_a, formula->_right);
                 ltl_formula *new_right = create_operation(eOR, not_b, formula->_left);
                 ltl_formula *now = create_operation(eAND, new_left, new_right);
-                *this = *(aalta_formula(now, is_not));
+                *this = *(aalta_formula(now, is_not).unique());
+                // about previous line: why use *(XXX) instead of just (XXX)?
+                // Oh, I have known it. Because LHS is a object instance instead of pointer
                 destroy_node(not_a);
                 destroy_node(not_b);
                 destroy_node(new_left);
@@ -185,7 +187,7 @@ namespace aalta {
                 break;
             }
             default:
-                print_error("the formula cannot be recognized by aalta!");
+                // print_error("the formula cannot be recognized by aalta!");
                 exit(1);
                 break;
         }
