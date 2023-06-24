@@ -8,6 +8,7 @@
 #include "aalta_formula.h"
 #include "ltlparser/trans.h"
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace aalta {
@@ -56,7 +57,7 @@ namespace aalta {
         if (it == name_id_map.end())
         { // 此变量名未出现过，添加之
             id = names.size();
-            name_id_map[name] = id;
+            name_id_map.insert(std::make_pair(name, id));
             names.push_back(name);
         }
         else
@@ -214,5 +215,15 @@ namespace aalta {
         if (FALSE_ == nullptr)
             FALSE_ = aalta_formula(e_false).unique();
         return FALSE_;
+    }
+
+    /**
+     * 重载等于符号
+     * @param af
+     * @return
+     */
+    bool aalta_formula::operator==(const aalta_formula &af) const
+    {
+        return left_ == af.left_ && right_ == af.right_ && op_ == af.op_; // && tag_ == af.tag_;
     }
 } // namespace aalta_formula

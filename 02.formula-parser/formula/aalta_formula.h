@@ -35,6 +35,48 @@ namespace aalta {
     class aalta_formula; // 前置声明
     class aalta_formula
     {
+    public:
+        /* af公式的hash函数 */
+        struct af_hash
+        {
+
+            size_t operator()(const aalta_formula &af) const
+            {
+                return af.hash_;
+            }
+        };
+
+        /* af指针的hash函数 */
+        struct af_prt_hash
+        {
+
+            size_t operator()(const aalta_formula *af_prt) const
+            {
+                // return size_t (af_prt);
+                return af_prt->id_;
+            }
+        };
+
+        /* af指针的hash函数 */
+        struct af_prt_hash2
+        {
+
+            size_t operator()(const aalta_formula *af_prt) const
+            {
+                return af_prt->hash_;
+            }
+        };
+        /* af指针的相等函数 */
+        struct af_prt_eq
+        {
+
+            bool operator()(const aalta_formula *af_prt1, const aalta_formula *af_prt2) const
+            {
+                return *af_prt1 == *af_prt2;
+            }
+        };
+        typedef unordered_set<aalta_formula *, af_prt_hash2, af_prt_eq> afp_set;
+
     private:
         ////////////
         //成员变量//
@@ -47,6 +89,7 @@ namespace aalta {
         // aalta_formula *simp_ = nullptr; // 指向化简后的公式指针
         static std::vector<std::string> names; // 存储操作符的名称以及原子变量的名称
         static std::unordered_map<std::string, int> name_id_map; // 名称和对应的位置映射
+        static afp_set all_afs;
         //////////////////////////////////////////////////
 
     public:
@@ -69,6 +112,15 @@ namespace aalta {
     public:
         static aalta_formula *TRUE();
         static aalta_formula *FALSE();
+    
+    private:
+        size_t hash_; // hash值
+        // added for af_prt_set identification, _id is set in unique ()
+        int id_;
+        static int max_id_;
+    public:
+        bool operator == (const aalta_formula& af) const; // 第2个const表示该函数不能修改成员变量
+                                                          // TODO: 非静态按我的理解不能修改, 静态呢?
     };
 } // namespace aalta_formula
 
