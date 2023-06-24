@@ -218,12 +218,37 @@ namespace aalta {
     }
 
     /**
-     * 重载等于符号
+     * 重载等于符号, 用于 hashset -- afp_set TYPE 的判断相等的函数
      * @param af
      * @return
      */
     bool aalta_formula::operator==(const aalta_formula &af) const
     {
         return left_ == af.left_ && right_ == af.right_ && op_ == af.op_; // && tag_ == af.tag_;
+    }
+
+    /**
+     * 重载赋值操作符, 用于拷贝构造函数, unique 函数
+     * @param af
+     * @return
+     */
+    aalta_formula &aalta_formula::operator=(const aalta_formula &af)
+    // TODO: 
+    //  - 判断对象相等时, 应该会走这里吧?
+    //  - 这样应该是为了减少拷贝的开销
+    //  - 如果按照对象而非引用去定义, 会怎样, 有什么意义/适用情况吗?
+    {
+        if (this != &af)
+        {
+            this->left_ = af.left_;
+            this->right_ = af.right_;
+            // this->tag_ = af.tag_;
+            this->op_ = af.op_;
+            this->hash_ = af.hash_;
+            // this->length_ = af.length_;
+            // this->unique_ = af.unique_;
+            // this->simp_ = af.simp_;
+        }
+        return *this;
     }
 } // namespace aalta_formula
