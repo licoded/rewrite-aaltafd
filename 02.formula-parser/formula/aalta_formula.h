@@ -57,6 +57,7 @@ namespace aalta {
         aalta_formula(const char *input);
         aalta_formula(const ltl_formula *formula, bool is_not = false);
         ~aalta_formula();
+        aalta_formula* unique();
         void build (const ltl_formula *formula, bool is_not = false);
         void build_atom(const char *name, bool is_not = false);
         int get_id_by_name(const char *name);

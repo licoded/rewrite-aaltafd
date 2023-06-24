@@ -41,6 +41,13 @@ namespace aalta {
 
     aalta_formula::~aalta_formula() {}
 
+    aalta_formula* aalta_formula::unique()
+    {
+        // TODO: modify this to archieve/get unique pointer
+        //       > leverage hashset to ensure this
+        return new aalta_formula(*this);
+    }
+
     inline int
     aalta_formula::get_id_by_name(const char *name)
     {
@@ -68,7 +75,7 @@ namespace aalta {
         int id = get_id_by_name(name); // will add name to names, if no exist/added before
         
         if (is_not)
-            op_ = Not, right_ = &aalta_formula(id); // TODO: may cause BUG of memory
+            op_ = Not, right_ = aalta_formula(id).unique();
         else
             op_ = id;
     }
@@ -112,55 +119,55 @@ namespace aalta {
                     op_ = e_until, left_ = TRUE();
                 else
                     op_ = e_release, left_ = FALSE();
-                right_ = &aalta_formula(formula->_right, is_not);
+                right_ = aalta_formula(formula->_right, is_not).unique();
                 break;
             case eFUTURE: // F a = True U a -- [!(F a) = False R !a]
                 if (is_not)
                     op_ = e_release, left_ = FALSE();
                 else
                     op_ = e_until, left_ = TRUE();
-                right_ = &aalta_formula(formula->_right, is_not);
+                right_ = aalta_formula(formula->_right, is_not).unique();
                 break;
             case eUNTIL: // a U b -- [!(a U b) = !a R !b]
                 op_ = is_not ? e_release : e_until;
-                left_ = &aalta_formula(formula->_left, is_not);
-                right_ = &aalta_formula(formula->_right, is_not);
+                left_ = aalta_formula(formula->_left, is_not).unique();
+                right_ = aalta_formula(formula->_right, is_not).unique();
                 break;
             case eWUNTIL: // a W b = (G a) | (a U b) -- [!(a W b) = F !a /\ (!a R !b)]
-                tmp_left = &aalta_formula(formula->_left, is_not);
-                tmp_right = &aalta_formula(formula->_right, is_not);
+                tmp_left = aalta_formula(formula->_left, is_not).unique();
+                tmp_right = aalta_formula(formula->_right, is_not).unique();
                 if (is_not)
                 {
                     op_ = e_and;
                     left_ = &aalta_formula(e_until, TRUE(), tmp_left);
-                    right_ = &aalta_formula(e_release, tmp_left, tmp_right);
+                    right_ = aalta_formula(e_release, tmp_left, tmp_right).unique();
                 }
                 else
                 {
                     op_ = e_or;
                     left_ = &aalta_formula(e_release, FALSE(), tmp_left);
-                    right_ = &aalta_formula(e_until, tmp_left, tmp_right);
+                    right_ = aalta_formula(e_until, tmp_left, tmp_right).unique();
                 }
                 break;
             case eRELEASE: // a R b -- [!(a R b) = !a U !b]
                 op_ = is_not ? e_until : e_release;
-                left_ = &aalta_formula(formula->_left, is_not);
-                right_ = &aalta_formula(formula->_right, is_not);
+                left_ = aalta_formula(formula->_left, is_not).unique();
+                right_ = aalta_formula(formula->_right, is_not).unique();
                 break;
             case eAND: // a & b -- [!(a & b) = !a | !b ]
                 op_ = is_not ? e_or : e_and;
-                left_ = &aalta_formula(formula->_left, is_not);
-                right_ = &aalta_formula(formula->_right, is_not);
+                left_ = aalta_formula(formula->_left, is_not).unique();
+                right_ = aalta_formula(formula->_right, is_not).unique();
                 break;
             case eOR: // a | b -- [!(a | b) = !a & !b]
                 op_ = is_not ? e_and : e_or;
-                left_ = &aalta_formula(formula->_left, is_not);
-                right_ = &aalta_formula(formula->_right, is_not);
+                left_ = aalta_formula(formula->_left, is_not).unique();
+                right_ = aalta_formula(formula->_right, is_not).unique();
                 break;
             case eIMPLIES: // a->b = !a | b -- [!(a->b) = a & !b]
                 op_ = is_not ? e_and : e_or;
                 left_ = &aalta_formula(formula->_left, is_not ^ 1);
-                right_ = &aalta_formula(formula->_right, is_not);
+                right_ = aalta_formula(formula->_right, is_not).unique();
                 break;
             case eEQUIV:
             { // a<->b = (!a | b)&(!b | a) -- [!(a<->b) = (a & !b)|(!a & b)]
