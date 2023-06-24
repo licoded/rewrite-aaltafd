@@ -61,6 +61,14 @@ namespace aalta {
         void build (const ltl_formula *formula, bool is_not = false);
         void build_atom(const char *name, bool is_not = false);
         int get_id_by_name(const char *name);
+    
+    private:
+        static aalta_formula *FALSE_ = nullptr;
+        static aalta_formula *TRUE_ = nullptr;
+
+    public:
+        static aalta_formula *TRUE();
+        static aalta_formula *FALSE();
     };
 } // namespace aalta_formula
 
