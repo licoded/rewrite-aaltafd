@@ -75,7 +75,7 @@ namespace aalta {
                 return *af_prt1 == *af_prt2;
             }
         };
-        typedef unordered_set<aalta_formula *, af_prt_hash2, af_prt_eq> afp_set;
+        typedef std::unordered_set<aalta_formula *, af_prt_hash2, af_prt_eq> afp_set;
 
     private:
         ////////////
