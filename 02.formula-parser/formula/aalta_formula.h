@@ -63,8 +63,8 @@ namespace aalta {
         int get_id_by_name(const char *name);
     
     private:
-        static aalta_formula *FALSE_ = nullptr;
-        static aalta_formula *TRUE_ = nullptr;
+        static aalta_formula *FALSE_;
+        static aalta_formula *TRUE_;
 
     public:
         static aalta_formula *TRUE();

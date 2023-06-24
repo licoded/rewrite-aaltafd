@@ -190,4 +190,22 @@ namespace aalta {
                 break;
         }
     }
+
+    /* 初始化静态变量 */
+    // can't declare and define non-const static variables in the same time
+    aalta_formula* aalta_formula::TRUE_ = nullptr;
+    aalta_formula* aalta_formula::FALSE_ = nullptr;
+
+    aalta_formula* aalta_formula::TRUE()
+    {
+        if (TRUE_ == nullptr)
+            TRUE_ = aalta_formula(e_true).unique();
+        return TRUE_;
+    }
+    aalta_formula* aalta_formula::FALSE()
+    {
+        if (FALSE_ == nullptr)
+            FALSE_ = aalta_formula(e_false).unique();
+        return FALSE_;
+    }
 } // namespace aalta_formula
