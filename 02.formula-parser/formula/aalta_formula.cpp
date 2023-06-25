@@ -128,11 +128,11 @@ namespace aalta {
                 break;
             case eNEXT: // Xa -- [!(Xa) = N(!a)]
                 op_ = is_not ? e_w_next : e_next;
-                right_ = new aalta_formula(formula->_right, is_not);
+                right_ = aalta_formula(formula->_right, is_not).unique();
                 break;
             case eWNEXT: // Na -- [!(Na) = X(!a)]
                 op_ = is_not ? e_next : e_w_next;
-                right_ = new aalta_formula(formula->_right, is_not);
+                right_ = aalta_formula(formula->_right, is_not).unique();
                 break;
             case eGLOBALLY: // G a = False R a -- [!(G a) = True U !a]
                 if (is_not)
