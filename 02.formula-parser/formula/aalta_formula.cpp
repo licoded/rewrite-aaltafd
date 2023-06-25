@@ -41,7 +41,8 @@ namespace aalta {
          * ERROR: assignment to 'this'
          * CODE: this = new aalta_formula(getAST(input), false);
         */
-        *this = aalta_formula(getAST(input), false);
+        // *this = aalta_formula(getAST(input), false);
+        build(getAST(input), false); // 这样少一次 ctor 创建对象的消耗
     }
 
     aalta_formula::aalta_formula(const ltl_formula *formula, bool is_not)
@@ -349,7 +350,7 @@ namespace aalta {
         {
             std::string operator_s = aalta_formula::names[oper()];
             if (is_unary())
-                    inner_s = left_->to_string() + " " + operator_s;
+                    inner_s = " " + operator_s + right_->to_string();
             else
                     inner_s = left_->to_string() + " " + operator_s + " " + right_->to_string();
         }

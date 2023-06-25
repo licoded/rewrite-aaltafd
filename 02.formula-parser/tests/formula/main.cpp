@@ -31,16 +31,7 @@ int main()
     // expression must have class type but it has type "aalta::aalta_formula *"
     std::cout << y->to_string() << std::endl;
 
-    // === TESTs for constructor/build func
-    /**
-     * ERROR: a fully qualified constructor call is not allowed
-     * CODE: std::cout << aalta_formula::aalta_formula("hhh").to_string() << std::endl;
-    */
-    std::cout << aalta_formula("hhh").unique()->to_string() << std::endl;
-    std::cout << aalta_formula("a").unique()->to_string() << std::endl;
-
-    // === TESTs for add_tail() func
-    // 不加 const 前缀会报警告如下: 
+    // 不加 const 前缀会报警告如下:
     // warning: ISO C++ forbids converting a string constant to ‘char*’ [-Wwrite-strings]
     std::vector<const char *> str = {
         "a",
@@ -52,6 +43,21 @@ int main()
         "X(a|b) & X(c)",
         "X(a|b) & G(X(c))",
     };
+
+    // === TESTs for constructor/build func
+    /**
+     * ERROR: a fully qualified constructor call is not allowed
+     * CODE: std::cout << aalta_formula::aalta_formula("hhh").to_string() << std::endl;
+    */
+    std::cout << aalta_formula("hhh").unique()->to_string() << std::endl;
+    std::cout << aalta_formula("a").unique()->to_string() << std::endl;
+    for(const auto it : str)
+    {
+        std::cout << aalta_formula(it).unique()->to_string() << std::endl;
+    }
+
+    // === TESTs for add_tail() func
+    
     // std::cout << str.size();
     for(const auto it : str)
     {
