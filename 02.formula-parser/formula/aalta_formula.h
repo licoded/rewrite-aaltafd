@@ -99,7 +99,7 @@ namespace aalta {
     public:
         aalta_formula(); // new 时调用
         aalta_formula(const aalta_formula& orig); // 拷贝构造函数
-        aalta_formula(OperatorType op, aalta_formula *left, aalta_formula *right);
+        aalta_formula(int op, aalta_formula *left, aalta_formula *right);
         aalta_formula(int atom_id);
         aalta_formula(const char *input);
         aalta_formula(const ltl_formula *formula, bool is_not = false);
@@ -132,6 +132,12 @@ namespace aalta {
         bool operator == (const aalta_formula& af) const; // 第2个const表示该函数不能修改成员变量
                                                           // TODO: 非静态按我的理解不能修改, 静态呢?
         aalta_formula& operator = (const aalta_formula& af);
+        int oper () const;
+        bool is_next() const;
+
+    /* transfer formula to specific NF(normal form) */
+    public:
+        aalta_formula* add_tail (); //add (/\ !Tail) for all Next formulas/occurences
     };
 } // namespace aalta_formula
 

@@ -22,7 +22,7 @@ namespace aalta {
     aalta_formula::aalta_formula(int atom_id)
         : op_(atom_id)
         {}
-    aalta_formula::aalta_formula(OperatorType op,
+    aalta_formula::aalta_formula(int op,
                                  aalta_formula *left,
                                  aalta_formula *right)
         : op_(op),
@@ -285,5 +285,40 @@ namespace aalta {
             // this->simp_ = af.simp_;
         }
         return *this;
+    }
+
+    /**
+     * 获取op操作符
+     * @return
+     */
+    int aalta_formula::oper() const
+    {
+        return op_;
+    }
+
+    bool aalta_formula::is_next() const
+    {
+        return oper() == e_next;
+    }
+
+
+    /**
+     * add (/\ !Tail) for all Next formulas/occurences
+     *  - 在所有出现 Next(X) 的位置, 添加 /\ !Tail
+     *  - TODO: why not just add /\ !Tail in the outer level?
+    */
+    aalta_formula *aalta_formula::add_tail()
+    {
+        if(this == nullptr) // I'm not sure about the correctness of this.
+            return nullptr;
+        aalta_formula *res = nullptr;
+        if (is_next())
+        {
+            aalta_formula *new_next = aalta_formula(e_next, nullptr, right_->add_tail()).unique();
+            res = aalta_formula(e_and, NTAIL(), new_next).unique();
+        }
+        else
+            res = aalta_formula(oper(), left_->add_tail(), right_->add_tail()).unique();
+        return res;
     }
 } // namespace aalta_formula
