@@ -113,10 +113,14 @@ namespace aalta {
     private:
         static aalta_formula *FALSE_;
         static aalta_formula *TRUE_;
+        static aalta_formula *TAIL_;
+        static aalta_formula *NTAIL_;
 
     public:
-        static aalta_formula *TRUE();
-        static aalta_formula *FALSE();
+        static aalta_formula* TRUE();
+        static aalta_formula* FALSE();
+        static aalta_formula* TAIL();
+        static aalta_formula* NTAIL();
     
     private:
         size_t hash_; // hash值

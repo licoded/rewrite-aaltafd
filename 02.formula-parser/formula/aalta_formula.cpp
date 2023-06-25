@@ -223,6 +223,8 @@ namespace aalta {
     // can't declare and define non-const static variables in the same time
     aalta_formula* aalta_formula::TRUE_ = nullptr;
     aalta_formula* aalta_formula::FALSE_ = nullptr;
+    aalta_formula* aalta_formula::TAIL_ = nullptr;
+    aalta_formula* aalta_formula::NTAIL_ = nullptr;
 
     aalta_formula* aalta_formula::TRUE()
     {
@@ -235,6 +237,18 @@ namespace aalta {
         if (FALSE_ == nullptr)
             FALSE_ = aalta_formula(e_false).unique();
         return FALSE_;
+    }
+    aalta_formula* aalta_formula::TAIL()
+    {
+        if (TAIL_ == nullptr)
+            TAIL_ = aalta_formula("Tail").unique();
+        return TAIL_;
+    }
+    aalta_formula* aalta_formula::NTAIL()
+    {
+        if (NTAIL_ == nullptr)
+            NTAIL_ = aalta_formula (e_not, NULL, TAIL()).unique ();
+        return NTAIL_;
     }
 
     /**
