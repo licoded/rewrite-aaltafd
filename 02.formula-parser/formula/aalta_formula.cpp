@@ -87,7 +87,7 @@ namespace aalta {
     /**
      * 添加原子变量
      * @param name
-     * @param is_not
+     * @param is_not -- 该变量是有用到的, build函数中调用时可能传入true也可能传入false
      */
     inline void
     aalta_formula::build_atom(const char *name, bool is_not)
@@ -105,11 +105,14 @@ namespace aalta {
      * 并处理！运算，使其只会出现在原子前
      * @param formula
      * @param is_not 标记此公式前是否有！
+     * 
+     * TODO: 
+     *  - build 函数中, 使用 `aalta_formula().unique()` 方法会创建2~3次对象, 想办法提高效率减少对象创建次数
+     *      - 比如, 用一个函数解决此问题
      */
     void
     aalta_formula::build(const ltl_formula *formula, bool is_not)
     {
-        aalta_formula *tmp_left, *tmp_right;
         if (formula == NULL)
             return;
         switch (formula->_type)
@@ -154,20 +157,12 @@ namespace aalta {
                 right_ = aalta_formula(formula->_right, is_not).unique();
                 break;
             case eWUNTIL: // a W b = (G a) | (a U b) -- [!(a W b) = F !a /\ (!a R !b)]
-                tmp_left = aalta_formula(formula->_left, is_not).unique();
-                tmp_right = aalta_formula(formula->_right, is_not).unique();
-                if (is_not)
-                {
-                    op_ = e_and;
-                    left_ = aalta_formula(e_until, TRUE(), tmp_left).unique();
-                    right_ = aalta_formula(e_release, tmp_left, tmp_right).unique();
-                }
-                else
-                {
-                    op_ = e_or;
-                    left_ = aalta_formula(e_release, FALSE(), tmp_left).unique();
-                    right_ = aalta_formula(e_until, tmp_left, tmp_right).unique();
-                }
+                ltl_formula *Ga = create_operation(eGLOBALLY, NULL, formula->_left);
+                ltl_formula *aUb = create_operation(eUNTIL, formula->_left, formula->_right);
+                ltl_formula *now = create_operation(eOR, Ga, aUb);
+                *this = *(aalta_formula(now, is_not).unique());
+                destroy_node(Ga);
+                destroy_node(aUb);
                 break;
             case eRELEASE: // a R b -- [!(a R b) = !a U !b]
                 op_ = is_not ? e_until : e_release;
@@ -184,30 +179,28 @@ namespace aalta {
                 left_ = aalta_formula(formula->_left, is_not).unique();
                 right_ = aalta_formula(formula->_right, is_not).unique();
                 break;
-            case eIMPLIES: // a->b = !a | b -- [!(a->b) = a & !b]
-                op_ = is_not ? e_and : e_or;
-                left_ = aalta_formula(formula->_left, is_not ^ 1).unique();
-                right_ = aalta_formula(formula->_right, is_not).unique();
-                break;
-            case eEQUIV:
-            { // a<->b = (!a | b)&(!b | a) -- [!(a<->b) = (a & !b)|(!a & b)]
+            case eIMPLIES: // a->b = !a|b
                 ltl_formula *not_a = create_operation(eNOT, NULL, formula->_left);
-                ltl_formula *not_b = create_operation(eNOT, NULL, formula->_right);
-                ltl_formula *new_left = create_operation(eOR, not_a, formula->_right);
-                ltl_formula *new_right = create_operation(eOR, not_b, formula->_left);
-                ltl_formula *now = create_operation(eAND, new_left, new_right);
+                ltl_formula *now = create_operation(eOR, not_a, formula->_right);
                 *this = *(aalta_formula(now, is_not).unique());
-                // about previous line: why use *(XXX) instead of just (XXX)?
-                // Oh, I have known it. Because LHS is a object instance instead of pointer
                 destroy_node(not_a);
-                destroy_node(not_b);
-                destroy_node(new_left);
-                destroy_node(new_right);
                 destroy_node(now);
                 break;
-            }
+            case eEQUIV: // a<->b = (a->b)&(b->a)
+                ltl_formula *imply_left = create_operation(eIMPLIES, formula->_left, formula->_right);
+                ltl_formula *imply_right = create_operation(eIMPLIES, formula->_right, formula->_left);
+                ltl_formula *now = create_operation(eAND, imply_left, imply_right);
+                *this = *(aalta_formula(now, is_not).unique());
+                destroy_node(imply_left);
+                destroy_node(imply_right);
+                destroy_node(now);
+                // 为什么 destroy 顺序是这样的? 如果顺序错了会有影响吗?
+                break;
             default:
                 // print_error("the formula cannot be recognized by aalta!");
+                // may be:
+                //  - type/input error syntax formula
+                //  - need add codes for new/custom defined operator
                 exit(1);
                 break;
         }
