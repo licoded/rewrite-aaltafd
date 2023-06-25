@@ -42,11 +42,31 @@ namespace aalta {
 
     aalta_formula::~aalta_formula() {}
 
+    /**
+     * a static method
+     *  - used in unique() func
+     * TODO: I think that `unique()` and `all_afs` can be extracted into a extra class
+    */
+    aalta_formula* aalta_formula::add_into_all_afs(const aalta_formula *af)
+    {
+        aalta_formula* new_unique_ptr = new aalta_formula(*af); // 对应旧的 clone 函数
+        new_unique_ptr->id_ = max_id_++;
+        new_unique_ptr->unique_ = new_unique_ptr;
+        return new_unique_ptr;
+    }
+
     aalta_formula* aalta_formula::unique()
     {
         // TODO: modify this to archieve/get unique pointer
         //       > leverage hashset to ensure this
-        return new aalta_formula(*this);
+        if(unique_ != NULL)
+            return unique_;
+        afp_set::const_iterator iter = all_afs.find(this);
+        // TODO: how to understand `const_iterator` and the following code `unique_ = *iter`
+        unique_ = (iter != all_afs.end()) 
+            ? (*iter) 
+            : aalta_formula::add_into_all_afs(this);
+        return unique_;
     }
 
     inline int
@@ -246,7 +266,8 @@ namespace aalta {
             this->op_ = af.op_;
             this->hash_ = af.hash_;
             // this->length_ = af.length_;
-            // this->unique_ = af.unique_;
+            this->id_ = af.id_;
+            this->unique_ = af.unique_;
             // this->simp_ = af.simp_;
         }
         return *this;
