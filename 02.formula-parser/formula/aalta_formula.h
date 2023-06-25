@@ -129,8 +129,7 @@ namespace aalta {
         static int max_id_;
     public:
         // added for afp_set TYPE identification
-        bool operator == (const aalta_formula& af) const; // 第2个const表示该函数不能修改成员变量
-                                                          // TODO: 非静态按我的理解不能修改, 静态呢?
+        bool operator == (const aalta_formula& af) const; 
         aalta_formula& operator = (const aalta_formula& af);
         int oper () const;
         bool is_next() const;

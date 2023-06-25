@@ -72,7 +72,7 @@ namespace aalta {
         if(unique_ != NULL)
             return unique_;
         afp_set::const_iterator iter = all_afs.find(this);
-        // TODO: how to understand `const_iterator` and the following code `unique_ = *iter`
+        iter = all_afs.find(this);
         unique_ = (iter != all_afs.end()) 
             ? (*iter) 
             : aalta_formula::add_into_all_afs(this);
@@ -225,21 +225,13 @@ namespace aalta {
 
 
     /* 初始化非静态成员变量 */
-    /**
-     * ERROR: a nonstatic data member may not be defined outside its class
-     * CODE: int aalta_formula::op_ = e_undefined; // 操作符or操作数(原子atom)
-    */
     /* 初始化静态成员变量 */
-    // TODO: 能否在 define 时保留 static 声明, like `static int a = 0;`
-    // note: 即使不赋初值, 也必须 define, 不然静态变量不存在, 会报错 'identifier "XXX" is undefined'
-    //       > TODO: 不知道非静态变量是不是也是这样?
     std::vector<std::string> aalta_formula::names = {
         "true", "false", "Literal", "!", "|", "&", "X", "N", "U", "R", "Undefined"
     }; // 存储操作符的名称以及原子变量的名称
     std::unordered_map<std::string, int> aalta_formula::name_id_map; // 名称和对应的位置映射
     int aalta_formula::max_id_ = 1;
     aalta_formula::afp_set aalta_formula::all_afs;
-    // can't declare and define non-const static variables in the same time
     aalta_formula* aalta_formula::TRUE_ = nullptr;
     aalta_formula* aalta_formula::FALSE_ = nullptr;
     aalta_formula* aalta_formula::TAIL_ = nullptr;
@@ -287,9 +279,9 @@ namespace aalta {
      */
     aalta_formula &aalta_formula::operator=(const aalta_formula &af)
     // TODO: 
-    //  - 判断对象相等时, 应该会走这里吧?
-    //  - 这样应该是为了减少拷贝的开销
+    //  - 这样(按照引用而非对象)应该是为了减少拷贝的开销
     //  - 如果按照对象而非引用去定义, 会怎样, 有什么意义/适用情况吗?
+    //  - 网上查到的: 为什么要返回引用而不是对象?
     {
         if (this != &af)
         {
@@ -336,10 +328,6 @@ namespace aalta {
     std::string aalta_formula::to_string () const
     {
         if(is_literal())
-            /**
-             * TODO: why use `,` instead of `;` will lead to ERROR, which can be run but unexpected result.
-             *      std::string literal_s = aalta_formula::names[oper()], inner_s = literal_s;
-            */
             return aalta_formula::names[oper()];
 
         std::string inner_s;

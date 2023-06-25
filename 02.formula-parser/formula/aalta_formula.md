@@ -41,3 +41,68 @@
     - 负责完成后续转换
 
 > 感觉父子类关系不合适, 要用组合/委托来实现!
+
+## 遇到的问题
+
+### `,` 语法
+
+why use `,` instead of `;` will lead to ERROR, which can be run but unexpected result.
+
+```cpp
+std::string literal_s = aalta_formula::names[oper()], inner_s = literal_s;
+```
+
+after this code execution, `literal_s` is not equal to `inner_s` -- `inner_s` is empty(`""`), while `literal_s` is as expected
+
+> I have worked out this; It's just because that I have redefined `inner_s` in if body, which override the outer definition of `inner_s`.
+> So, it has nothing about the `,`(comma) syntax;
+
+### 类的静态成员变量
+
+- 即使不赋初值, 也必须 define
+    - 不然静态变量不存在, 会报错 'identifier "XXX" is undefined'
+- 非静态成员变量不能在类外定义/初始化
+    - 报错 'a nonstatic data member may not be defined outside its class'
+
+### 常成员函数
+
+- `type func(/* args */) const { /* func body */}`
+    - 注意 const 的位置
+- 在常成员函数中, 不能修改 (non-static) member variables, 但不关心 static member variables
+    - 经过测试, 可以修改 static member variables
+
+### `pointer to const` and `const pointer`
+
+> refer link: https://github.com/licoded/self-study-drafts/issues/116
+
+- pointer to const / 常量指针
+    - `const int *p = &a;`
+- const pointer / 常指针 / 指针常量
+    - `int * const p = &a;`
+
+```cpp
+afp_set::const_iterator iter = all_afs.find(this);
+// const_iterator is 'pointer to const', the following line is proof -- as it can be re-assign by a new value
+iter = all_afs.find(this);
+```
+
+### `char *` 强制类型转换成 `string` 会有警告
+
+```cpp
+// 不加 const 前缀会报警告如下:
+// warning: ISO C++ forbids converting a string constant to ‘char*’ [-Wwrite-strings]
+std::vector<const char *> str = {
+    "a",
+    "!a",
+    "X(a)",
+    "X(!a)",
+    "!X(a)",
+    "X(a|b) & c",
+    "X(a|b) & X(c)",
+    "X(a|b) & G(X(c))",
+};
+```
+
+### 注意多个字符串, 只换行没有`,`会自动拼接在一起
+
+> !!!
