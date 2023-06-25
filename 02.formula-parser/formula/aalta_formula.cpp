@@ -335,25 +335,20 @@ namespace aalta {
 
     std::string aalta_formula::to_string () const
     {
-        std::string inner_s;
-
         if(is_literal())
-        {
             /**
              * TODO: why use `,` instead of `;` will lead to ERROR, which can be run but unexpected result.
              *      std::string literal_s = aalta_formula::names[oper()], inner_s = literal_s;
             */
-            std::string literal_s = aalta_formula::names[oper()];
-            inner_s = literal_s;
-        }
+            return aalta_formula::names[oper()];
+
+        std::string inner_s;
+        std::string operator_s = aalta_formula::names[oper()];
+
+        if (is_unary())
+            inner_s = operator_s + " " + right_->to_string();
         else
-        {
-            std::string operator_s = aalta_formula::names[oper()];
-            if (is_unary())
-                    inner_s = " " + operator_s + right_->to_string();
-            else
-                    inner_s = left_->to_string() + " " + operator_s + " " + right_->to_string();
-        }
+            inner_s = left_->to_string() + " " + operator_s + " " + right_->to_string();
 
         return "(" + inner_s + ")";
     }
