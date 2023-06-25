@@ -160,13 +160,13 @@ namespace aalta {
                 if (is_not)
                 {
                     op_ = e_and;
-                    left_ = &aalta_formula(e_until, TRUE(), tmp_left);
+                    left_ = aalta_formula(e_until, TRUE(), tmp_left).unique();
                     right_ = aalta_formula(e_release, tmp_left, tmp_right).unique();
                 }
                 else
                 {
                     op_ = e_or;
-                    left_ = &aalta_formula(e_release, FALSE(), tmp_left);
+                    left_ = aalta_formula(e_release, FALSE(), tmp_left).unique();
                     right_ = aalta_formula(e_until, tmp_left, tmp_right).unique();
                 }
                 break;
@@ -187,7 +187,7 @@ namespace aalta {
                 break;
             case eIMPLIES: // a->b = !a | b -- [!(a->b) = a & !b]
                 op_ = is_not ? e_and : e_or;
-                left_ = &aalta_formula(formula->_left, is_not ^ 1);
+                left_ = aalta_formula(formula->_left, is_not ^ 1).unique();
                 right_ = aalta_formula(formula->_right, is_not).unique();
                 break;
             case eEQUIV:
