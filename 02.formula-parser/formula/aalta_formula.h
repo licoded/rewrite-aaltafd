@@ -134,6 +134,9 @@ namespace aalta {
         aalta_formula& operator = (const aalta_formula& af);
         int oper () const;
         bool is_next() const;
+        bool is_literal() const;
+        bool is_unary() const;
+        std::string to_string () const;
 
     /* transfer formula to specific NF(normal form) */
     public:

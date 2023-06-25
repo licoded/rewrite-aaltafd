@@ -216,7 +216,9 @@ namespace aalta {
     // TODO: 能否在 define 时保留 static 声明, like `static int a = 0;`
     // note: 即使不赋初值, 也必须 define, 不然静态变量不存在, 会报错 'identifier "XXX" is undefined'
     //       > TODO: 不知道非静态变量是不是也是这样?
-    std::vector<std::string> aalta_formula::names; // 存储操作符的名称以及原子变量的名称
+    std::vector<std::string> aalta_formula::names = {
+        "true", "false", "Literal", "!", "|", "&", "X", "N", "U", "R", "Undefined"
+    }; // 存储操作符的名称以及原子变量的名称
     std::unordered_map<std::string, int> aalta_formula::name_id_map; // 名称和对应的位置映射
     int aalta_formula::max_id_ = 0;
     aalta_formula::afp_set aalta_formula::all_afs;
@@ -299,6 +301,44 @@ namespace aalta {
     bool aalta_formula::is_next() const
     {
         return oper() == e_next;
+    }
+
+    bool aalta_formula::is_literal() const
+    {
+        // I want to implement this function like below, can I do it?
+        // > I think it's impossible. Because the build_atom function doesn't use `e_literal`;
+        // > It just use id instead.
+        // return oper() == e_literal;
+        return left_ == nullptr && right_ == nullptr;
+    }
+    bool aalta_formula::is_unary() const
+    {
+        return left_ == nullptr;
+    }
+
+    std::string aalta_formula::to_string () const
+    {
+        std::string inner_s;
+
+        if(is_literal())
+        {
+            /**
+             * TODO: why use `,` instead of `;` will lead to ERROR, which can be run but unexpected result.
+             *      std::string literal_s = aalta_formula::names[oper()], inner_s = literal_s;
+            */
+            std::string literal_s = aalta_formula::names[oper()];
+            inner_s = literal_s;
+        }
+        else
+        {
+            std::string operator_s = aalta_formula::names[oper()];
+            if (is_unary())
+                    inner_s = left_->to_string() + " " + operator_s;
+            else
+                    inner_s = left_->to_string() + " " + operator_s + " " + right_->to_string();
+        }
+
+        return "(" + inner_s + ")";
     }
 
 
