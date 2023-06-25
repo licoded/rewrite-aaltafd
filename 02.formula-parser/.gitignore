@@ -1,3 +1,5 @@
 aaltaf*
 *.out
 .vscode
+test*
+!tests

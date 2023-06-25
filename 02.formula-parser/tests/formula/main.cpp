@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <cassert>
+#include <iostream>
 
 
 #define MAXN 100000
@@ -11,9 +13,29 @@ using namespace aalta;
 
 int main()
 {
+    // TESTs for unique() func
     aalta_formula* x = aalta_formula (e_and, aalta_formula::TRUE(), aalta_formula::TRUE()).unique ();
 	aalta_formula* y = aalta_formula (e_and, aalta_formula::TRUE(), aalta_formula::TRUE()).unique ();
-	printf("%d\n", x == y);
+    assert(x == y);
+
+    // TESTs for add_tail() func
+    // 不加 const 前缀会报警告如下: 
+    // warning: ISO C++ forbids converting a string constant to ‘char*’ [-Wwrite-strings]
+    std::vector<const char *> str = {
+        "a",
+        "!a",
+        "X(a)",
+        "X(!a)",
+        "!X(a)",
+        "X(a|b) & c",
+        "X(a|b) & X(c)",
+        "X(a|b) & G(X(c))",
+    };
+    // std::cout << str.size();
+    for(const auto it : str)
+    {
+        std::cout << it << std::endl;
+    }
 
     return 0;
 }
