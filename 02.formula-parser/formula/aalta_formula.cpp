@@ -218,8 +218,10 @@ namespace aalta {
     // TODO: 能否在 define 时保留 static 声明, like `static int a = 0;`
     // note: 即使不赋初值, 也必须 define, 不然静态变量不存在, 会报错 'identifier "XXX" is undefined'
     //       > TODO: 不知道非静态变量是不是也是这样?
-    std::vector<std::string> names; // 存储操作符的名称以及原子变量的名称
-    std::unordered_map<std::string, int> name_id_map; // 名称和对应的位置映射
+    std::vector<std::string> aalta_formula::names; // 存储操作符的名称以及原子变量的名称
+    std::unordered_map<std::string, int> aalta_formula::name_id_map; // 名称和对应的位置映射
+    int aalta_formula::max_id_ = 0;
+    aalta_formula::afp_set aalta_formula::all_afs;
     // can't declare and define non-const static variables in the same time
     aalta_formula* aalta_formula::TRUE_ = nullptr;
     aalta_formula* aalta_formula::FALSE_ = nullptr;

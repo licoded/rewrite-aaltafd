@@ -14,6 +14,10 @@
 #define AALTA_FORMULA_H
 
 #include "ltlparser/ltl_formula.h"
+#include <cstdlib>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 namespace aalta {
     /* 操作符类型 */
