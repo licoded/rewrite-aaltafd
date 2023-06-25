@@ -61,7 +61,7 @@ int main()
     // std::cout << str.size();
     for(const auto it : str)
     {
-        std::cout << it << std::endl;
+        std::cout << aalta_formula(it).add_tail()->to_string() << std::endl;
     }
 
     return 0;
