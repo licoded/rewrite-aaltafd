@@ -50,6 +50,7 @@ namespace aalta {
     aalta_formula* aalta_formula::add_into_all_afs(const aalta_formula *af)
     {
         aalta_formula* new_unique_ptr = new aalta_formula(*af); // 对应旧的 clone 函数
+        aalta_formula::all_afs.insert(new_unique_ptr);
         new_unique_ptr->id_ = max_id_++;
         new_unique_ptr->unique_ = new_unique_ptr;
         return new_unique_ptr;
@@ -57,8 +58,6 @@ namespace aalta {
 
     aalta_formula* aalta_formula::unique()
     {
-        // TODO: modify this to archieve/get unique pointer
-        //       > leverage hashset to ensure this
         if(unique_ != NULL)
             return unique_;
         afp_set::const_iterator iter = all_afs.find(this);
