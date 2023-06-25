@@ -85,7 +85,7 @@ namespace aalta {
         ////////////
         //成员变量//
         //////////////////////////////////////////////////
-        int op_ = e_undefined; // 操作符or操作数(原子atom)
+        int op_; // 操作符or操作数(原子atom)
         aalta_formula *left_ = nullptr; // 操作符左端公式
         aalta_formula *right_ = nullptr; // 操作符右端公式
         // int length_; //公式长度

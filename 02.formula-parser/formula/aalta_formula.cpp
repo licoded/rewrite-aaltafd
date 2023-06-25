@@ -12,7 +12,11 @@
 #include <vector>
 
 namespace aalta {
-    aalta_formula::aalta_formula() {} // new 时调用
+    aalta_formula::aalta_formula()
+        : op_(e_undefined),
+          left_(nullptr),
+          right_(nullptr)
+        {} // new 时调用
 
     aalta_formula::aalta_formula(const aalta_formula &orig) // 拷贝构造函数
     {
@@ -20,7 +24,9 @@ namespace aalta {
     }
 
     aalta_formula::aalta_formula(int atom_id)
-        : op_(atom_id)
+        : op_(atom_id), // atom_id == literal_id, don't confused this with af_id
+          left_(nullptr),
+          right_(nullptr)
         {}
     aalta_formula::aalta_formula(int op,
                                  aalta_formula *left,
@@ -31,13 +37,17 @@ namespace aalta {
 
     aalta_formula::aalta_formula(const char *input)
     {
-        aalta_formula(getAST(input), false);
+        /**
+         * ERROR: assignment to 'this'
+         * CODE: this = new aalta_formula(getAST(input), false);
+        */
+        *this = aalta_formula(getAST(input), false);
     }
 
     aalta_formula::aalta_formula(const ltl_formula *formula, bool is_not)
     // TODO: variable `is_not`, I want to change a more clear/articulate name
     {
-        // build(formula, is_not);
+        build(formula, is_not);
     }
 
     aalta_formula::~aalta_formula() {}
@@ -71,7 +81,7 @@ namespace aalta {
     inline int
     aalta_formula::get_id_by_name(const char *name)
     {
-        int id;
+        int id; // NOTE: this is operator id, not af id
         const auto& it = name_id_map.find(name);
         if (it == name_id_map.end())
         { // 此变量名未出现过，添加之
@@ -212,7 +222,13 @@ namespace aalta {
         }
     }
 
-    /* 初始化静态变量 */
+
+    /* 初始化非静态成员变量 */
+    /**
+     * ERROR: a nonstatic data member may not be defined outside its class
+     * CODE: int aalta_formula::op_ = e_undefined; // 操作符or操作数(原子atom)
+    */
+    /* 初始化静态成员变量 */
     // TODO: 能否在 define 时保留 static 声明, like `static int a = 0;`
     // note: 即使不赋初值, 也必须 define, 不然静态变量不存在, 会报错 'identifier "XXX" is undefined'
     //       > TODO: 不知道非静态变量是不是也是这样?
@@ -220,7 +236,7 @@ namespace aalta {
         "true", "false", "Literal", "!", "|", "&", "X", "N", "U", "R", "Undefined"
     }; // 存储操作符的名称以及原子变量的名称
     std::unordered_map<std::string, int> aalta_formula::name_id_map; // 名称和对应的位置映射
-    int aalta_formula::max_id_ = 0;
+    int aalta_formula::max_id_ = 1;
     aalta_formula::afp_set aalta_formula::all_afs;
     // can't declare and define non-const static variables in the same time
     aalta_formula* aalta_formula::TRUE_ = nullptr;

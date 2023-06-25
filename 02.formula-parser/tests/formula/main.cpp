@@ -32,6 +32,12 @@ int main()
     std::cout << y->to_string() << std::endl;
 
     // === TESTs for constructor/build func
+    /**
+     * ERROR: a fully qualified constructor call is not allowed
+     * CODE: std::cout << aalta_formula::aalta_formula("hhh").to_string() << std::endl;
+    */
+    std::cout << aalta_formula("hhh").unique()->to_string() << std::endl;
+    std::cout << aalta_formula("a").unique()->to_string() << std::endl;
 
     // === TESTs for add_tail() func
     // 不加 const 前缀会报警告如下: 
