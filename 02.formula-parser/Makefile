@@ -4,6 +4,7 @@ FORMULAFILES =	formula/aalta_formula.cpp
 PARSERFILES  =	ltlparser/ltl_formula.c ltlparser/ltllexer.c ltlparser/ltlparser.c ltlparser/trans.c 
 
 ALLFILES     =	$(FORMULAFILES) $(PARSERFILES) main.cpp
+TESTFILES     =	$(FORMULAFILES) $(PARSERFILES) tests/formula/main.cpp
 
 
 CC	    =   g++
@@ -30,6 +31,9 @@ release :   $(ALLFILES)
 
 debug :	$(ALLFILES)
 	$(CC) $(FLAG) $(DEBUGFLAG) $(ALLFILES) -lz -o aaltafd
+
+test : 	$(ALLFILES)
+	$(CC) $(FLAG) $(DEBUGFLAG) $(TESTFILES) -lz -o test
 
 clean :
 	rm -f *.o *~ aaltaf
