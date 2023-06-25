@@ -157,6 +157,7 @@ namespace aalta {
                 right_ = aalta_formula(formula->_right, is_not).unique();
                 break;
             case eWUNTIL: // a W b = (G a) | (a U b) -- [!(a W b) = F !a /\ (!a R !b)]
+            {
                 ltl_formula *Ga = create_operation(eGLOBALLY, NULL, formula->_left);
                 ltl_formula *aUb = create_operation(eUNTIL, formula->_left, formula->_right);
                 ltl_formula *now = create_operation(eOR, Ga, aUb);
@@ -164,6 +165,7 @@ namespace aalta {
                 destroy_node(Ga);
                 destroy_node(aUb);
                 break;
+            }
             case eRELEASE: // a R b -- [!(a R b) = !a U !b]
                 op_ = is_not ? e_until : e_release;
                 left_ = aalta_formula(formula->_left, is_not).unique();
@@ -180,13 +182,16 @@ namespace aalta {
                 right_ = aalta_formula(formula->_right, is_not).unique();
                 break;
             case eIMPLIES: // a->b = !a|b
+            {
                 ltl_formula *not_a = create_operation(eNOT, NULL, formula->_left);
                 ltl_formula *now = create_operation(eOR, not_a, formula->_right);
                 *this = *(aalta_formula(now, is_not).unique());
                 destroy_node(not_a);
                 destroy_node(now);
                 break;
+            }
             case eEQUIV: // a<->b = (a->b)&(b->a)
+            {
                 ltl_formula *imply_left = create_operation(eIMPLIES, formula->_left, formula->_right);
                 ltl_formula *imply_right = create_operation(eIMPLIES, formula->_right, formula->_left);
                 ltl_formula *now = create_operation(eAND, imply_left, imply_right);
@@ -196,6 +201,7 @@ namespace aalta {
                 destroy_node(now);
                 // 为什么 destroy 顺序是这样的? 如果顺序错了会有影响吗?
                 break;
+            }
             default:
                 // print_error("the formula cannot be recognized by aalta!");
                 // may be:
