@@ -33,7 +33,7 @@ int main()
     std::cout << "=== after all transfer" << std::endl;
     std::cout << af->to_string () << std::endl;
 
-    LTLfChecker checker (af, verbose, evidence);
+    LTLfChecker checker (af);
     bool res = checker.check();
     printf("%s\n", res ? "sat" : "unsat");
 
