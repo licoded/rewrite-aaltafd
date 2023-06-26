@@ -69,6 +69,12 @@ namespace aalta
         return reason;
     }
 
+    /**
+     * All others overloading add_clause() all invoke this one!
+     * All add_equivalence() finally invoke this one, too.
+     * 
+     * 作用: 在 SAT solver 的“待满足条件”中加上条件  " \/ (vi) "
+    */
     void AaltaSolver::add_clause(std::vector<int> &v)
     {
         Minisat::vec<Minisat::Lit> lits;
@@ -101,6 +107,7 @@ namespace aalta
         add_clause(v);
     }
 
+    // l <-> r
     inline void AaltaSolver::add_equivalence(int l, int r)
     {
         add_clause(-l, r);

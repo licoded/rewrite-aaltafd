@@ -27,15 +27,17 @@ namespace aalta
 		std::vector<int> get_model(); // get the model from SAT solver
 		std::vector<int> get_uc();	  // get UC from SAT solver
 
-		void add_clause(int);
-		void add_clause(int, int);
-		void add_clause(int, int, int);
-		void add_clause(int, int, int, int);
-		void add_clause(std::vector<int> &);
-
 		Minisat::Lit SAT_lit(int id); // create the Lit used in SAT solver for the id.
 		int lit_id(Minisat::Lit);	  // return the id of SAT lit
 
+		// 作用: 在 SAT solver 的“待满足条件”中加上条件
+		void add_clause(int);
+		void add_clause(int, int);
+		void add_clause(int, int, int);
+		void add_clause(int, int, int, int); 
+		void add_clause(std::vector<int> &); // 添加的条件是: " \/ (vi) "
+
+		// 作用: 在 SAT solver 的“待满足条件”中加上条件, 与上面 add_clause 的不同在于, 这里添加的都是'等价关系'形式的条件
 		inline void add_equivalence(int l, int r); 					// l <-> r
 		inline void add_equivalence(int l, int r1, int r2); 		// l <-> r1 /\ r2
 		inline void add_equivalence(int l, int r1, int r2, int r3); // l <-> r1 /\ r2 /\ r3
