@@ -140,6 +140,15 @@ namespace aalta {
     /* transfer formula to specific NF(normal form) */
     public:
         aalta_formula* add_tail (); //add (/\ !Tail) for all Next formulas/occurences
+        /**
+         * This function split Next subformula by /\ or \/. i.e. X(a/\ b) -> X a /\ X b
+         * It is a necessary preprocessing for SAT-based checking
+         * 
+         * The above comments are copied from old codes.
+         * 
+         * TODO: I couldn't understand why `split_next` is necessary!
+        */
+        aalta_formula *split_next();
     };
 
     aalta_formula* to_af(const ltl_formula *formula);

@@ -393,6 +393,36 @@ namespace aalta {
         return res;
     }
 
+    aalta_formula * aalta_formula::split_next()
+    {
+        if(this == nullptr) // I'm not sure about the correctness of this.
+            return nullptr;
+        if(is_literal())
+            return this;
+
+        aalta_formula *res;
+        if (oper() == e_next)
+        {
+            if (right_->oper() == e_and || right_->oper() == e_or)
+            // e.g. X(a & b) = X(a) & X(b)
+            {
+                aalta_formula *left_next = aalta_formula(oper(), NULL, right_->left_).unique();
+                aalta_formula *right_next = aalta_formula(oper(), NULL, right_->right_).unique();
+                res = aalta_formula(right_->oper(), left_next->split_next(), right_next->split_next()).unique();
+            }
+            else
+            {
+                res = aalta_formula(oper(), NULL, right_->split_next()).unique();
+                // TODO: I couldn't understand the following code
+                //       give me an example!
+                res =  res->split_next();
+            }
+        }
+        else
+            res = aalta_formula(oper(), left_->split_next(), right_->split_next()).unique();
+        return res;
+    }
+
     aalta_formula* to_af(const ltl_formula *formula)
     {
         return aalta_formula(formula, false).unique();
