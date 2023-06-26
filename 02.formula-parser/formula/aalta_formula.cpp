@@ -146,27 +146,29 @@ namespace aalta {
                     op_ = e_next;
                     right_ = aalta_formula(formula->_right, is_not).unique();
                 }
-                else // Tail | X(!a)
+                else // N(!a)
                 {
                     ltl_formula *not_a = create_operation(eNOT, NULL, formula->_right);
-                    ltl_formula *X_not_a = create_operation(eNEXT, NULL, not_a);
-                    *this = *(aalta_formula(e_and, TAIL(), to_af(X_not_a)).unique());
+                    ltl_formula *N_not_a = create_operation(eWNEXT, NULL, not_a);
+                    build(N_not_a, false);
                     destroy_node(not_a);
-                    destroy_node(X_not_a);
+                    destroy_node(N_not_a);
                 }
                 break;
             case eWNEXT: // [Na = Tail | Xa ] -- [!(Na) = X(!a)]
                 if(!is_not) // Tail | Xa
                 {
                     ltl_formula *Xa = create_operation(eNEXT, NULL, formula->_right);
-                    *this = *(aalta_formula(e_and, TAIL(), to_af(Xa)).unique());
+                    *this = *(aalta_formula(e_or, TAIL(), to_af(Xa)).unique());
                     destroy_node(Xa);
                 }
                 else // X(!a)
                 {
                     ltl_formula *not_a = create_operation(eNOT, NULL, formula->_right);
-                    *this = *(aalta_formula(e_and, TAIL(), to_af(not_a)).unique());
+                    ltl_formula *X_not_a = create_operation(eNEXT, NULL, not_a);
+                    build(X_not_a, false);
                     destroy_node(not_a);
+                    destroy_node(X_not_a);
                 }
                 break;
             case eGLOBALLY: // G a = False R a -- [!(G a) = True U !a]
