@@ -1,5 +1,5 @@
 aaltaf*
 *.out
-.vscode
+.vscode/settings.json
 test*
 !tests
