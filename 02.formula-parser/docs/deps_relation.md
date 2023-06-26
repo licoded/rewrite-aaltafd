@@ -1,0 +1,4 @@
+- ltlfchecker
+    - `CARSolver *solver_;`
+        - extends Solver
+            - extends AaltaSolver
