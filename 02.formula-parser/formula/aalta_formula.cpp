@@ -333,6 +333,10 @@ namespace aalta {
         return oper() == e_next;
     }
 
+    /**
+     * literals, e.g. a/b/c/aaa
+     * include true and false
+    */
     bool aalta_formula::is_literal() const
     {
         // I want to implement this function like below, can I do it?
@@ -340,6 +344,10 @@ namespace aalta {
         // > It just use id instead.
         // return oper() == e_literal;
         return left_ == nullptr && right_ == nullptr;
+        /**
+         * OR
+         *  - `oper() > e_undefined` 但是这样判断会漏掉 true 和 false
+        */
     }
     bool aalta_formula::is_unary() const
     {
