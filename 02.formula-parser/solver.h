@@ -10,6 +10,7 @@
 
 #include "aaltasolver.h"
 #include "formula/aalta_formula.h"
+#include "transition.h"
 #include <iostream>
 #include <vector>
 #include <unordered_map>
@@ -18,20 +19,6 @@ using namespace std;
 
 namespace aalta
 {
-	class Transition
-	{
-	public:
-		Transition(aalta_formula *label, aalta_formula *next)
-			: label_(label), next_(next) {}
-		~Transition() {} // how to delete label and next?
-		inline aalta_formula *label() { return label_; }
-		inline aalta_formula *next() { return next_; }
-
-	private:
-		aalta_formula *label_;
-		aalta_formula *next_;
-	};
-
 	class Solver : public AaltaSolver
 	{
 	public:

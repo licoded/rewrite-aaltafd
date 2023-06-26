@@ -1,4 +1,5 @@
 - ltlfchecker
     - `CARSolver *solver_;`
-        - extends Solver
-            - extends AaltaSolver
+        - extends `Solver`
+            - extends `AaltaSolver`
+                - extend `Minisat::Solver`
