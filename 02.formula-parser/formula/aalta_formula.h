@@ -80,6 +80,7 @@ namespace aalta {
             }
         };
         typedef std::unordered_set<aalta_formula *, af_prt_hash2, af_prt_eq> afp_set;
+        typedef std::unordered_set<aalta_formula *, af_prt_hash> af_prt_set;
 
     private:
         ////////////
@@ -136,6 +137,9 @@ namespace aalta {
         bool is_literal() const;
         bool is_unary() const;
         std::string to_string () const;
+        inline int id() { return id_; }
+        inline aalta_formula* l_af() { return left_; }
+        inline aalta_formula* r_af() { return right_; }
 
     /* transfer formula to specific NF(normal form) */
     public:

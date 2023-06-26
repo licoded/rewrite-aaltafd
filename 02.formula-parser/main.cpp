@@ -1,4 +1,5 @@
 #include "formula/aalta_formula.h"
+#include "ltlfchecker.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -31,6 +32,10 @@ int main()
 
     std::cout << "=== after all transfer" << std::endl;
     std::cout << af->to_string () << std::endl;
+
+    LTLfChecker checker (af, verbose, evidence);
+    bool res = checker.check();
+    printf("%s\n", res ? "sat" : "unsat");
 
     return 0;
 }
