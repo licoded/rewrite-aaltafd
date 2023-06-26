@@ -9,4 +9,6 @@ af = af->split_next ();
 - `af->add_tail()`
 - `af->remove_wnext()`
 - `af->simplify()`
+    - 我认为该函数, 目的是简化公式以降低 SAT 求解的复杂度
+    - 因此, 该函数并不是必须的, 先跳过!
 - `af->split_next()`
