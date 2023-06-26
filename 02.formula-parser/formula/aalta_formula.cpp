@@ -156,8 +156,18 @@ namespace aalta {
                 }
                 break;
             case eWNEXT: // [Na = Tail | Xa ] -- [!(Na) = X(!a)]
-                op_ = is_not ? e_next : e_w_next;
-                right_ = aalta_formula(formula->_right, is_not).unique();
+                if(!is_not) // Tail | Xa
+                {
+                    ltl_formula *Xa = create_operation(eNEXT, NULL, formula->_right);
+                    *this = *(aalta_formula(e_and, TAIL(), to_af(Xa)).unique());
+                    destroy_node(Xa);
+                }
+                else // X(!a)
+                {
+                    ltl_formula *not_a = create_operation(eNOT, NULL, formula->_right);
+                    *this = *(aalta_formula(e_and, TAIL(), to_af(not_a)).unique());
+                    destroy_node(not_a);
+                }
                 break;
             case eGLOBALLY: // G a = False R a -- [!(G a) = True U !a]
                 if (is_not)
