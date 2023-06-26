@@ -24,10 +24,13 @@ int main()
     std::cout << af->to_string () << std::endl;
 
     // af = af->nnf();              // has been done in `build()` func
-    af = af->add_tail();
     // af = af->remove_wnext();     // has been done in `build()` func
-    // af = af->simplify();         // just skip this now
     af = af->split_next();
+    af = af->add_tail();
+    // af = af->simplify();         // just skip this now
+
+    std::cout << "=== after all transfer" << std::endl;
+    std::cout << af->to_string () << std::endl;
 
     return 0;
 }
