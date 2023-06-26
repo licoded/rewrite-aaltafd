@@ -80,7 +80,7 @@ int main()
     std::cout << "=== TESTs for split_next() func" << std::endl;
     for(const auto it : str)
     {
-        std::cout << it << "\t" << aalta_formula(it).unique()->split_next()->to_string() << std::endl;
+        std::cout << aalta_formula(it).unique()->to_string() << "\t" << aalta_formula(it).unique()->split_next()->to_string() << std::endl;
     }
 
     return 0;

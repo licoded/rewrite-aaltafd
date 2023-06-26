@@ -413,9 +413,12 @@ namespace aalta {
             else
             {
                 res = aalta_formula(oper(), NULL, right_->split_next()).unique();
-                // TODO: I couldn't understand the following code
-                //       give me an example!
-                res =  res->split_next();
+                if(right_->oper() == e_and || right_->oper() == e_or)
+                {
+                    // TODO: I couldn't understand the following code
+                    //       give me an example!
+                    res = res->split_next();
+                }
             }
         }
         else
