@@ -36,32 +36,9 @@ namespace aalta
 		Minisat::Lit SAT_lit(int id); // create the Lit used in SAT solver for the id.
 		int lit_id(Minisat::Lit);	  // return the id of SAT lit
 
-		// printers
-		// void print_clauses();
-
-		// l <-> r
-		inline void add_equivalence(int l, int r)
-		{
-			add_clause(-l, r);
-			add_clause(l, -r);
-		}
-
-		// l <-> r1 /\ r2
-		inline void add_equivalence(int l, int r1, int r2)
-		{
-			add_clause(-l, r1);
-			add_clause(-l, r2);
-			add_clause(l, -r1, -r2);
-		}
-
-		// l<-> r1 /\ r2 /\ r3
-		inline void add_equivalence(int l, int r1, int r2, int r3)
-		{
-			add_clause(-l, r1);
-			add_clause(-l, r2);
-			add_clause(-l, r3);
-			add_clause(l, -r1, -r2, -r3);
-		}
+		inline void add_equivalence(int l, int r); 					// l <-> r
+		inline void add_equivalence(int l, int r1, int r2); 		// l <-> r1 /\ r2
+		inline void add_equivalence(int l, int r1, int r2, int r3); // l <-> r1 /\ r2 /\ r3
 	};
 }
 

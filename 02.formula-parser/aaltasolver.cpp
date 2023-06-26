@@ -35,13 +35,6 @@ namespace aalta
     bool AaltaSolver::solve_assumption()
     {
         Minisat::lbool ret = solveLimited(assumption_);
-        // if (verbose_)
-        // {
-        //     cout << "solve_with_assumption: assumption_ is" << endl;
-        //     for (int i = 0; i < assumption_.size(); i++)
-        //         cout << lit_id(assumption_[i]) << ", ";
-        //     cout << endl;
-        // }
         if (ret == l_True)
             return true;
         else if (ret == l_Undef)
@@ -61,13 +54,6 @@ namespace aalta
             else if (model[i] == l_False)
                 res[i] = -(i + 1);
         }
-        // if (verbose_)
-        // {
-        //     cout << "original model from SAT solver is" << endl;
-        //     for (int i = 0; i < res.size(); i++)
-        //         cout << res[i] << ", ";
-        //     cout << endl;
-        // }
         return res;
     }
 
@@ -75,17 +61,11 @@ namespace aalta
     std::vector<int> AaltaSolver::get_uc()
     {
         std::vector<int> reason;
-        // if (verbose_)
-        //     cout << "get uc: \n";
         for (int k = 0; k < conflict.size(); k++)
         {
             Minisat::Lit l = conflict[k];
             reason.push_back(-lit_id(l));
-            // if (verbose_)
-            //     cout << -lit_id(l) << ", ";
         }
-        // if (verbose_)
-        //     cout << endl;
         return reason;
     }
 
@@ -94,66 +74,53 @@ namespace aalta
         Minisat::vec<Minisat::Lit> lits;
         for (std::vector<int>::iterator it = v.begin(); it != v.end(); it++)
             lits.push(SAT_lit(*it));
-        /*
-        if (verbose_)
-        {
-            cout << "Adding clause " << endl << "(";
-            for (int i = 0; i < lits.size (); i ++)
-                cout << lit_id (lits[i]) << ", ";
-            cout << ")" << endl;
-            cout << "Before adding, size of clauses is " << clauses.size () << endl;
-        }
-        */
         addClause(lits);
-        /*
-        if (verbose_)
-            cout << "After adding, size of clauses is " << clauses.size () << endl;
-        */
     }
 
     void AaltaSolver::add_clause(int id)
     {
-        std::vector<int> v;
-        v.push_back(id);
+        std::vector<int> v{id};
         add_clause(v);
     }
 
     void AaltaSolver::add_clause(int id1, int id2)
     {
-        std::vector<int> v;
-        v.push_back(id1);
-        v.push_back(id2);
+        std::vector<int> v{id1, id2};
         add_clause(v);
     }
 
     void AaltaSolver::add_clause(int id1, int id2, int id3)
     {
-        std::vector<int> v;
-        v.push_back(id1);
-        v.push_back(id2);
-        v.push_back(id3);
+        std::vector<int> v{id1, id2, id3};
         add_clause(v);
     }
 
     void AaltaSolver::add_clause(int id1, int id2, int id3, int id4)
     {
-        std::vector<int> v;
-        v.push_back(id1);
-        v.push_back(id2);
-        v.push_back(id3);
-        v.push_back(id4);
+        std::vector<int> v{id1, id2, id3, id4};
         add_clause(v);
     }
 
-    // void AaltaSolver::print_clauses()
-    // {
-    //     cout << "clauses in SAT solver: \n";
-    //     for (int i = 0; i < clauses.size(); i++)
-    //     {
-    //         Clause &c = ca[clauses[i]];
-    //         for (int j = 0; j < c.size(); j++)
-    //             cout << lit_id(c[j]) << ", ";
-    //         cout << endl;
-    //     }
-    // }
+    inline void AaltaSolver::add_equivalence(int l, int r)
+    {
+        add_clause(-l, r);
+        add_clause(l, -r);
+    }
+
+    // l <-> r1 /\ r2
+    inline void AaltaSolver::add_equivalence(int l, int r1, int r2)
+    {
+        add_clause(-l, r1);
+        add_clause(-l, r2);
+        add_clause(l, -r1, -r2);
+    }
+
+    // l<-> r1 /\ r2 /\ r3
+    inline void AaltaSolver::add_equivalence(int l, int r1, int r2, int r3)
+    {
+        add_clause(-l, r1);
+        add_clause(-l, r2);
+        add_clause(-l, r3);
+        add_clause(l, -r1, -r2, -r3);
+    }
 }
