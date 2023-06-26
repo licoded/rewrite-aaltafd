@@ -57,5 +57,24 @@ int main()
         std::cout << aalta_formula(it).add_tail()->to_string() << std::endl;
     }
 
+    // === TESTs for remove_wnext 功能 in build() func
+    std::cout << "=== TESTs for remove_wnext 功能 in build() func" << std::endl;
+    str = {
+        "X(!a)",
+        "!X(a&b)",
+        "!X(a|b)",
+        "X(a)",
+        "X(a|b)",
+        "X(a&b)",
+        "N(!a)",
+        "!N(a)",
+        "!N(a|b)",
+        "!N(a&b)",
+    };
+    for(const auto it : str)
+    {
+        std::cout << it << "\t" << aalta_formula(it).unique()->to_string() << std::endl;
+    }
+
     return 0;
 }
