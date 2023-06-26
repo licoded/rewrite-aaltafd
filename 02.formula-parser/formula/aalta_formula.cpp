@@ -140,11 +140,22 @@ namespace aalta {
             case eNOT:
                 build(formula->_right, is_not^1);
                 break;
-            case eNEXT: // Xa -- [!(Xa) = N(!a)]
-                op_ = is_not ? e_w_next : e_next;
-                right_ = aalta_formula(formula->_right, is_not).unique();
+            case eNEXT: // Xa -- [!(Xa) = N(!a) = Tail | X(!a)]
+                if(!is_not) // Xa
+                {
+                    op_ = e_next;
+                    right_ = aalta_formula(formula->_right, is_not).unique();
+                }
+                else // Tail | X(!a)
+                {
+                    ltl_formula *not_a = create_operation(eNOT, NULL, formula->_right);
+                    ltl_formula *X_not_a = create_operation(eNEXT, NULL, not_a);
+                    *this = *(aalta_formula(e_and, TAIL(), to_af(X_not_a)).unique());
+                    destroy_node(not_a);
+                    destroy_node(X_not_a);
+                }
                 break;
-            case eWNEXT: // Na -- [!(Na) = X(!a)]
+            case eWNEXT: // [Na = Tail | Xa ] -- [!(Na) = X(!a)]
                 op_ = is_not ? e_next : e_w_next;
                 right_ = aalta_formula(formula->_right, is_not).unique();
                 break;
@@ -360,5 +371,10 @@ namespace aalta {
         else
             res = aalta_formula(oper(), left_->add_tail(), right_->add_tail()).unique();
         return res;
+    }
+
+    aalta_formula* to_af(const ltl_formula *formula)
+    {
+        return aalta_formula(formula, false).unique();
     }
 } // namespace aalta_formula

@@ -141,6 +141,8 @@ namespace aalta {
     public:
         aalta_formula* add_tail (); //add (/\ !Tail) for all Next formulas/occurences
     };
+
+    aalta_formula* to_af(const ltl_formula *formula);
 } // namespace aalta_formula
 
 #endif	/* AALTA_FORMULA_H */
