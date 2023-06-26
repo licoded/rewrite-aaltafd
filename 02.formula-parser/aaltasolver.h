@@ -37,7 +37,7 @@ namespace aalta
 		int lit_id(Minisat::Lit);	  // return the id of SAT lit
 
 		// printers
-		void print_clauses();
+		// void print_clauses();
 
 		// l <-> r
 		inline void add_equivalence(int l, int r)
