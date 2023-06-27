@@ -54,6 +54,14 @@ namespace aalta
         build_X_map_priliminary(f->r_af());
     }
 
+    void Solver::coi_merge(std::vector<int> &to, std::vector<int> &from)
+    {
+        if (to.size() < from.size())
+            to.resize(from.size(), 0);  // resize() only influences the new added elements
+        for (int i = 0; i < from.size(); i++)
+            to[i] |= from[i];
+    }
+
     // generate clauses of SAT solver
     void Solver::generate_clauses(aalta_formula *f)
     {
@@ -117,6 +125,85 @@ namespace aalta
         add_clauses_for(f->l_af());
         add_clauses_for(f->r_af());
         mark_clauses_added(f);
+    }
+
+    // set up the COI map
+    void Solver::coi_set_up(aalta_formula *f)
+    {
+        std::vector<int> ids;
+        compute_full_coi(f, ids);
+        // only Until, Release, And, Or formulas need to be recorded
+        // delete from coi_map_ all ids in \@ids
+        shrink_coi(ids);
+    }
+
+    void Solver::compute_full_coi(aalta_formula *f, std::vector<int> &ids)
+    {
+        if (coi_map_.find(f->id()) != coi_map_.end())
+            return;
+        // only variables and Nexts need to be recorded
+        std::vector<int> v;
+        coi_map::iterator it;
+        x_map::iterator xit;
+        v.resize(max_used_id_, 0);
+        int id = f->id();
+        switch (f->oper())
+        {
+        case e_not: // id -> id for Literals
+            if (f->r_af() != NULL)
+            {
+                compute_full_coi(f->r_af(), ids);
+                it = coi_map_.find(f->r_af()->id());
+                assert(it != coi_map_.end());
+                coi_merge(v, it->second);
+                coi_map_.insert(std::pair<int, std::vector<int>>(id, v));
+                ids.push_back(id);
+                break;
+            }
+
+        case e_until:
+        case e_release:
+            // add Xf in COI for Until/Release formula f
+            xit = X_map_.find(get_SAT_id(f));
+            assert(xit != X_map_.end());
+            v[xit->second - 1] = 1;
+        case e_and:
+        case e_or:
+            compute_full_coi(f->l_af(), ids);
+            it = coi_map_.find(f->l_af()->id());
+            assert(it != coi_map_.end());
+            coi_merge(v, it->second);
+
+            compute_full_coi(f->r_af(), ids);
+            it = coi_map_.find(f->r_af()->id());
+            assert(it != coi_map_.end());
+            coi_merge(v, it->second);
+            coi_map_.insert(std::pair<int, std::vector<int>>(id, v));
+            if (f->oper() == e_and)
+                ids.push_back(id);
+            break;
+        case e_undefined:
+        {
+            cout << "solver.cpp: Error reach here!\n";
+            exit(0);
+        }
+        case e_next:
+        default: // atoms
+            if (f->r_af() != NULL)
+                compute_full_coi(f->r_af(), ids);
+            v[id - 1] = 1;
+            coi_map_.insert(std::pair<int, std::vector<int>>(id, v));
+            ids.push_back(id);
+
+            break;
+        }
+    }
+
+    // delete from coi_map_ all ids in \@ids
+    void Solver::shrink_coi(std::vector<int> &ids)
+    {
+        for (std::vector<int>::iterator it = ids.begin(); it != ids.end(); it++)
+            coi_map_.erase(*it);
     }
 
     ///////////inline functions
