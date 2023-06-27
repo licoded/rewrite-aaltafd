@@ -54,7 +54,7 @@ namespace aalta
 
 	protected:
 		////////////members
-		int tail_;		  // the integer used to represent Tail. It is fixed to be f->id ()+1
+		int tail_;		  // (OLD)COMMENTS: the integer used to represent Tail. It is fixed to be f->id ()+1. TODO: I don't think that it is fixed to be `f->id() + 1` now.
 		int max_used_id_; // the maximum id used in the SAT solver
 
 		typedef aalta_formula::af_prt_set af_prt_set;

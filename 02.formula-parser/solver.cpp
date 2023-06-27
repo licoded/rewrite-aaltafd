@@ -9,6 +9,28 @@
 
 namespace aalta
 {
+    Solver::Solver(aalta_formula *f, bool verbose, bool partial_on, bool uc_on) : AaltaSolver(verbose), uc_on_(uc_on), partial_on_(partial_on), unsat_forever_(false)
+    {
+        max_used_id_ = f->id();
+        tail_ = aalta_formula::TAIL()->id();
+        build_X_map_priliminary(f);
+        generate_clauses(f);
+        coi_set_up(f);
+    }
+
+    // set X_map_ in the input-formula level
+    void Solver::build_X_map_priliminary(aalta_formula *f)
+    {
+        if (f == nullptr)
+            return;
+        if (f->is_next())
+        {
+            if (X_map_.find(f->r_id()) == X_map_.end())
+                X_map_.insert({f->r_id(), f->id()});
+        }
+        build_X_map_priliminary(f->l_af());
+        build_X_map_priliminary(f->r_af());
+    }
 
     ///////////inline functions
     /**
@@ -59,7 +81,7 @@ namespace aalta
 
     /**
      * Act as its name!
-    */
+     */
     inline void Solver::terminate_with_unsat()
     {
         unsat_forever_ = true;
