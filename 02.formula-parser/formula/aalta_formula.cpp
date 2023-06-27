@@ -364,6 +364,18 @@ namespace aalta {
         return left_ == nullptr;
     }
 
+    // is true or false
+    inline bool aalta_formula::is_tf() const
+    {
+        return oper() == e_true || oper() == e_false;
+    }
+
+    // is true or false
+    inline bool aalta_formula::is_U_or_R() const
+    {
+        return oper() == e_until || oper() == e_release;
+    }
+
     inline bool aalta_formula::is_globally() const
     {
         /**

@@ -19,18 +19,18 @@ namespace aalta
     }
 
     /**
-     * add X(f) for `af *f`
-    */
+     * add X(f) when f is U(Until) or R(Release)
+     */
     void Solver::build_X_map(aalta_formula *f)
     {
-        assert(f->oper() == e_until || f->oper() == e_release);
+        assert(f->is_U_or_R());
         /**
          * TODO: I think the following lines can be replaced with more concise codes.
          *          - Since `insert()` will not take effect if exists.
          *          - But there is a `++max_used_id_` operation
          *              - I think it is OK, the `++max_used_id_` operation will just occupy empty/unused id number
          * TODO: The `X_map_` and `X_reverse_map_` insertion can be extracted into a func.
-        */
+         */
         if (X_map_.find(f->id()) != X_map_.end())
             return;
         X_map_.insert({f->id(), ++max_used_id_});
@@ -70,105 +70,53 @@ namespace aalta
     void Solver::add_clauses_for(aalta_formula *f)
     {
         // We assume that
-        // 1) the id of f is greater than that of its any subformula
+        // 1) the id of f is greater than that of its any subformula // TODO: check it, and why assume this?
         // 2) atoms and X subformulas are considered propositions
         // 3) be careful about !a, we should encode as -id (a) rather than id (!a)
-        // 4) for a Global formula Gf, we directly add id(Gf) into the clauses, and will not consider it in assumptions
+        // 4) for a Global formula Gf, we directly add id(Gf) into the clauses, and will not consider it in assumptions // TODO: seems outdated, not impl
         // We also build the X_map and formula_map during the process of adding clauses
         assert(f->oper() != e_w_next);
-        if (clauses_added(f))
+        //     null    || true or false || has added
+        if (f == nullptr || f->is_tf() || clauses_added(f))
             return;
-        int id, x_id;
-        /**
-         * TODO: add_clauses_for(f->l_af()); add_clauses_for(f->r_af());
-         *          - execute for both left and right subformulas
-         *          - move this recursion out of switch?
-         */
+
+        int id; // used for temporary subformula
+        if (f->is_U_or_R())
+            build_X_map(f);
+        build_formula_map(f);
         switch (f->oper())
         {
-        case e_true:
-        case e_false:
-            break;
-        case e_not:
-            build_formula_map(f);
-            add_clauses_for(f->r_af());
-            mark_clauses_added(f);
-            break;
-        case e_next:
-            build_formula_map(f);
-            add_clauses_for(f->r_af());
-            mark_clauses_added(f);
-            break;
-        case e_until:
-            // A U B = B \/ (A /\ !Tail /\ X (A U B))
-            build_X_map(f);
-            build_formula_map(f);
-            id = ++max_used_id_;                                          // id of `A /\ !Tail /\ X (A U B)` or `!Tail /\ X (F B)` -- if f->is_future()
+        case e_until:                                                          // A U B = B \/ (A /\ !Tail /\ X (A U B))
+            id = ++max_used_id_;                                               // id of `A /\ !Tail /\ X (A U B)` or `!Tail /\ X (F B)` -- if f->is_future()
             add_equivalence_wise(false, get_SAT_id(f), {get_r_SAT_id(f), id}); // A U B <-> B \/ id
 
             if (!f->is_future())
-            {
                 add_equivalence_wise(true, id, {get_l_SAT_id(f), -tail_, SAT_id_of_next(f)}); // id <-> A /\ !Tail /\ X (A U B)
-
-                add_clauses_for(f->l_af());
-                add_clauses_for(f->r_af());
-            }
-            else // F B = B \/ (!Tail /\ X (F B))
-            {
-                add_equivalence_wise(true, id, {-tail_, SAT_id_of_next(f)}); // id <-> !Tail /\ X (F B)
-
-                add_clauses_for(f->r_af());
-            }
-            mark_clauses_added(f);
+            else                                                                              // F B = B \/ (!Tail /\ X (F B))
+                add_equivalence_wise(true, id, {-tail_, SAT_id_of_next(f)});                  // id <-> !Tail /\ X (F B)
             break;
-        case e_release:
-            // A R B = B /\ (A \/ Tail \/ X (A R B))
-            build_X_map(f);
-            build_formula_map(f);
-            id = ++max_used_id_; // id of `A \/ Tail \/ X (A R B)` or `Tail \/ X (G B)` -- if f->is_globally()
+        case e_release:                                                       // A R B = B /\ (A \/ Tail \/ X (A R B))
+            id = ++max_used_id_;                                              // id of `A \/ Tail \/ X (A R B)` or `Tail \/ X (G B)` -- if f->is_globally()
             add_equivalence_wise(true, get_SAT_id(f), {get_r_SAT_id(f), id}); // A R B <-> B /\ id
 
             if (!f->is_globally())
-            {
                 add_equivalence_wise(false, id, {get_l_SAT_id(f), tail_, SAT_id_of_next(f)}); // id <-> A \/ Tail \/ X (A R B)
-
-                add_clauses_for(f->l_af());
-                add_clauses_for(f->r_af());
-            }
-            else // G B = B /\ (Tail \/ X (G B))
-            {
-                add_equivalence_wise(false, id, {tail_, SAT_id_of_next(f)}); // id <-> Tail \/ X (G B)
-
-                add_clauses_for(f->r_af());
-            }
-            mark_clauses_added(f);
+            else                                                                              // G B = B /\ (Tail \/ X (G B))
+                add_equivalence_wise(false, id, {tail_, SAT_id_of_next(f)});                  // id <-> Tail \/ X (G B)
             break;
-
         case e_and:
-            build_formula_map(f);
-            add_equivalence_wise(true, get_SAT_id(f), {get_l_SAT_id(f), get_r_SAT_id(f)}); // f <-> A /\ B
-            add_clauses_for(f->l_af());
-            add_clauses_for(f->r_af());
-            mark_clauses_added(f);
-            break;
         case e_or:
-            build_formula_map(f);
-            add_equivalence_wise(false, get_SAT_id(f), {get_l_SAT_id(f), get_r_SAT_id(f)}); // f <-> A \/ B
-
-            add_clauses_for(f->l_af());
-            add_clauses_for(f->r_af());
-            mark_clauses_added(f);
+            add_equivalence_wise(f->oper() == e_and, get_SAT_id(f), {get_l_SAT_id(f), get_r_SAT_id(f)}); // f <-> A /\ B
             break;
         case e_undefined:
         {
             cout << "Solver.cpp::add_clauses_for: Error reach here!\n";
             exit(0);
         }
-        default: // atoms
-            build_formula_map(f);
-            mark_clauses_added(f);
-            break;
         }
+        add_clauses_for(f->l_af());
+        add_clauses_for(f->r_af());
+        mark_clauses_added(f);
     }
 
     ///////////inline functions
