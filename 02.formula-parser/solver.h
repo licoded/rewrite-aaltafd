@@ -72,6 +72,7 @@ namespace aalta
 
 		typedef unordered_map<int, std::vector<int>> coi_map;
 		coi_map coi_map_; // if (1, v) is in coi_map_, that means coi (1) = v;
+		// TODO: elements of v=coi(i) are \/ or /\ ?
 
 		/////flags
 		// bool verbose_;  //default is false
@@ -106,6 +107,8 @@ namespace aalta
 
 		void shrink_to_coi(std::vector<int> &); // shrink the assignment to COI, i.e. relevant variables only
 		void coi_set_up(aalta_formula *);
+		inline bool need_record(aalta_formula *);
+		void coi_find_and_merge(aalta_formula *f, std::vector<int> &v);
 		void compute_full_coi(aalta_formula *f, std::vector<int> &ids);
 		void shrink_coi(std::vector<int> &ids);
 		void shrink_to_partial(std::vector<int> &); // shrink the assignment to paritial one

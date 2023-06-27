@@ -146,6 +146,7 @@ namespace aalta {
         inline aalta_formula* l_af() { return left_; }
         inline aalta_formula* r_af() { return right_; }
         inline int r_id() { return right_->id_; } // used in `Solver`
+        inline int l_id() { return left_->id_; } // used in `Solver`
 
     /* transfer formula to specific NF(normal form) */
     public:

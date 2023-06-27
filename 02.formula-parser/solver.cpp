@@ -57,7 +57,7 @@ namespace aalta
     void Solver::coi_merge(std::vector<int> &to, std::vector<int> &from)
     {
         if (to.size() < from.size())
-            to.resize(from.size(), 0);  // resize() only influences the new added elements
+            to.resize(from.size(), 0); // resize() only influences the new added elements
         for (int i = 0; i < from.size(); i++)
             to[i] |= from[i];
     }
@@ -132,55 +132,66 @@ namespace aalta
     {
         std::vector<int> ids;
         compute_full_coi(f, ids);
-        // only Until, Release, And, Or formulas need to be recorded
+        // only Until, Release, And, Or formulas need to be recorded, why?
         // delete from coi_map_ all ids in \@ids
         shrink_coi(ids);
     }
 
+    inline bool Solver::need_record(aalta_formula *f)
+    {
+        return f->oper() == e_until || f->oper() == e_release || f->oper() == e_or;
+    }
+
+    // used in `compute_full_coi()` func
+    void Solver::coi_find_and_merge(aalta_formula *f, std::vector<int> &v)
+    {
+        coi_map::iterator it = coi_map_.find(f->id());
+        assert(it != coi_map_.end());
+        coi_merge(v, it->second);
+    }
+
+    /**
+     * @param f: the formula
+     * @param ids: the list of ids to be **deleted**
+     */
     void Solver::compute_full_coi(aalta_formula *f, std::vector<int> &ids)
     {
         if (coi_map_.find(f->id()) != coi_map_.end())
             return;
         // only variables and Nexts need to be recorded
-        std::vector<int> v;
-        coi_map::iterator it;
-        x_map::iterator xit;
-        v.resize(max_used_id_, 0);
-        int id = f->id();
+        // TODO: record to what variable? The following vector<int> v?
+        std::vector<int> v(max_used_id_, 0);
         switch (f->oper())
         {
         case e_not: // id -> id for Literals
             if (f->r_af() != NULL)
             {
                 compute_full_coi(f->r_af(), ids);
-                it = coi_map_.find(f->r_af()->id());
-                assert(it != coi_map_.end());
-                coi_merge(v, it->second);
-                coi_map_.insert(std::pair<int, std::vector<int>>(id, v));
-                ids.push_back(id);
+                coi_find_and_merge(f->r_af(), v);
                 break;
             }
 
+        /**
+         * How about the inner of a U/R b?
+         *   - We just do nothing to a and b? No, because there is no `break;`
+         */
         case e_until:
         case e_release:
+        {
             // add Xf in COI for Until/Release formula f
-            xit = X_map_.find(get_SAT_id(f));
+            x_map::iterator xit = X_map_.find(get_SAT_id(f));
             assert(xit != X_map_.end());
-            v[xit->second - 1] = 1;
+            v[xit->second - 1] = 1; // TODO: why `-1`?
+            // NOTE: there is no `break;`
+        }
         case e_and:
         case e_or:
             compute_full_coi(f->l_af(), ids);
-            it = coi_map_.find(f->l_af()->id());
-            assert(it != coi_map_.end());
-            coi_merge(v, it->second);
+            coi_find_and_merge(f->l_af(), v);
 
             compute_full_coi(f->r_af(), ids);
-            it = coi_map_.find(f->r_af()->id());
-            assert(it != coi_map_.end());
-            coi_merge(v, it->second);
-            coi_map_.insert(std::pair<int, std::vector<int>>(id, v));
-            if (f->oper() == e_and)
-                ids.push_back(id);
+            coi_find_and_merge(f->r_af(), v);
+
             break;
         case e_undefined:
         {
@@ -188,15 +199,20 @@ namespace aalta
             exit(0);
         }
         case e_next:
-        default: // atoms
             if (f->r_af() != NULL)
                 compute_full_coi(f->r_af(), ids);
-            v[id - 1] = 1;
-            coi_map_.insert(std::pair<int, std::vector<int>>(id, v));
-            ids.push_back(id);
-
+        default:           // atoms
+            v[f->id() - 1] = 1; // TODO: why `-1`?
             break;
         }
+
+        /**
+         * TODO: I want to merge the following two lines. But it seems I can't.
+         *          - Because this is a recursive func!
+         */
+        coi_map_.insert({f->id(), v});
+        if (!need_record(f))
+            ids.push_back(f->id());
     }
 
     // delete from coi_map_ all ids in \@ids
