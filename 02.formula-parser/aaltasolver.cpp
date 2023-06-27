@@ -171,30 +171,41 @@ namespace aalta
         add_clause(l, -r1, -r2, -r3);
     }
 
-    // l <-> /\ (vi) or l <-> \/ (vi)
+    /**
+     * l <-> /\ (vi) or l <-> \/ (vi)
+     * 
+     * @param isAnd: true if l <-> /\ (vi), false if l <-> \/ (vi)
+     * @param l: l
+     * @param v: list of vi
+    */
     inline void AaltaSolver::add_equivalence_wise(bool isAnd, int l, const std::vector<int> &v)
     {
-        // TODO: the new impl exchange the order of l and r in new_v.
+        if(isAnd) // l <-> /\ (vi)
+        {
+            // ==== l -> /\ (vi)
+            for (std::vector<int>::const_iterator it = v.begin(); it != v.end(); it++)
+                add_clause(-l, *it); // l -> vi === !l \/ vi
 
-        // l -> /\ (vi)
-        for (std::vector<int>::const_iterator it = v.begin(); it != v.end(); it++)
-            // add_clause(isAnd ? -l : l, *it);
-            // l -> vi === !l \/ vi
-            add_clause(-l, *it);
-        // l <- /\ (vi) === \/ (!vi) \/ l
-        std::vector<int> new_v(v.begin(), v.end());
-        new_v.push_back(l);
-        add_clause(new_v);
+            // ==== l <- /\ (vi) === [ \/ (!vi)] \/ l
+            std::vector<int> new_v;
+            new_v.push_back(l);
+            for (std::vector<int>::const_iterator it = v.begin(); it != v.end(); it++)
+                new_v.push_back(-*it);
+            add_clause(new_v);
+        }
+        else    // l <-> \/ (vi)
+        {
+            // ==== l -> \/ (vi) === !l \/ [ \/ vi]
+            std::vector<int> new_v;
+            new_v.push_back(-l);
+            for (std::vector<int>::const_iterator it = v.begin(); it != v.end(); it++)
+                new_v.push_back(*it);
+            add_clause(new_v);
 
-        // l -> \/ (vi) === !l \/ \/ vi
-        std::vector<int> new_v(v.begin(), v.end());
-        new_v.push_back(-l);
-        add_clause(new_v);
-        // l <- \/ (vi) === !l -> ![ \/ (vi)]
-        //              === !l -> /\ (!vi)
-        for (std::vector<int>::const_iterator it = v.begin(); it != v.end(); it++)
-            // add_clause(isAnd ? -l : l, *it);
-            // !l -> !vi === l \/ !vi
-            add_clause(l, -*it);
+            // ==== l <- \/ (vi) === !l -> ![ \/ (vi)]
+            //                   === !l -> /\ (!vi)
+            for (std::vector<int>::const_iterator it = v.begin(); it != v.end(); it++)
+                add_clause(l, -*it); // !l -> !vi === l \/ !vi
+        }
     }
 }
