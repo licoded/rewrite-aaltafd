@@ -42,6 +42,7 @@ namespace aalta
 		inline void add_equivalence(int l, int r); 					// l <-> r
 		inline void add_equivalence(int l, int r1, int r2); 		// l <-> r1 /\ r2
 		inline void add_equivalence(int l, int r1, int r2, int r3); // l <-> r1 /\ r2 /\ r3
+		inline void add_equivalence_wise(bool isAnd, int l, const std::vector<int> &); // l <-> /\ (vi) or l <-> \/ (vi)
 	};
 }
 

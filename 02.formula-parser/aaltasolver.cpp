@@ -15,13 +15,13 @@
 
 namespace aalta
 {
-    bool AaltaSolver::solve_assumption ()
-	{
-		Minisat::lbool ret = solveLimited (assumption_);
-   		if (ret == l_Undef)
-     		exit (0);
-   		return (ret == l_True);
-	}
+    bool AaltaSolver::solve_assumption()
+    {
+        Minisat::lbool ret = solveLimited(assumption_);
+        if (ret == l_Undef)
+            exit(0);
+        return (ret == l_True);
+    }
 
     // return the model from SAT solver when it provides SAT
     std::vector<int> AaltaSolver::get_model()
@@ -169,5 +169,32 @@ namespace aalta
         add_clause(-l, r2);
         add_clause(-l, r3);
         add_clause(l, -r1, -r2, -r3);
+    }
+
+    // l <-> /\ (vi) or l <-> \/ (vi)
+    inline void AaltaSolver::add_equivalence_wise(bool isAnd, int l, const std::vector<int> &v)
+    {
+        // TODO: the new impl exchange the order of l and r in new_v.
+
+        // l -> /\ (vi)
+        for (std::vector<int>::const_iterator it = v.begin(); it != v.end(); it++)
+            // add_clause(isAnd ? -l : l, *it);
+            // l -> vi === !l \/ vi
+            add_clause(-l, *it);
+        // l <- /\ (vi) === \/ (!vi) \/ l
+        std::vector<int> new_v(v.begin(), v.end());
+        new_v.push_back(l);
+        add_clause(new_v);
+
+        // l -> \/ (vi) === !l \/ \/ vi
+        std::vector<int> new_v(v.begin(), v.end());
+        new_v.push_back(-l);
+        add_clause(new_v);
+        // l <- \/ (vi) === !l -> ![ \/ (vi)]
+        //              === !l -> /\ (!vi)
+        for (std::vector<int>::const_iterator it = v.begin(); it != v.end(); it++)
+            // add_clause(isAnd ? -l : l, *it);
+            // !l -> !vi === l \/ !vi
+            add_clause(l, -*it);
     }
 }
