@@ -25,8 +25,11 @@ namespace aalta
             return;
         if (f->is_next())
         {
-            if (X_map_.find(f->r_id()) == X_map_.end())
-                X_map_.insert({f->r_id(), f->id()});
+            /**
+             * TODO: I think this replacement is equivalent, but not very sure.
+             *  - Can it repeat? And if repeats, do the two are the same? I think they are the same.
+            */
+            X_map_.insert({f->r_id(), f->id()});
         }
         build_X_map_priliminary(f->l_af());
         build_X_map_priliminary(f->r_af());
