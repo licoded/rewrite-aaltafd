@@ -336,6 +336,14 @@ namespace aalta {
     }
 
     /**
+     * Used in aalta::Solver.
+    */
+    bool aalta_formula::is_label() const
+    {
+        return oper() == e_not || oper() > e_undefined;
+    }
+
+    /**
      * literals, e.g. a/b/c/aaa
      * include true and false
     */

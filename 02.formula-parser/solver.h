@@ -117,9 +117,7 @@ namespace aalta
 		inline bool clauses_added(aalta_formula *f);
 		inline void mark_clauses_added(aalta_formula *f);
 		inline void build_formula_map(aalta_formula *f);
-		inline int SAT_id(aalta_formula *f);
-		inline bool is_label(aalta_formula *f);
-		inline bool is_next(aalta_formula *f);
+		inline int get_SAT_id(aalta_formula *f);
 		inline void terminate_with_unsat();
 	};
 }
