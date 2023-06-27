@@ -27,8 +27,8 @@ namespace aalta
 		std::vector<int> get_model(); // get the model from SAT solver
 		std::vector<int> get_uc();	  // get UC from SAT solver
 
-		Minisat::Lit SAT_lit(int id); // create the Lit used in SAT solver for the id.
-		int lit_id(Minisat::Lit);	  // return the id of SAT lit
+		Minisat::Lit id_to_lit(int id);	// create the Lit used in SAT solver for the id.
+		int lit_to_id(Minisat::Lit);	// return the id of SAT lit
 
 		// 作用: 在 SAT solver 的“待满足条件”中加上条件
 		void add_clause(int);

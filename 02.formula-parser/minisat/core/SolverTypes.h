@@ -52,6 +52,11 @@ struct Lit {
     bool operator == (Lit p) const { return x == p.x; }
     bool operator != (Lit p) const { return x != p.x; }
     bool operator <  (Lit p) const { return x < p.x;  } // '<' makes p, ~p adjacent in the ordering.
+    /**
+     * Why '<' makes p, ~p adjacent in the ordering?
+     *  - Because it overloads the `~` operator, `~` is equivalent to `^1`.
+     * NOTE: But it means that '<' cannot be used to compare p and ~p
+    */
 };
 
 

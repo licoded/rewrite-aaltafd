@@ -15,21 +15,26 @@
 
 namespace aalta
 {
-    Minisat::Lit AaltaSolver::SAT_lit(int id)
+    Minisat::Lit AaltaSolver::id_to_lit(int id)
     {
         assert(id != 0);
         int var = abs(id) - 1;
         while (var >= nVars())
             newVar();
+        // note: Minisat::Lit has overloaded `~` operator, it is equivalent to `^1`
         return ((id > 0) ? Minisat::mkLit(var) : ~Minisat::mkLit(var));
     }
 
-    int AaltaSolver::lit_id(Minisat::Lit l)
+    int AaltaSolver::lit_to_id(Minisat::Lit l)
     {
         if (sign(l))
             return -(var(l) + 1);
         else
             return var(l) + 1;
+        /**
+         * Why both `+1`? What is the 0th/1th item?
+         *  - Oh, I also see `abs(id)-1` in `id_to_lit()`
+        */
     }
 
     bool AaltaSolver::solve_assumption()
@@ -64,7 +69,7 @@ namespace aalta
         for (int k = 0; k < conflict.size(); k++)
         {
             Minisat::Lit l = conflict[k];
-            reason.push_back(-lit_id(l));
+            reason.push_back(-lit_to_id(l));
         }
         return reason;
     }
@@ -79,7 +84,7 @@ namespace aalta
     {
         Minisat::vec<Minisat::Lit> lits;
         for (std::vector<int>::iterator it = v.begin(); it != v.end(); it++)
-            lits.push(SAT_lit(*it));
+            lits.push(id_to_lit(*it));
         addClause(lits);
     }
 
