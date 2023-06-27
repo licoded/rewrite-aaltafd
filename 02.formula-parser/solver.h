@@ -118,6 +118,8 @@ namespace aalta
 		inline void mark_clauses_added(aalta_formula *f);
 		inline void build_formula_map(aalta_formula *f);
 		inline int get_SAT_id(aalta_formula *f);
+		inline int get_l_SAT_id(aalta_formula *f);
+		inline int get_r_SAT_id(aalta_formula *f);
 		inline void terminate_with_unsat();
 	};
 }
