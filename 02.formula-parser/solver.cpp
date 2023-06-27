@@ -42,7 +42,11 @@ namespace aalta
         add_X_conflicts();
     }
 
-    // add clauses for the formula f into SAT solver
+    
+    /**
+     * add clauses for the formula f into SAT solver
+     * It's a recursive func.
+    */
     void Solver::add_clauses_for(aalta_formula *f)
     {
         // We assume that
@@ -55,6 +59,11 @@ namespace aalta
         if (clauses_added(f))
             return;
         int id, x_id;
+        /**
+         * TODO: add_clauses_for(f->l_af()); add_clauses_for(f->r_af());
+         *          - execute for both left and right subformulas
+         *          - move this recursion out of switch?
+        */
         switch (f->oper())
         {
         case e_true:
@@ -162,7 +171,7 @@ namespace aalta
     }
 
     /**
-     * Insert `af *f` into `formula_map_`
+     * Insert `af *f` into `formula_map_`, just {key: SAT_id of f, value: f}
      */
     inline void Solver::build_formula_map(aalta_formula *f)
     {
