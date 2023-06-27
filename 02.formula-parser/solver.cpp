@@ -18,6 +18,25 @@ namespace aalta
         coi_set_up(f);
     }
 
+    /**
+     * add X(f) for `af *f`
+    */
+    void Solver::build_X_map(aalta_formula *f)
+    {
+        assert(f->oper() == e_until || f->oper() == e_release);
+        /**
+         * TODO: I think the following lines can be replaced with more concise codes.
+         *          - Since `insert()` will not take effect if exists.
+         *          - But there is a `++max_used_id_` operation
+         *              - I think it is OK, the `++max_used_id_` operation will just occupy empty/unused id number
+         * TODO: The `X_map_` and `X_reverse_map_` insertion can be extracted into a func.
+        */
+        if (X_map_.find(f->id()) != X_map_.end())
+            return;
+        X_map_.insert({f->id(), ++max_used_id_});
+        X_reverse_map_.insert({max_used_id_, f});
+    }
+
     // set X_map_ in the input-formula level
     void Solver::build_X_map_priliminary(aalta_formula *f)
     {
@@ -42,11 +61,12 @@ namespace aalta
         add_X_conflicts();
     }
 
-    
     /**
      * add clauses for the formula f into SAT solver
      * It's a recursive func.
-    */
+     *
+     * NOTE: `U` and `R` still exists after all transfers!
+     */
     void Solver::add_clauses_for(aalta_formula *f)
     {
         // We assume that
@@ -63,7 +83,7 @@ namespace aalta
          * TODO: add_clauses_for(f->l_af()); add_clauses_for(f->r_af());
          *          - execute for both left and right subformulas
          *          - move this recursion out of switch?
-        */
+         */
         switch (f->oper())
         {
         case e_true:
@@ -83,7 +103,7 @@ namespace aalta
             // A U B = B \/ (A /\ !Tail /\ X (A U B))
             build_X_map(f);
             build_formula_map(f);
-            id = ++max_used_id_; // id of `A /\ !Tail /\ X (A U B)` or `!Tail /\ X (F B)` -- if f->is_future()
+            id = ++max_used_id_;                                          // id of `A /\ !Tail /\ X (A U B)` or `!Tail /\ X (F B)` -- if f->is_future()
             add_equivalence(-get_SAT_id(f), -get_SAT_id(f->r_af()), -id); // A U B <-> B \/ id
 
             if (!f->is_future())
@@ -105,7 +125,7 @@ namespace aalta
             // A R B = B /\ (A \/ Tail \/ X (A R B))
             build_X_map(f);
             build_formula_map(f);
-            id = ++max_used_id_;    // id of `A \/ Tail \/ X (A R B)` or `Tail \/ X (G B)` -- if f->is_globally()
+            id = ++max_used_id_; // id of `A \/ Tail \/ X (A R B)` or `Tail \/ X (G B)` -- if f->is_globally()
             add_equivalence(get_SAT_id(f), get_SAT_id(f->r_af()), id);
 
             if (!f->is_globally())
@@ -117,7 +137,7 @@ namespace aalta
             }
             else // G B = B /\ (Tail \/ X (G B))
             {
-                add_equivalence(-id, -tail_, -SAT_id_of_next(f));   // id <-> Tail \/ X (G B)
+                add_equivalence(-id, -tail_, -SAT_id_of_next(f)); // id <-> Tail \/ X (G B)
 
                 add_clauses_for(f->r_af());
             }
