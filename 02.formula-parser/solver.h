@@ -113,57 +113,15 @@ namespace aalta
 
 		void shrink_model(std::vector<int> &);
 
-		////printers
-		void print_x_map();
-		void print_coi();
-		void print_formula_map();
-
 		///////////inline functions
-		inline bool clauses_added(aalta_formula *f)
-		{
-			if (clauses_added_.find(f) != clauses_added_.end())
-				return true;
-			return false;
-		}
-
-		inline void mark_clauses_added(aalta_formula *f)
-		{
-			clauses_added_.insert(f);
-		}
-
-		inline void build_formula_map(aalta_formula *f)
-		{
-			// for !a, use -id (a) rather than id (!a);
-			if (f->oper() == e_not)
-				formula_map_.insert(std::pair<int, aalta_formula *>(-f->r_af()->id(), f));
-			else
-				formula_map_.insert(std::pair<int, aalta_formula *>(f->id(), f));
-		}
-
-		inline int SAT_id(aalta_formula *f)
-		{
-			// for !a, use -id (a) rather than id (!a);
-			if (f->oper() == e_not)
-				return -f->r_af()->id();
-			return f->id();
-		}
-
-		inline bool is_label(aalta_formula *f)
-		{
-			return (f->oper() == e_not || f->oper() > e_undefined);
-		}
-
-		inline bool is_next(aalta_formula *f)
-		{
-			return (f->oper() == e_next || f->oper() == e_w_next);
-		}
-
-		inline void terminate_with_unsat()
-		{
-			unsat_forever_ = true;
-		}
+		inline bool clauses_added(aalta_formula *f);
+		inline void mark_clauses_added(aalta_formula *f);
+		inline void build_formula_map(aalta_formula *f);
+		inline int SAT_id(aalta_formula *f);
+		inline bool is_label(aalta_formula *f);
+		inline bool is_next(aalta_formula *f);
+		inline void terminate_with_unsat();
 	};
-
 }
 
 #endif
