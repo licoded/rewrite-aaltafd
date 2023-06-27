@@ -355,6 +355,11 @@ inline bool     Solver::solve         (Lit p, Lit q)        { budgetOff(); assum
 inline bool     Solver::solve         (Lit p, Lit q, Lit r) { budgetOff(); assumptions.clear(); assumptions.push(p); assumptions.push(q); assumptions.push(r); return solve_() == l_True; }
 inline bool     Solver::solve         (const vec<Lit>& assumps){ budgetOff(); assumps.copyTo(assumptions); return solve_() == l_True; }
 inline lbool    Solver::solveLimited  (const vec<Lit>& assumps){ assumps.copyTo(assumptions); return solve_(); }
+/**
+ * Solver::solveLimited(const vec<Lit>& assumps)
+ *  - copy params assumps to member variable assumptions
+ *  - and then invoke solve_() func
+*/
 inline bool     Solver::okay          ()      const   { return ok; }
 
 inline void     Solver::toDimacs     (const char* file){ vec<Lit> as; toDimacs(file, as); }

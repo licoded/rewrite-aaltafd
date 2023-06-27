@@ -15,6 +15,14 @@
 
 namespace aalta
 {
+    bool AaltaSolver::solve_assumption ()
+	{
+		Minisat::lbool ret = solveLimited (assumption_);
+   		if (ret == l_Undef)
+     		exit (0);
+   		return (ret == l_True);
+	}
+
     // return the model from SAT solver when it provides SAT
     std::vector<int> AaltaSolver::get_model()
     {
