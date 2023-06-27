@@ -9,12 +9,39 @@
 #include <iostream>
 #include <vector>
 
-#define l_True  (Minisat::lbool((uint8_t)0)) // gcc does not do constant propagation if these are real constants.
+#define l_True (Minisat::lbool((uint8_t)0)) // gcc does not do constant propagation if these are real constants.
 #define l_False (Minisat::lbool((uint8_t)1))
 #define l_Undef (Minisat::lbool((uint8_t)2))
 
 namespace aalta
 {
+    // return the model from SAT solver when it provides SAT
+    std::vector<int> AaltaSolver::get_model()
+    {
+        std::vector<int> res(nVars(), 0);
+        for (int i = 0; i < nVars(); i++)
+        {
+            if (model[i] == l_True)
+                res[i] = i + 1;
+            else if (model[i] == l_False)
+                res[i] = -(i + 1);
+            // TODO: Can it be l_Undef? I don't think so. But the codes indicate so!
+        }
+        return res;
+    }
+
+    // return the UC from SAT solver when it provides UNSAT
+    std::vector<int> AaltaSolver::get_uc()
+    {
+        std::vector<int> reason;
+        for (int k = 0; k < conflict.size(); k++)
+        {
+            Minisat::Lit l = conflict[k];
+            reason.push_back(-lit_to_id(l));
+        }
+        return reason;
+    }
+
     Minisat::Lit AaltaSolver::id_to_lit(int id)
     {
         assert(id != 0);
@@ -34,7 +61,7 @@ namespace aalta
         /**
          * Why both `+1`? What is the 0th/1th item?
          *  - Oh, I also see `abs(id)-1` in `id_to_lit()`
-        */
+         */
     }
 
     bool AaltaSolver::solve_assumption()
@@ -77,9 +104,9 @@ namespace aalta
     /**
      * All others overloading add_clause() all invoke this one!
      * All add_equivalence() finally invoke this one, too.
-     * 
+     *
      * 作用: 在 SAT solver 的“待满足条件”中加上条件  " \/ (vi) "
-    */
+     */
     void AaltaSolver::add_clause(std::vector<int> &v)
     {
         Minisat::vec<Minisat::Lit> lits;
