@@ -74,19 +74,19 @@ namespace aalta
             // A U B = B \/ (A /\ !Tail /\ X (A U B))
             build_X_map(f);
             build_formula_map(f);
-            id = ++max_used_id_;
-            add_equivalence(-get_SAT_id(f), -get_SAT_id(f->r_af()), -id);
+            id = ++max_used_id_; // id of `A /\ !Tail /\ X (A U B)` or `!Tail /\ X (F B)` -- if f->is_future()
+            add_equivalence(-get_SAT_id(f), -get_SAT_id(f->r_af()), -id); // A U B <-> B \/ id
 
             if (!f->is_future())
             {
-                add_equivalence(id, get_SAT_id(f->l_af()), -tail_, SAT_id_of_next(f));
+                add_equivalence(id, get_SAT_id(f->l_af()), -tail_, SAT_id_of_next(f)); // id <-> A /\ !Tail /\ X (A U B)
 
                 add_clauses_for(f->l_af());
                 add_clauses_for(f->r_af());
             }
             else // F B = B \/ (!Tail /\ X (F B))
             {
-                add_equivalence(id, -tail_, SAT_id_of_next(f));
+                add_equivalence(id, -tail_, SAT_id_of_next(f)); // id <-> !Tail /\ X (F B)
 
                 add_clauses_for(f->r_af());
             }
@@ -96,19 +96,19 @@ namespace aalta
             // A R B = B /\ (A \/ Tail \/ X (A R B))
             build_X_map(f);
             build_formula_map(f);
-            id = ++max_used_id_;
+            id = ++max_used_id_;    // id of `A \/ Tail \/ X (A R B)` or `Tail \/ X (G B)` -- if f->is_globally()
             add_equivalence(get_SAT_id(f), get_SAT_id(f->r_af()), id);
 
             if (!f->is_globally())
             {
-                add_equivalence(-id, -get_SAT_id(f->l_af()), -tail_, -SAT_id_of_next(f));
+                add_equivalence(-id, -get_SAT_id(f->l_af()), -tail_, -SAT_id_of_next(f)); // id <-> A \/ Tail \/ X (A R B)
 
                 add_clauses_for(f->l_af());
                 add_clauses_for(f->r_af());
             }
             else // G B = B /\ (Tail \/ X (G B))
             {
-                add_equivalence(-id, -tail_, -SAT_id_of_next(f));
+                add_equivalence(-id, -tail_, -SAT_id_of_next(f));   // id <-> Tail \/ X (G B)
 
                 add_clauses_for(f->r_af());
             }
@@ -117,14 +117,14 @@ namespace aalta
 
         case e_and:
             build_formula_map(f);
-            add_equivalence(get_SAT_id(f), get_SAT_id(f->l_af()), get_SAT_id(f->r_af()));
+            add_equivalence(get_SAT_id(f), get_SAT_id(f->l_af()), get_SAT_id(f->r_af())); // f <-> A /\ B
             add_clauses_for(f->l_af());
             add_clauses_for(f->r_af());
             mark_clauses_added(f);
             break;
         case e_or:
             build_formula_map(f);
-            add_equivalence(-get_SAT_id(f), -get_SAT_id(f->l_af()), -get_SAT_id(f->r_af()));
+            add_equivalence(-get_SAT_id(f), -get_SAT_id(f->l_af()), -get_SAT_id(f->r_af())); // f <-> A \/ B
 
             add_clauses_for(f->l_af());
             add_clauses_for(f->r_af());
