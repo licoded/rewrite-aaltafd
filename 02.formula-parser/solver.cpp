@@ -28,11 +28,118 @@ namespace aalta
             /**
              * TODO: I think this replacement is equivalent, but not very sure.
              *  - Can it repeat? And if repeats, do the two are the same? I think they are the same.
-            */
+             */
             X_map_.insert({f->r_id(), f->id()});
         }
         build_X_map_priliminary(f->l_af());
         build_X_map_priliminary(f->r_af());
+    }
+
+    // generate clauses of SAT solver
+    void Solver::generate_clauses(aalta_formula *f)
+    {
+        add_clauses_for(f);
+        add_X_conflicts();
+    }
+
+    // add clauses for the formula f into SAT solver
+    void Solver::add_clauses_for(aalta_formula *f)
+    {
+        // We assume that
+        // 1) the id of f is greater than that of its any subformula
+        // 2) atoms and X subformulas are considered propositions
+        // 3) be careful about !a, we should encode as -id (a) rather than id (!a)
+        // 4) for a Global formula Gf, we directly add id(Gf) into the clauses, and will not consider it in assumptions
+        // We also build the X_map and formula_map during the process of adding clauses
+        assert(f->oper() != e_w_next);
+        if (clauses_added(f))
+            return;
+        int id, x_id;
+        switch (f->oper())
+        {
+        case e_true:
+        case e_false:
+            break;
+        case e_not:
+            build_formula_map(f);
+            add_clauses_for(f->r_af());
+            mark_clauses_added(f);
+            break;
+        case e_next:
+            build_formula_map(f);
+            add_clauses_for(f->r_af());
+            mark_clauses_added(f);
+            break;
+        case e_until:
+            // A U B = B \/ (A /\ !Tail /\ X (A U B))
+            build_X_map(f);
+            build_formula_map(f);
+            id = ++max_used_id_;
+            add_equivalence(-get_SAT_id(f), -get_SAT_id(f->r_af()), -id);
+
+            if (!f->is_future())
+            {
+                add_equivalence(id, get_SAT_id(f->l_af()), -tail_, SAT_id_of_next(f));
+
+                add_clauses_for(f->l_af());
+                add_clauses_for(f->r_af());
+            }
+            else // F B = B \/ (!Tail /\ X (F B))
+            {
+                add_equivalence(id, -tail_, SAT_id_of_next(f));
+
+                add_clauses_for(f->r_af());
+            }
+            mark_clauses_added(f);
+            break;
+        case e_release:
+            // A R B = B /\ (A \/ Tail \/ X (A R B))
+            build_X_map(f);
+            build_formula_map(f);
+            id = ++max_used_id_;
+            add_equivalence(get_SAT_id(f), get_SAT_id(f->r_af()), id);
+
+            if (!f->is_globally())
+            {
+                add_equivalence(-id, -get_SAT_id(f->l_af()), -tail_, -SAT_id_of_next(f));
+
+                add_clauses_for(f->l_af());
+                add_clauses_for(f->r_af());
+            }
+            else // G B = B /\ (Tail \/ X (G B))
+            {
+                add_equivalence(-id, -tail_, -SAT_id_of_next(f));
+
+                add_clauses_for(f->r_af());
+            }
+            mark_clauses_added(f);
+            break;
+
+        case e_and:
+            build_formula_map(f);
+            add_equivalence(get_SAT_id(f), get_SAT_id(f->l_af()), get_SAT_id(f->r_af()));
+            add_clauses_for(f->l_af());
+            add_clauses_for(f->r_af());
+            mark_clauses_added(f);
+            break;
+        case e_or:
+            build_formula_map(f);
+            add_equivalence(-get_SAT_id(f), -get_SAT_id(f->l_af()), -get_SAT_id(f->r_af()));
+
+            add_clauses_for(f->l_af());
+            add_clauses_for(f->r_af());
+            mark_clauses_added(f);
+            break;
+        case e_undefined:
+        {
+            cout << "Solver.cpp::add_clauses_for: Error reach here!\n";
+            exit(0);
+        }
+        default: // atoms
+            build_formula_map(f);
+            mark_clauses_added(f);
+            break;
+        }
     }
 
     ///////////inline functions

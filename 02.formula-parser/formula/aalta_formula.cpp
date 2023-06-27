@@ -364,6 +364,24 @@ namespace aalta {
         return left_ == nullptr;
     }
 
+    inline bool aalta_formula::is_globally() const
+    {
+        /**
+         * G(a) = false R a
+         *  - 'check `oper() = R` firstly' is very important!
+        */
+        return oper() == e_release && left_->oper() == e_false;
+    }
+
+    inline bool aalta_formula::is_future() const
+    {
+        /**
+         * F(a) = true U a
+         *  - 'check `oper() = U` firstly' is very important!
+        */
+        return oper() == e_until && left_->oper() == e_true;
+    }
+
     std::string aalta_formula::to_string () const
     {
         if(is_literal())

@@ -137,6 +137,8 @@ namespace aalta {
         bool is_label() const;
         bool is_literal() const;
         bool is_unary() const;
+        inline bool is_globally() const;    // used in `Solver`
+        inline bool is_future() const;    // used in `Solver`
         std::string to_string () const;
         inline int id() { return id_; }
         inline aalta_formula* l_af() { return left_; }
