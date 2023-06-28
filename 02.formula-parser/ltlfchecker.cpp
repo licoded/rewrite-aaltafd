@@ -24,7 +24,7 @@ namespace aalta
 	{
 		if (detect_unsat())
 			return false;
-		if (sat_once(f))
+		if (sat_once(f)) // NOTE: sat_once() test, if current state is TAIL (ending state), whether f can be SAT.
 			return true;
 
 		// TODO: block `af *f` to avoid dead loop?
@@ -32,14 +32,8 @@ namespace aalta
 		push_formula_to_explored(f);
 
 		if (f->is_wider_globally())
-		{
-			/**
-			 * My understanding:
-			 * 		As `sat_once(f)` is false, and f is G formula, so f cannot be SAT.
-			 * 		- NOTE: sat_once() test, if current state is TAIL (ending state), whether f can be SAT.
-			 */
+			// As above result of `sat_once(f)` is already false, and f is G formula, so f cannot be SAT !!!
 			return false;
-		}
 
 		// TODO: Add the following heuristics codes back, when/after the `dfs_check()` is tested work successfully.
 		// heuristics: if the global parts of f is unsat, then f is unsat
