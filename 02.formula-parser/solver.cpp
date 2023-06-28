@@ -20,6 +20,7 @@ namespace aalta
 
     /**
      * used in block_uc() func  --  `af_prt_set ands = formula_set_of(uc);`
+     * @result A set of all formulas of ids in v
      */
     aalta_formula::af_prt_set Solver::formula_set_of(std::vector<int> &v)
     {
@@ -41,17 +42,15 @@ namespace aalta
 
     void Solver::block_uc()
     {
-        if (uc_on_)
-        {
-            std::vector<int> uc = get_uc();
-            af_prt_set ands = formula_set_of(uc);
-            if (ands.empty())
-            {
-                terminate_with_unsat(); // why? how to judge it!
-                return;
-            }
+        if (!uc_on_)
+            return;
+        std::vector<int> uc = get_uc();
+        af_prt_set ands = formula_set_of(uc);
+        if (ands.empty())
+            terminate_with_unsat(); // TODO: Why? What does empty uc means?
+                                    // My assumption is, if uc=empty it indicates that the formulas to be check is_SAT is UNSAT forever.
+        else
             block_elements(ands);
-        }
     }
 
     /**
@@ -394,8 +393,16 @@ namespace aalta
             coi_map_.erase(*it);
     }
 
-    // solve by taking the assumption of the CONJUNCTIVE formula f
-    // If \@global is true, take the assumption with only global conjuncts of f
+    /**
+     * EFFECT: convert `af *f` to propositional set, and then invoke SAT solver
+     *
+     * solve by taking the assumption of the CONJUNCTIVE formula f
+     * If \@global is true, take the assumption with only global conjuncts of f
+     *
+     * Just ignore global now, think it is always false
+     *
+     * @result is_SAT - bool
+     */
     bool Solver::solve_by_assumption(aalta_formula *f, bool global)
     {
         assert(!unsat_forever_);
@@ -437,7 +444,7 @@ namespace aalta
 
     /**
      * used in `get_transition()` func
-    */
+     */
     void Solver::push_next_inner(int f_id, vector<aalta_formula *> &nexts)
     {
         aalta_formula *next_inner_af = formula_of_next_inner(f_id);
