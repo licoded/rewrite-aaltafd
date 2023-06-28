@@ -33,7 +33,7 @@ namespace aalta
 		//		 f here represents a set of automata?
 		push_formula_to_explored(f);
 
-		if (f->is_globally())
+		if (f->is_wider_globally())
 		{
 			/**
 			 * My understanding:

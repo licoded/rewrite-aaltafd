@@ -139,7 +139,9 @@ namespace aalta {
         bool is_unary() const;
         inline bool is_tf() const;          // used in `Solver`
         inline bool is_U_or_R() const;      // used in `Solver`
+        inline bool is_and_or_or() const;      // used in `Solver`
         inline bool is_globally() const;    // used in `Solver`
+        inline bool is_wider_globally() const;    // used in `Solver`
         inline bool is_future() const;    // used in `Solver`
         std::string to_string () const;
         inline int id() { return id_; }

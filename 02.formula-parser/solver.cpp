@@ -137,7 +137,7 @@ namespace aalta
         {
             if (global)
             {
-                if ((*it)->is_globally())
+                if ((*it)->is_wider_globally())
                     assumption_.push(id_to_lit(get_SAT_id(*it)));
             }
             else

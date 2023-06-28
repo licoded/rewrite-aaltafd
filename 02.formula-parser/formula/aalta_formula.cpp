@@ -377,6 +377,13 @@ namespace aalta
         return oper() == e_until || oper() == e_release;
     }
 
+    // is and or or
+    inline bool aalta_formula::is_and_or_or() const
+    {
+        return oper() == e_and || oper() == e_or;
+    }
+
+    // check whether it's a G formula
     inline bool aalta_formula::is_globally() const
     {
         /**
@@ -384,6 +391,17 @@ namespace aalta
          *  - 'check `oper() = R` firstly' is very important!
          */
         return oper() == e_release && left_->oper() == e_false;
+    }
+
+    // include more cases than `is_globally()` func
+    // e.g. G(a) & G(b), G(a) | G(b)
+    inline bool aalta_formula::is_wider_globally() const
+    {
+        if(is_globally())
+            return true;
+        if(is_and_or_or())
+            return left_->is_wider_globally() && right_->is_wider_globally();
+        return false;
     }
 
     inline bool aalta_formula::is_future() const
