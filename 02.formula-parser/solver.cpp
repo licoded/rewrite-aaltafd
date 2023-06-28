@@ -428,6 +428,7 @@ namespace aalta
             }
             else if ((*it) > 0) // handle the variables created for Next of Unitl, Release formulas
                                 // TODO: why f == NULL while (*it) != 0? Maybe the id is temporarily generated when/in add_clauses_for!
+                                // TODO: why judge `(*it) > 0, why don't deal with negative ones?
                 push_next_inner(*it, nexts);
         }
 
