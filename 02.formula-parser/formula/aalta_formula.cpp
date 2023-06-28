@@ -1,9 +1,9 @@
-/* 
+/*
  * File:   aalta_formula.cpp
  * Author: Yongkang Li
  *
  * Created on June 22, 2023, 10:40 AM
-*/
+ */
 
 #include "aalta_formula.h"
 #include "ltlparser/trans.h"
@@ -11,12 +11,14 @@
 #include <unordered_set>
 #include <vector>
 
-namespace aalta {
+namespace aalta
+{
     aalta_formula::aalta_formula()
         : op_(e_undefined),
           left_(nullptr),
           right_(nullptr)
-        {} // new 时调用
+    {
+    } // new 时调用
 
     aalta_formula::aalta_formula(const aalta_formula &orig) // 拷贝构造函数
     {
@@ -27,7 +29,8 @@ namespace aalta {
         : op_(atom_id), // atom_id == literal_id, don't confused this with af_id
           left_(nullptr),
           right_(nullptr)
-        {}
+    {
+    }
     aalta_formula::aalta_formula(int op,
                                  aalta_formula *left,
                                  aalta_formula *right)
@@ -40,7 +43,7 @@ namespace aalta {
         /**
          * ERROR: assignment to 'this'
          * CODE: this = new aalta_formula(getAST(input), false);
-        */
+         */
         // *this = aalta_formula(getAST(input), false);
         build(getAST(input), false); // 这样少一次 ctor 创建对象的消耗
     }
@@ -57,25 +60,25 @@ namespace aalta {
      * a static method
      *  - used in unique() func
      * TODO: I think that `unique()` and `all_afs` can be extracted into a extra class
-    */
-    aalta_formula* aalta_formula::add_into_all_afs(const aalta_formula *af)
+     */
+    aalta_formula *aalta_formula::add_into_all_afs(const aalta_formula *af)
     {
-        aalta_formula* new_unique_ptr = new aalta_formula(*af); // 对应旧的 clone 函数
+        aalta_formula *new_unique_ptr = new aalta_formula(*af); // 对应旧的 clone 函数
         aalta_formula::all_afs.insert(new_unique_ptr);
         new_unique_ptr->id_ = max_id_++;
         new_unique_ptr->unique_ = new_unique_ptr;
         return new_unique_ptr;
     }
 
-    aalta_formula* aalta_formula::unique()
+    aalta_formula *aalta_formula::unique()
     {
-        if(unique_ != NULL)
+        if (unique_ != NULL)
             return unique_;
         afp_set::const_iterator iter = all_afs.find(this);
         iter = all_afs.find(this);
-        unique_ = (iter != all_afs.end()) 
-            ? (*iter) 
-            : aalta_formula::add_into_all_afs(this);
+        unique_ = (iter != all_afs.end())
+                      ? (*iter)
+                      : aalta_formula::add_into_all_afs(this);
         return unique_;
     }
 
@@ -83,7 +86,7 @@ namespace aalta {
     aalta_formula::get_id_by_name(const char *name)
     {
         int id; // NOTE: this is operator id, not af id
-        const auto& it = name_id_map.find(name);
+        const auto &it = name_id_map.find(name);
         if (it == name_id_map.end())
         { // 此变量名未出现过，添加之
             id = names.size();
@@ -104,7 +107,7 @@ namespace aalta {
     aalta_formula::build_atom(const char *name, bool is_not)
     {
         int id = get_id_by_name(name); // will add name to names, if no exist/added before
-        
+
         if (is_not)
             op_ = e_not, right_ = aalta_formula(id).unique();
         else
@@ -116,8 +119,8 @@ namespace aalta {
      * 并处理！运算，使其只会出现在原子前
      * @param formula
      * @param is_not 标记此公式前是否有！
-     * 
-     * TODO: 
+     *
+     * TODO:
      *  - build 函数中, 使用 `aalta_formula().unique()` 方法会创建2~3次对象, 想办法提高效率减少对象创建次数
      *      - 比如, 用一个函数解决此问题
      */
@@ -128,160 +131,158 @@ namespace aalta {
             return;
         switch (formula->_type)
         {
-            case eTRUE: // True - [! True = False]
-                op_ = is_not ? e_false : e_true;
-                break;
-            case eFALSE: // False - [! False = True]
-                op_ = is_not ? e_true : e_false;
-                break;
-            case eLITERAL: // atom
-                build_atom (formula->_var, is_not);
-                break;
-            case eNOT:
-                build(formula->_right, is_not^1);
-                break;
-            case eNEXT: // Xa -- [!(Xa) = N(!a) = Tail | X(!a)]
-                if(!is_not) // Xa
-                {
-                    op_ = e_next;
-                    right_ = aalta_formula(formula->_right, is_not).unique();
-                }
-                else // N(!a)
-                {
-                    ltl_formula *not_a = create_operation(eNOT, NULL, formula->_right);
-                    ltl_formula *N_not_a = create_operation(eWNEXT, NULL, not_a);
-                    build(N_not_a, false);
-                    destroy_node(not_a);
-                    destroy_node(N_not_a);
-                }
-                break;
-            case eWNEXT: // [Na = Tail | Xa ] -- [!(Na) = X(!a)]
-                if(!is_not) // Tail | Xa
-                {
-                    ltl_formula *Xa = create_operation(eNEXT, NULL, formula->_right);
-                    *this = *(aalta_formula(e_or, TAIL(), to_af(Xa)).unique());
-                    destroy_node(Xa);
-                }
-                else // X(!a)
-                {
-                    ltl_formula *not_a = create_operation(eNOT, NULL, formula->_right);
-                    ltl_formula *X_not_a = create_operation(eNEXT, NULL, not_a);
-                    build(X_not_a, false);
-                    destroy_node(not_a);
-                    destroy_node(X_not_a);
-                }
-                break;
-            case eGLOBALLY: // G a = False R a -- [!(G a) = True U !a]
-                if (is_not)
-                    op_ = e_until, left_ = TRUE();
-                else
-                    op_ = e_release, left_ = FALSE();
-                right_ = aalta_formula(formula->_right, is_not).unique();
-                break;
-            case eFUTURE: // F a = True U a -- [!(F a) = False R !a]
-                if (is_not)
-                    op_ = e_release, left_ = FALSE();
-                else
-                    op_ = e_until, left_ = TRUE();
-                right_ = aalta_formula(formula->_right, is_not).unique();
-                break;
-            case eUNTIL: // a U b -- [!(a U b) = !a R !b]
-                op_ = is_not ? e_release : e_until;
-                left_ = aalta_formula(formula->_left, is_not).unique();
-                right_ = aalta_formula(formula->_right, is_not).unique();
-                break;
-            case eWUNTIL: // a W b = (G a) | (a U b) -- [!(a W b) = F !a /\ (!a R !b)]
+        case eTRUE: // True - [! True = False]
+            op_ = is_not ? e_false : e_true;
+            break;
+        case eFALSE: // False - [! False = True]
+            op_ = is_not ? e_true : e_false;
+            break;
+        case eLITERAL: // atom
+            build_atom(formula->_var, is_not);
+            break;
+        case eNOT:
+            build(formula->_right, is_not ^ 1);
+            break;
+        case eNEXT:      // Xa -- [!(Xa) = N(!a) = Tail | X(!a)]
+            if (!is_not) // Xa
             {
-                ltl_formula *Ga = create_operation(eGLOBALLY, NULL, formula->_left);
-                ltl_formula *aUb = create_operation(eUNTIL, formula->_left, formula->_right);
-                ltl_formula *now = create_operation(eOR, Ga, aUb);
-                *this = *(aalta_formula(now, is_not).unique());
-                destroy_node(Ga);
-                destroy_node(aUb);
-                break;
+                op_ = e_next;
+                right_ = aalta_formula(formula->_right, is_not).unique();
             }
-            case eRELEASE: // a R b -- [!(a R b) = !a U !b]
-                op_ = is_not ? e_until : e_release;
-                left_ = aalta_formula(formula->_left, is_not).unique();
-                right_ = aalta_formula(formula->_right, is_not).unique();
-                break;
-            case eAND: // a & b -- [!(a & b) = !a | !b ]
-                op_ = is_not ? e_or : e_and;
-                left_ = aalta_formula(formula->_left, is_not).unique();
-                right_ = aalta_formula(formula->_right, is_not).unique();
-                break;
-            case eOR: // a | b -- [!(a | b) = !a & !b]
-                op_ = is_not ? e_and : e_or;
-                left_ = aalta_formula(formula->_left, is_not).unique();
-                right_ = aalta_formula(formula->_right, is_not).unique();
-                break;
-            case eIMPLIES: // a->b = !a|b
+            else // N(!a)
             {
-                ltl_formula *not_a = create_operation(eNOT, NULL, formula->_left);
-                ltl_formula *now = create_operation(eOR, not_a, formula->_right);
-                *this = *(aalta_formula(now, is_not).unique());
+                ltl_formula *not_a = create_operation(eNOT, NULL, formula->_right);
+                ltl_formula *N_not_a = create_operation(eWNEXT, NULL, not_a);
+                build(N_not_a, false);
                 destroy_node(not_a);
-                destroy_node(now);
-                break;
+                destroy_node(N_not_a);
             }
-            case eEQUIV: // a<->b = (a->b)&(b->a)
+            break;
+        case eWNEXT:     // [Na = Tail | Xa ] -- [!(Na) = X(!a)]
+            if (!is_not) // Tail | Xa
             {
-                ltl_formula *imply_left = create_operation(eIMPLIES, formula->_left, formula->_right);
-                ltl_formula *imply_right = create_operation(eIMPLIES, formula->_right, formula->_left);
-                ltl_formula *now = create_operation(eAND, imply_left, imply_right);
-                *this = *(aalta_formula(now, is_not).unique());
-                destroy_node(imply_left);
-                destroy_node(imply_right);
-                destroy_node(now);
-                // 为什么 destroy 顺序是这样的? 如果顺序错了会有影响吗?
-                break;
+                ltl_formula *Xa = create_operation(eNEXT, NULL, formula->_right);
+                *this = *(aalta_formula(e_or, TAIL(), to_af(Xa)).unique());
+                destroy_node(Xa);
             }
-            default:
-                // print_error("the formula cannot be recognized by aalta!");
-                // may be:
-                //  - type/input error syntax formula
-                //  - need add codes for new/custom defined operator
-                exit(1);
-                break;
+            else // X(!a)
+            {
+                ltl_formula *not_a = create_operation(eNOT, NULL, formula->_right);
+                ltl_formula *X_not_a = create_operation(eNEXT, NULL, not_a);
+                build(X_not_a, false);
+                destroy_node(not_a);
+                destroy_node(X_not_a);
+            }
+            break;
+        case eGLOBALLY: // G a = False R a -- [!(G a) = True U !a]
+            if (is_not)
+                op_ = e_until, left_ = TRUE();
+            else
+                op_ = e_release, left_ = FALSE();
+            right_ = aalta_formula(formula->_right, is_not).unique();
+            break;
+        case eFUTURE: // F a = True U a -- [!(F a) = False R !a]
+            if (is_not)
+                op_ = e_release, left_ = FALSE();
+            else
+                op_ = e_until, left_ = TRUE();
+            right_ = aalta_formula(formula->_right, is_not).unique();
+            break;
+        case eUNTIL: // a U b -- [!(a U b) = !a R !b]
+            op_ = is_not ? e_release : e_until;
+            left_ = aalta_formula(formula->_left, is_not).unique();
+            right_ = aalta_formula(formula->_right, is_not).unique();
+            break;
+        case eWUNTIL: // a W b = (G a) | (a U b) -- [!(a W b) = F !a /\ (!a R !b)]
+        {
+            ltl_formula *Ga = create_operation(eGLOBALLY, NULL, formula->_left);
+            ltl_formula *aUb = create_operation(eUNTIL, formula->_left, formula->_right);
+            ltl_formula *now = create_operation(eOR, Ga, aUb);
+            *this = *(aalta_formula(now, is_not).unique());
+            destroy_node(Ga);
+            destroy_node(aUb);
+            break;
+        }
+        case eRELEASE: // a R b -- [!(a R b) = !a U !b]
+            op_ = is_not ? e_until : e_release;
+            left_ = aalta_formula(formula->_left, is_not).unique();
+            right_ = aalta_formula(formula->_right, is_not).unique();
+            break;
+        case eAND: // a & b -- [!(a & b) = !a | !b ]
+            op_ = is_not ? e_or : e_and;
+            left_ = aalta_formula(formula->_left, is_not).unique();
+            right_ = aalta_formula(formula->_right, is_not).unique();
+            break;
+        case eOR: // a | b -- [!(a | b) = !a & !b]
+            op_ = is_not ? e_and : e_or;
+            left_ = aalta_formula(formula->_left, is_not).unique();
+            right_ = aalta_formula(formula->_right, is_not).unique();
+            break;
+        case eIMPLIES: // a->b = !a|b
+        {
+            ltl_formula *not_a = create_operation(eNOT, NULL, formula->_left);
+            ltl_formula *now = create_operation(eOR, not_a, formula->_right);
+            *this = *(aalta_formula(now, is_not).unique());
+            destroy_node(not_a);
+            destroy_node(now);
+            break;
+        }
+        case eEQUIV: // a<->b = (a->b)&(b->a)
+        {
+            ltl_formula *imply_left = create_operation(eIMPLIES, formula->_left, formula->_right);
+            ltl_formula *imply_right = create_operation(eIMPLIES, formula->_right, formula->_left);
+            ltl_formula *now = create_operation(eAND, imply_left, imply_right);
+            *this = *(aalta_formula(now, is_not).unique());
+            destroy_node(imply_left);
+            destroy_node(imply_right);
+            destroy_node(now);
+            // 为什么 destroy 顺序是这样的? 如果顺序错了会有影响吗?
+            break;
+        }
+        default:
+            // print_error("the formula cannot be recognized by aalta!");
+            // may be:
+            //  - type/input error syntax formula
+            //  - need add codes for new/custom defined operator
+            exit(1);
+            break;
         }
     }
-
 
     /* 初始化非静态成员变量 */
     /* 初始化静态成员变量 */
     std::vector<std::string> aalta_formula::names = {
-        "true", "false", "Literal", "!", "|", "&", "X", "N", "U", "R", "Undefined"
-    }; // 存储操作符的名称以及原子变量的名称
-    std::unordered_map<std::string, int> aalta_formula::name_id_map; // 名称和对应的位置映射
+        "true", "false", "Literal", "!", "|", "&", "X", "N", "U", "R", "Undefined"}; // 存储操作符的名称以及原子变量的名称
+    std::unordered_map<std::string, int> aalta_formula::name_id_map;                 // 名称和对应的位置映射
     int aalta_formula::max_id_ = 1;
     aalta_formula::afp_set aalta_formula::all_afs;
-    aalta_formula* aalta_formula::TRUE_ = nullptr;
-    aalta_formula* aalta_formula::FALSE_ = nullptr;
-    aalta_formula* aalta_formula::TAIL_ = nullptr;
-    aalta_formula* aalta_formula::NTAIL_ = nullptr;
+    aalta_formula *aalta_formula::TRUE_ = nullptr;
+    aalta_formula *aalta_formula::FALSE_ = nullptr;
+    aalta_formula *aalta_formula::TAIL_ = nullptr;
+    aalta_formula *aalta_formula::NTAIL_ = nullptr;
 
-    aalta_formula* aalta_formula::TRUE()
+    aalta_formula *aalta_formula::TRUE()
     {
         if (TRUE_ == nullptr)
             TRUE_ = aalta_formula(e_true).unique();
         return TRUE_;
     }
-    aalta_formula* aalta_formula::FALSE()
+    aalta_formula *aalta_formula::FALSE()
     {
         if (FALSE_ == nullptr)
             FALSE_ = aalta_formula(e_false).unique();
         return FALSE_;
     }
-    aalta_formula* aalta_formula::TAIL()
+    aalta_formula *aalta_formula::TAIL()
     {
         if (TAIL_ == nullptr)
             TAIL_ = aalta_formula("Tail").unique();
         return TAIL_;
     }
-    aalta_formula* aalta_formula::NTAIL()
+    aalta_formula *aalta_formula::NTAIL()
     {
         if (NTAIL_ == nullptr)
-            NTAIL_ = aalta_formula (e_not, NULL, TAIL()).unique ();
+            NTAIL_ = aalta_formula(e_not, NULL, TAIL()).unique();
         return NTAIL_;
     }
 
@@ -301,7 +302,7 @@ namespace aalta {
      * @return
      */
     aalta_formula &aalta_formula::operator=(const aalta_formula &af)
-    // TODO: 
+    // TODO:
     //  - 这样(按照引用而非对象)应该是为了减少拷贝的开销
     //  - 如果按照对象而非引用去定义, 会怎样, 有什么意义/适用情况吗?
     //  - 网上查到的: 为什么要返回引用而不是对象?
@@ -337,7 +338,7 @@ namespace aalta {
 
     /**
      * Used in aalta::Solver.
-    */
+     */
     bool aalta_formula::is_label() const
     {
         return oper() == e_not || oper() > e_undefined;
@@ -346,7 +347,7 @@ namespace aalta {
     /**
      * literals, e.g. a/b/c/aaa
      * include true and false
-    */
+     */
     bool aalta_formula::is_literal() const
     {
         // I want to implement this function like below, can I do it?
@@ -357,7 +358,7 @@ namespace aalta {
         /**
          * OR
          *  - `oper() > e_undefined` 但是这样判断会漏掉 true 和 false
-        */
+         */
     }
     bool aalta_formula::is_unary() const
     {
@@ -381,7 +382,7 @@ namespace aalta {
         /**
          * G(a) = false R a
          *  - 'check `oper() = R` firstly' is very important!
-        */
+         */
         return oper() == e_release && left_->oper() == e_false;
     }
 
@@ -390,13 +391,13 @@ namespace aalta {
         /**
          * F(a) = true U a
          *  - 'check `oper() = U` firstly' is very important!
-        */
+         */
         return oper() == e_until && left_->oper() == e_true;
     }
 
-    std::string aalta_formula::to_string () const
+    std::string aalta_formula::to_string() const
     {
-        if(is_literal())
+        if (is_literal())
             return aalta_formula::names[oper()];
 
         std::string inner_s;
@@ -410,15 +411,14 @@ namespace aalta {
         return "(" + inner_s + ")";
     }
 
-
     /**
      * add (/\ !Tail) for all Next formulas/occurences
      *  - 在所有出现 Next(X) 的位置, 添加 /\ !Tail
      *  - TODO: why not just add /\ !Tail in the outer level?
-    */
+     */
     aalta_formula *aalta_formula::add_tail()
     {
-        if(this == nullptr) // I'm not sure about the correctness of this.
+        if (this == nullptr) // I'm not sure about the correctness of this.
             return nullptr;
         aalta_formula *res = nullptr;
         if (is_next())
@@ -431,11 +431,11 @@ namespace aalta {
         return res;
     }
 
-    aalta_formula * aalta_formula::split_next()
+    aalta_formula *aalta_formula::split_next()
     {
-        if(this == nullptr) // I'm not sure about the correctness of this.
+        if (this == nullptr) // I'm not sure about the correctness of this.
             return nullptr;
-        if(is_literal())
+        if (is_literal())
             return this;
 
         aalta_formula *res;
@@ -451,7 +451,7 @@ namespace aalta {
             else
             {
                 res = aalta_formula(oper(), NULL, right_->split_next()).unique();
-                if(right_->oper() == e_and || right_->oper() == e_or)
+                if (right_->oper() == e_and || right_->oper() == e_or)
                 {
                     // TODO: I couldn't understand the following code
                     //       give me an example!
@@ -464,8 +464,29 @@ namespace aalta {
         return res;
     }
 
-    aalta_formula* to_af(const ltl_formula *formula)
+    aalta_formula *to_af(const ltl_formula *formula)
     {
         return aalta_formula(formula, false).unique();
+    }
+
+    /**
+     * TODO: merge it to the below func `to_set()`, recursion -> loop?
+    */
+    void aalta_formula::to_set(af_prt_set &result)
+    {
+        if (oper() != e_and)
+            result.insert(this);
+        else
+        {
+            left_->to_set(result);
+            right_->to_set(result);
+        }
+    }
+
+    aalta_formula::af_prt_set aalta_formula::to_set()
+    {
+        af_prt_set result;
+        to_set(result);
+        return result;
     }
 } // namespace aalta_formula

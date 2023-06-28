@@ -19,6 +19,42 @@ namespace aalta
     }
 
     /**
+     * used in block_uc() func  --  `af_prt_set ands = formula_set_of(uc);`
+    */
+    aalta_formula::af_prt_set Solver::formula_set_of(std::vector<int> &v)
+    {
+        af_prt_set res;
+        for (std::vector<int>::iterator it = v.begin(); it != v.end(); it++)
+        {
+            aalta_formula *f = formula_of(*it);
+            if (f != NULL)
+                res.insert(f);
+        }
+        return res;
+    }
+
+    void Solver::block_formula(aalta_formula *f)
+    {
+        af_prt_set ands = f->to_set();
+        block_elements(ands);
+    }
+
+    void Solver::block_uc()
+    {
+        if (uc_on_)
+        {
+            std::vector<int> uc = get_uc();
+            af_prt_set ands = formula_set_of(uc);
+            if (ands.empty())
+            {
+                terminate_with_unsat(); // why? how to judge it!
+                return;
+            }
+            block_elements(ands);
+        }
+    }
+
+    /**
      * add X(f) when f is U(Until) or R(Release)
      */
     void Solver::build_X_map(aalta_formula *f)
@@ -52,6 +88,34 @@ namespace aalta
         }
         build_X_map_priliminary(f->l_af());
         build_X_map_priliminary(f->r_af());
+    }
+
+    /**
+     * add_clause( ![ /\ X(vi)]  ===  \/ !X(vi) )
+     * check the existence of X(vi) before add_clause()
+     */
+    void Solver::block_elements(const af_prt_set &ands)
+    {
+        // if there is a conjuct A in f such that (A, X A) is not founded in X_map_, then discard blocking f
+        if (block_discard_able(ands))
+            return;
+        std::vector<int> v;
+        for (af_prt_set::const_iterator it = ands.begin(); it != ands.end(); it++)
+            v.push_back(-SAT_id_of_next(*it));
+        add_clause(v);
+    }
+
+    /**
+     * check the existence of X(vi)
+     */
+    bool Solver::block_discard_able(const af_prt_set &ands)
+    {
+        for (af_prt_set::const_iterator it = ands.begin(); it != ands.end(); it++)
+        {
+            if (X_map_.find((*it)->id()) == X_map_.end())
+                return true;
+        }
+        return false;
     }
 
     void Solver::coi_merge(std::vector<int> &to, std::vector<int> &from)
@@ -201,7 +265,7 @@ namespace aalta
         case e_next:
             if (f->r_af() != NULL)
                 compute_full_coi(f->r_af(), ids);
-        default:           // atoms
+        default:                // atoms
             v[f->id() - 1] = 1; // TODO: why `-1`?
             break;
         }

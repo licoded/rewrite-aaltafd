@@ -76,6 +76,16 @@ namespace aalta
 		 * TODO:
 		 * Why first `pop_back()` then `return false;`?
 		 * Why not just do `return false;` without `pop_back()`
-		*/
+		 */
+	}
+
+	void LTLfChecker::push_formula_to_explored(aalta_formula *f)
+	{
+		solver_->block_formula(f);
+	}
+
+	void LTLfChecker::push_uc_to_explored()
+	{
+		solver_->block_uc();
 	}
 }

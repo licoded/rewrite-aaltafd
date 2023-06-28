@@ -160,6 +160,8 @@ namespace aalta {
          * TODO: I couldn't understand why `split_next` is necessary!
         */
         aalta_formula *split_next();
+        void to_set(af_prt_set &result);    // TODO: merge it to the below func `to_set()`, recursion -> loop?
+        af_prt_set to_set();                // used in `Solver::block_formula()`
     };
 
     aalta_formula* to_af(const ltl_formula *formula);
