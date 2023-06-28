@@ -435,10 +435,7 @@ namespace aalta
             }
         }
 
-        aalta_formula *label = formula_from(labels);
-        aalta_formula *next = formula_from(nexts);
-        Transition *t = new Transition(label, next);
-        return t;
+        return Transition::make_transition(labels, nexts);
     }
 
     void Solver::shrink_model(std::vector<int> &assign)
