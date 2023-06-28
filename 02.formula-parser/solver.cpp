@@ -20,7 +20,7 @@ namespace aalta
 
     /**
      * used in block_uc() func  --  `af_prt_set ands = formula_set_of(uc);`
-    */
+     */
     aalta_formula::af_prt_set Solver::formula_set_of(std::vector<int> &v)
     {
         af_prt_set res;
@@ -118,12 +118,120 @@ namespace aalta
         return false;
     }
 
+    /**
+     * @brief Set assumption_ of SAT solver from f. \
+     * @brief If global is true, set assumption_ with only global parts of f \
+     * @brief \
+     * @brief Just ignore global now, think it is always false
+     */
+    void Solver::get_assumption_from(aalta_formula *f, bool global)
+    {
+        assumption_.clear();
+        af_prt_set ands = f->to_set();
+        /**
+         * explain for `id_to_lit(get_SAT_id(*it)`
+         *      - *it is `af*`
+         *      - get_SAT_id: convert `af*` to `int id`
+         *      - id_to_lit: conver `int id` to `lit`
+         */
+        for (af_prt_set::iterator it = ands.begin(); it != ands.end(); it++)
+        {
+            if (global)
+            {
+                if ((*it)->is_globally())
+                    assumption_.push(id_to_lit(get_SAT_id(*it)));
+            }
+            else
+                assumption_.push(id_to_lit(get_SAT_id(*it)));
+        }
+        // don't forget tail!!
+        if (global)
+            /**
+             * TODO: why add TAIL when global is true?
+             *          - I have look up the codes, this case -- `global == true` only used in heuristics part of `dfs_check()`
+             *          - So just needn't to care about it now!
+             */
+            assumption_.push(id_to_lit(tail_));
+    }
+
+    /**
+     * @brief iter `vec<Lit> assumption_` and exec `coi_of`
+     *
+     * @return `vector<int> &res`, ???
+     */
+    std::vector<int> Solver::coi_of_assumption()
+    {
+        std::vector<int> res(nVars(), 0);
+        for (int i = 0; i < assumption_.size(); i++)
+        {
+            int id = lit_to_id(assumption_[i]);
+            assert(id != 0);
+            coi_of(id, res);
+        }
+        return res;
+    }
+
+    /**
+     * @brief merge the coi/formula of id into `vector<int> &res`;
+     *
+     * @param id int
+     * @param &res vector<int>
+     */
+    void Solver::coi_of(int id, std::vector<int> &res)
+    {
+        coi_map::iterator it = coi_map_.find(abs(id));
+        if (it != coi_map_.end())
+            coi_merge(res, it->second);
+        else // check whether id represent a literal or Next
+        {
+            assert(res.size() >= abs(id));
+            res[abs(id) - 1] = 0; // just reset the value
+            aalta_formula *f = formula_of(id);
+            if (f != NULL)
+            {
+                // COI includes only atoms
+                if (f->oper() > e_undefined || f->oper() == e_not || f->oper() == e_next)
+                    res[abs(id) - 1] = 1; // TODO: Why don't care about negative or positive?
+            }
+        }
+    }
+
+    /**
+     * @brief `to |= from`, will extend the length of `to` if needed
+     *
+     * @param &to vector<int>
+     * @param &from vector<int>
+     */
     void Solver::coi_merge(std::vector<int> &to, std::vector<int> &from)
     {
         if (to.size() < from.size())
             to.resize(from.size(), 0); // resize() only influences the new added elements
         for (int i = 0; i < from.size(); i++)
             to[i] |= from[i];
+    }
+
+    /**
+     * @param id int
+     * @return the formula corresponding to \@ id
+     */
+    aalta_formula *Solver::formula_of(int id)
+    {
+        formula_map::iterator it = formula_map_.find(id);
+        if (it != formula_map_.end())
+            return it->second;
+        return NULL;
+    }
+
+    /**
+     * @param id int
+     * @return the next inner of the formula corresponding to \@ id
+     */
+    aalta_formula *Solver::formula_of_next_inner(int id)
+    {
+        x_reverse_map::iterator it = X_reverse_map_.find(id);
+        if (it != X_reverse_map_.end())
+            return it->second;
+        return NULL;
     }
 
     // generate clauses of SAT solver
@@ -284,6 +392,87 @@ namespace aalta
     {
         for (std::vector<int>::iterator it = ids.begin(); it != ids.end(); it++)
             coi_map_.erase(*it);
+    }
+
+    // solve by taking the assumption of the CONJUNCTIVE formula f
+    // If \@global is true, take the assumption with only global conjuncts of f
+    bool Solver::solve_by_assumption(aalta_formula *f, bool global)
+    {
+        assert(!unsat_forever_);
+        get_assumption_from(f, global);
+        return solve_assumption();
+    }
+
+    /**
+     * @brief It doesn't include trigger the SAT solver, \
+     * @brief you must invoke the SAT solver manually before execute this method.
+     * @result A pair of <current, next>, which is extracted from the model of SAT solver
+     */
+    Transition *Solver::get_transition()
+    {
+        std::vector<int> assign = get_model();
+        shrink_model(assign); // TODO: see the comments of `shrink_model` and understand it.
+
+        std::vector<aalta_formula *> labels, nexts;
+        for (std::vector<int>::iterator it = assign.begin(); it != assign.end(); it++)
+        {
+            if ((*it) == 0) // TODO: means what?
+                continue;
+            aalta_formula *f = formula_of(*it);
+            if (f != NULL)
+            {
+                if (f->is_label())
+                    labels.push_back(f);
+                else if (f->is_next())
+                    nexts.push_back(f->r_af());
+            }
+            else if ((*it) > 0) // handle the variables created for Next of Unitl, Release formulas
+                                // TODO: why f == NULL while (*it) != 0? Maybe the id is temporarily generated when/in add_clauses_for!
+            {
+                aalta_formula *next_inner_af = formula_of_next_inner(*it);
+                if (next_inner_af != NULL)
+                    nexts.push_back(next_inner_af);
+            }
+        }
+
+        aalta_formula *label = formula_from(labels);
+        aalta_formula *next = formula_from(nexts);
+        Transition *t = new Transition(label, next);
+        return t;
+    }
+
+    void Solver::shrink_model(std::vector<int> &assign)
+    {
+        /**
+         * OLD COMMENTS:
+         *      - Shrinking to COI is the MUST, otherwise it may happen that \phi is in the next state of \psi,
+         *      - but \phi is not a subformula of \psi.
+         * TODO: to understand the above old comments.
+         */
+        shrink_to_coi(assign);
+        if (partial_on_) // NOTE: just needn't to care this, `shrink_to_partial` is empty
+            shrink_to_partial(assign);
+    }
+
+    /**
+     * @brief set assign[i] = 0, if/when coi[i] = 0 or coi[i] not exists
+     */
+    void Solver::shrink_to_coi(std::vector<int> &assign)
+    {
+        std::vector<int> coi = coi_of_assumption();
+        for (int i = 0; i < assign.size(); i++)
+        {
+            if (i < coi.size())
+                assign[i] &= coi[i]; // set assign[i] = 0, if/when coi[i] = 0
+            else
+                assign[i] = 0; // set assign[i] = 0, if/when coi[i] not exists
+        }
+    }
+
+    // do nothing, empty now.
+    void Solver::shrink_to_partial(std::vector<int> &assign)
+    {
+        //@TO BE DONE
     }
 
     ///////////inline functions

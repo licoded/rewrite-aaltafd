@@ -113,6 +113,7 @@ namespace aalta
 		void shrink_coi(std::vector<int> &ids);
 		void shrink_to_partial(std::vector<int> &); // shrink the assignment to paritial one
 		aalta_formula *formula_of(int id);			// return the formula corresponding to \@ id
+		aalta_formula *formula_of_next_inner(int id);			// return the formula corresponding to \@ id
 
 		void shrink_model(std::vector<int> &);
 

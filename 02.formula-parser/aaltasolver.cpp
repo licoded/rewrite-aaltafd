@@ -72,31 +72,6 @@ namespace aalta
          */
     }
 
-    bool AaltaSolver::solve_assumption()
-    {
-        Minisat::lbool ret = solveLimited(assumption_);
-        if (ret == l_True)
-            return true;
-        else if (ret == l_Undef)
-            exit(0);
-        return false;
-    }
-
-    // return the model from SAT solver when it provides SAT
-    std::vector<int> AaltaSolver::get_model()
-    {
-        std::vector<int> res;
-        res.resize(nVars(), 0);
-        for (int i = 0; i < nVars(); i++)
-        {
-            if (model[i] == l_True)
-                res[i] = i + 1;
-            else if (model[i] == l_False)
-                res[i] = -(i + 1);
-        }
-        return res;
-    }
-
     // return the UC from SAT solver when it provides UNSAT
     std::vector<int> AaltaSolver::get_uc()
     {

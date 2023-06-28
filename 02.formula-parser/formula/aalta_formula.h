@@ -165,6 +165,7 @@ namespace aalta {
     };
 
     aalta_formula* to_af(const ltl_formula *formula);
+    aalta_formula* formula_from(std::vector<aalta_formula *> &ands);
 } // namespace aalta_formula
 
 #endif	/* AALTA_FORMULA_H */

@@ -471,7 +471,7 @@ namespace aalta
 
     /**
      * TODO: merge it to the below func `to_set()`, recursion -> loop?
-    */
+     */
     void aalta_formula::to_set(af_prt_set &result)
     {
         if (oper() != e_and)
@@ -488,5 +488,24 @@ namespace aalta
         af_prt_set result;
         to_set(result);
         return result;
+    }
+
+    /**
+     * @param &ands vector<af *> 
+     * @return \/ (ands[i]) or TRUE (if ands is empty)
+    */
+    aalta_formula *formula_from(std::vector<aalta_formula *> &ands)
+    {
+        if (ands.empty())
+            return aalta_formula::TRUE();
+        aalta_formula *res = NULL;
+        for (std::vector<aalta_formula *>::iterator it = ands.begin(); it != ands.end(); it++)
+        {
+            if (res == NULL)    // just to proceed the first item of ands
+                res = *it;
+            else
+                res = aalta_formula(e_and, res, *it).unique();
+        }
+        return res;
     }
 } // namespace aalta_formula
