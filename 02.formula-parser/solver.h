@@ -35,6 +35,7 @@ namespace aalta
 		bool check_tail(aalta_formula *f);
 		// return a pair of <current, next>, which is extracted from the model of SAT solver
 		Transition *get_transition();
+		void push_next_inner(int f_id, vector<aalta_formula *> &nexts);
 		// add clause to block the CONJUNCTIVE formula f
 		void block_formula(aalta_formula *f);
 

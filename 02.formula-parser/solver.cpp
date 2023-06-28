@@ -428,14 +428,20 @@ namespace aalta
             }
             else if ((*it) > 0) // handle the variables created for Next of Unitl, Release formulas
                                 // TODO: why f == NULL while (*it) != 0? Maybe the id is temporarily generated when/in add_clauses_for!
-            {
-                aalta_formula *next_inner_af = formula_of_next_inner(*it);
-                if (next_inner_af != NULL)
-                    nexts.push_back(next_inner_af);
-            }
+                push_next_inner(*it, nexts);
         }
 
         return Transition::make_transition(labels, nexts);
+    }
+
+    /**
+     * used in `get_transition()` func
+    */
+    void Solver::push_next_inner(int f_id, vector<aalta_formula *> &nexts)
+    {
+        aalta_formula *next_inner_af = formula_of_next_inner(f_id);
+        if (next_inner_af != NULL)
+            nexts.push_back(next_inner_af);
     }
 
     void Solver::shrink_model(std::vector<int> &assign)
