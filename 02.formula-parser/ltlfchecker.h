@@ -34,7 +34,6 @@ namespace aalta
 		bool verbose_;		// default is false
 		CARSolver *solver_; // SAT solver for computing next states
 		aalta_formula *to_check_; // used in ctor
-		std::vector<aalta_formula *> visited_; // visited_ is updated during the search process.
 
 		//////////functions
 		bool sat_once(aalta_formula *f); // check whether the formula can be satisfied in one step (the terminating condition of checking)

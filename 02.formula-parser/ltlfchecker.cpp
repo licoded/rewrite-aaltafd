@@ -22,8 +22,6 @@ namespace aalta
 	 */
 	bool LTLfChecker::dfs_check(aalta_formula *f)
 	{
-		visited_.push_back(f);
-
 		if (detect_unsat())
 			return false;
 		if (sat_once(f))
@@ -40,7 +38,6 @@ namespace aalta
 			 * 		As `sat_once(f)` is false, and f is G formula, so f cannot be SAT.
 			 * 		- NOTE: sat_once() test, if current state is TAIL (ending state), whether f can be SAT.
 			 */
-			visited_.pop_back();
 			return false;
 		}
 
@@ -51,7 +48,6 @@ namespace aalta
 		{
 			if (global_part_unsat(f))
 			{
-				visited_.pop_back();
 				push_uc_to_explored();
 				return false;
 			}
@@ -73,24 +69,17 @@ namespace aalta
 			{
 				if (dfs_check(t->next()))
 				{
-					/**
-					 * Why not `pop_back()` here? Since all other cases, which `return false`, do `pop_back()`.
-					 * 	- I find it's unnecessary to care about this, since `visited_` is never been used.
-					 * 	- The only occurences of `visited_` are just push_back and pop_back.
-					 */
 					delete t;
 					return true;
 				}
 			}
 			else // UNSAT, cannot get new states, that means f is not used anymore
 			{
-				visited_.pop_back();
 				push_uc_to_explored(); // we will conclude the formula f to be checked is UNSAT if uc is empty
 				delete t;
 				return false;
 			}
 		}
-		visited_.pop_back();
 		return false;
 	}
 
