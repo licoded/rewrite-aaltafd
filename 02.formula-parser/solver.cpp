@@ -89,6 +89,13 @@ namespace aalta
         build_X_map_priliminary(f->r_af());
     }
 
+    int Solver::SAT_id_of_next(aalta_formula *f)
+    {
+        x_map::iterator it = X_map_.find(f->id());
+        assert(it != X_map_.end());
+        return it->second;
+    }
+
     /**
      * add_clause( ![ /\ X(vi)]  ===  \/ !X(vi) )
      * check the existence of X(vi) before add_clause()
@@ -151,6 +158,44 @@ namespace aalta
              *          - So just needn't to care about it now!
              */
             assumption_.push(id_to_lit(tail_));
+    }
+
+    // for each pair (Xa, X!a), (XXa, XX!a).., generate equivalence Xa<-> !X!a, XXa <-> !XX!a
+    void Solver::add_X_conflicts()
+    {
+        std::vector<std::pair<int, int>> pairs = get_conflict_literal_pairs();
+        for (int i = 0; i < pairs.size(); i++)
+            add_X_conflict_for_pair(pairs[i]);
+    }
+
+    // collect all id pairs like (a, !a) from formula_map_
+    std::vector<std::pair<int, int>>
+    Solver::get_conflict_literal_pairs()
+    {
+        std::vector<std::pair<int, int>> res;
+        for (formula_map::iterator it = formula_map_.begin(); it != formula_map_.end(); it++)
+        {
+            if (it->first < 0)
+                continue;
+            formula_map::iterator it2 = formula_map_.find(-(it->first));
+            if (it2 != formula_map_.end())
+                res.push_back(std::pair<int, int>(it->second->id(), it2->second->id()));
+        }
+        return res;
+    }
+
+    // given \@ pa = (a, !a), add equivalence for Xa <-> !X!a, and recursively XXa <-> !XX!a ...
+    void Solver::add_X_conflict_for_pair(std::pair<int, int> &pa)
+    {
+        x_map::iterator it, it2;
+        it = X_map_.find(pa.first);
+        it2 = X_map_.find(pa.second);
+        if (it != X_map_.end() && it2 != X_map_.end())
+        {
+            add_equivalence(it->second, -it2->second);
+            std::pair<int, int> pa = std::pair<int, int>(it->second, it2->second);
+            add_X_conflict_for_pair(pa);
+        }
     }
 
     /**
