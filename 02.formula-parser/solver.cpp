@@ -299,10 +299,11 @@ namespace aalta
         // 3) be careful about !a, we should encode as -id (a) rather than id (!a)
         // 4) for a Global formula Gf, we directly add id(Gf) into the clauses, and will not consider it in assumptions // TODO: seems outdated, not impl
         // We also build the X_map and formula_map during the process of adding clauses
-        assert(f->oper() != e_w_next);
+
         //     null    || true or false || has added
         if (f == nullptr || f->is_tf() || clauses_added(f))
             return;
+        assert(f->oper() != e_w_next);
 
         int id; // used for temporary subformula
         if (f->is_U_or_R())
