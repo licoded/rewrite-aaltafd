@@ -9,9 +9,7 @@
 #include <iostream>
 #include <vector>
 
-#define l_True (Minisat::lbool((uint8_t)0)) // gcc does not do constant propagation if these are real constants.
-#define l_False (Minisat::lbool((uint8_t)1))
-#define l_Undef (Minisat::lbool((uint8_t)2))
+using namespace Minisat;
 
 namespace aalta
 {
