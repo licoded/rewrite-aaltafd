@@ -1,14 +1,14 @@
 /*
  * ltl_formula 变体:
- * 
+ *
  *     - 表达式中无 <->, ->
  *     - NNF: !只会出现在原子前
- * 
+ *
  * File:   aalta_formula.cpp
  * Author: Yongkang Li
  *
  * Created on June 22, 2023, 10:40 AM
-*/
+ */
 
 #ifndef AALTA_FORMULA_H
 #define AALTA_FORMULA_H
@@ -109,8 +109,9 @@ namespace aalta {
         aalta_formula* unique();
         void build (const ltl_formula *formula, bool is_not = false);
         void build_atom(const char *name, bool is_not = false);
-        int get_id_by_name(const char *name);
-    
+        static int get_id_by_name(const char *name);
+        static int get_id_by_names(const std::vector<const char *> &name_arr);
+
     private:
         static aalta_formula *FALSE_;
         static aalta_formula *TRUE_;
@@ -122,12 +123,12 @@ namespace aalta {
         static aalta_formula* FALSE();
         static aalta_formula* TAIL();
         static aalta_formula* NTAIL();
-    
+
     private:
         size_t hash_; // hash值
         // added for af_prt_set TYPE identification, _id is set in unique ()
         int id_;
-        static int max_id_;
+        static int max_id_; // id count for af ptr
     public:
         // added for afp_set TYPE identification
         bool operator == (const aalta_formula& af) const; 
@@ -150,17 +151,17 @@ namespace aalta {
         inline int r_id() { return right_->id_; } // used in `Solver`
         inline int l_id() { return left_->id_; } // used in `Solver`
 
-    /* transfer formula to specific NF(normal form) */
+        /* transfer formula to specific NF(normal form) */
     public:
         aalta_formula* add_tail (); //add (/\ !Tail) for all Next formulas/occurences
         /**
          * This function split Next subformula by /\ or \/. i.e. X(a/\ b) -> X a /\ X b
          * It is a necessary preprocessing for SAT-based checking
-         * 
+         *
          * The above comments are copied from old codes.
-         * 
+         *
          * TODO: I couldn't understand why `split_next` is necessary!
-        */
+         */
         aalta_formula *split_next();
         void to_set(af_prt_set &result);    // TODO: merge it to the below func `to_set()`, recursion -> loop?
         af_prt_set to_set();                // used in `Solver::block_formula()`
@@ -177,11 +178,24 @@ namespace aalta {
         if (it == name_id_map.end())
         { // 此变量名未出现过，添加之
             id = names.size();
-            name_id_map.insert(std::make_pair(name, id));
+            name_id_map.insert({name, id});
             names.push_back(name);
         }
         else
             id = it->second;
+        return id;
+    }
+
+    inline int
+    aalta_formula::get_id_by_names(const std::vector<const char *> &name_arr)
+    {
+        // TODO: check if some names in `vector<const char*> names` already exist in `aalta_formula::names`
+        const int id = names.size();
+        for (auto name : name_arr)
+        {
+            name_id_map.insert({name, id});
+            names.push_back(name);
+        }
         return id;
     }
 

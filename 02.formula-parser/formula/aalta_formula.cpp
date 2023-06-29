@@ -246,7 +246,11 @@ namespace aalta
     aalta_formula *aalta_formula::TAIL()
     {
         if (TAIL_ == nullptr)
-            TAIL_ = aalta_formula("Tail").unique();
+        {
+            auto tail_s_arr = {"tail", "Tail", "TAIL"};
+            const int tail_id = aalta_formula::get_id_by_names(tail_s_arr);
+            TAIL_ = aalta_formula(tail_id).unique();
+        }
         return TAIL_;
     }
     aalta_formula *aalta_formula::NTAIL()
