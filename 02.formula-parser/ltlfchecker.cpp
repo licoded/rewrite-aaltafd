@@ -24,7 +24,7 @@ namespace aalta
 	{
 		if (detect_unsat())
 			return false;
-		if (sat_once(f)) // NOTE: sat_once() test, if current state is TAIL (ending state), whether f can be SAT.
+		if (sat_once(f))
 			return true;
 
 		// TODO: block `af *f` to avoid dead loop?
@@ -98,5 +98,13 @@ namespace aalta
 	void LTLfChecker::push_uc_to_explored()
 	{
 		solver_->block_uc();
+	}
+
+	/**
+	 * NOTE: sat_once() test, if current state is TAIL (ending state), whether f can be SAT.
+	*/
+	bool LTLfChecker::sat_once(aalta_formula *f)
+	{
+		return solver_->check_tail(f);
 	}
 }

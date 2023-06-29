@@ -407,7 +407,15 @@ namespace aalta
     {
         assert(!unsat_forever_);
         get_assumption_from(f, global);
-        return solve_assumption();
+        return solve_assumption(); // inherit from `AaltaSolver` class
+    }
+
+    // check whether the formula \@ f can be the last state (tail)
+    // used in `sat_once()` func
+    bool Solver::check_tail(aalta_formula *f)
+    {
+        assumption_.push(id_to_lit(tail_));
+        return solve_by_assumption(f);
     }
 
     /**
