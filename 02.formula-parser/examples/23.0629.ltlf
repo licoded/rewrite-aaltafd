@@ -1,0 +1,3 @@
+X a
+(!Tail & a) U b
+(!Tail) U a & (!Tail) U (!a) & (!Tail) U b & (!Tail) U (!b) & (!Tail) U c 
