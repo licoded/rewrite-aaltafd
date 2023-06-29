@@ -72,18 +72,6 @@ namespace aalta
          */
     }
 
-    // return the UC from SAT solver when it provides UNSAT
-    std::vector<int> AaltaSolver::get_uc()
-    {
-        std::vector<int> reason;
-        for (int k = 0; k < conflict.size(); k++)
-        {
-            Minisat::Lit l = conflict[k];
-            reason.push_back(-lit_to_id(l));
-        }
-        return reason;
-    }
-
     /**
      * All others overloading add_clause() all invoke this one!
      * All add_equivalence() finally invoke this one, too.

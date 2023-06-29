@@ -5,7 +5,7 @@
  * Created on June 22, 2023, 10:40 AM
  */
 
-#include "aalta_formula.h"
+#include "formula/aalta_formula.h"
 #include "ltlparser/trans.h"
 #include <unordered_map>
 #include <unordered_set>

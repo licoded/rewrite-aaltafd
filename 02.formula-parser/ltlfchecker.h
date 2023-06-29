@@ -9,7 +9,7 @@
 #define LTLF_CHECKER_H
 
 #include "formula/aalta_formula.h"
-#include "carsolver.h"
+#include "solver.h"
 
 namespace aalta
 {
@@ -19,7 +19,7 @@ namespace aalta
 		LTLfChecker(){};
 		LTLfChecker(aalta_formula *f, bool verbose = false) : to_check_(f), verbose_(verbose)
 		{
-			solver_ = new CARSolver(f, verbose);
+			solver_ = new Solver(f, verbose);
 		}
 		void create_solver() {}
 		~LTLfChecker()
@@ -32,7 +32,7 @@ namespace aalta
 	protected:
 		// flags
 		bool verbose_;		// default is false
-		CARSolver *solver_; // SAT solver for computing next states
+		Solver *solver_; // SAT solver for computing next states
 		aalta_formula *to_check_; // used in ctor
 
 		//////////functions

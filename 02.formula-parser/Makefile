@@ -1,10 +1,14 @@
 
-FORMULAFILES =	formula/aalta_formula.cpp
+FORMULAFILES =	formula/aalta_formula.cpp transition.h
 	
 PARSERFILES  =	ltlparser/ltl_formula.c ltlparser/ltllexer.c ltlparser/ltlparser.c ltlparser/trans.c 
 
-ALLFILES     =	$(FORMULAFILES) $(PARSERFILES) main.cpp
-TESTFILES     =	$(FORMULAFILES) $(PARSERFILES) tests/formula/main.cpp
+SOLVER		= minisat/core/Solver.cc aaltasolver.cpp solver.cpp
+
+CHECKING	= ltlfchecker.cpp
+
+ALLFILES     =	$(CHECKING) $(SOLVER) $(FORMULAFILES) $(PARSERFILES) main.cpp
+TESTFILES     =	$(CHECKING) $(SOLVER) $(FORMULAFILES) $(PARSERFILES) tests/formula/main.cpp
 
 
 CC	    =   g++
