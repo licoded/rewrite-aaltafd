@@ -91,6 +91,7 @@ namespace aalta {
         aalta_formula *right_ = nullptr; // 操作符右端公式
         // int length_; //公式长度
         aalta_formula *unique_ = nullptr; // 指向唯一指针标识
+        std::string af_s_;
         // aalta_formula *simp_ = nullptr; // 指向化简后的公式指针
         static std::vector<std::string> names; // 存储操作符的名称以及原子变量的名称
         static std::unordered_map<std::string, int> name_id_map; // 名称和对应的位置映射

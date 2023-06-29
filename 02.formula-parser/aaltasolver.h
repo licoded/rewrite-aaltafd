@@ -9,7 +9,9 @@
 #define AALTA_SOLVER_H
 
 #include "minisat/core/Solver.h"
+#include "formula/aalta_formula.h"
 #include <vector>
+#include <iostream>
 
 namespace aalta
 {
@@ -22,6 +24,9 @@ namespace aalta
 		// variables
 		bool verbose_;
 		Minisat::vec<Minisat::Lit> assumption_; // Assumption for SAT solver
+        std::vector<aalta_formula *> af_list;
+        std::vector<std::string> af_s_list;
+        std::vector<int> sat_id_list;
 
 		// functions
 		bool solve_assumption();	  // invoke Solver::solveLimited() with assumption_

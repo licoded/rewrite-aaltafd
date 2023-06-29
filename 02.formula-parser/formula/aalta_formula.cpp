@@ -79,6 +79,7 @@ namespace aalta
         unique_ = (iter != all_afs.end())
                       ? (*iter)
                       : aalta_formula::add_into_all_afs(this);
+        unique_->af_s_ = unique_->to_string();
         return unique_;
     }
 

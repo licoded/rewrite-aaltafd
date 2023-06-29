@@ -60,6 +60,7 @@ namespace aalta
 
 		typedef aalta_formula::af_prt_set af_prt_set;
 		af_prt_set clauses_added_; // set of formulas whose clauses are already created.
+		unordered_set<string> clauses_s_added_; // set of formulas whose clauses are already created.
 
 		typedef unordered_map<int, int> x_map;
 		x_map X_map_; // if (1, 2) is in X_map_, that means 2 = X 1;
@@ -68,6 +69,7 @@ namespace aalta
 		// if (1, a) is in formula_map_, that means SAT_id (a) == 1
 		// we need to store literals (including atoms), Next (WNext), Until, Release and Or
 		formula_map formula_map_;
+		unordered_map<int, std::string> formula_s_map_;
 		typedef unordered_map<int, aalta_formula *> x_reverse_map;
 		x_reverse_map X_reverse_map_; // if (4, f) is in the map, that means SAT_id (Xf) = 4, here f is a Until/Release formula
 
@@ -150,6 +152,7 @@ namespace aalta
     inline void Solver::mark_clauses_added(aalta_formula *f)
     {
         clauses_added_.insert(f);
+        clauses_s_added_.insert(f->to_string());
     }
 
     /**
@@ -158,6 +161,7 @@ namespace aalta
     inline void Solver::build_formula_map(aalta_formula *f)
     {
         formula_map_.insert({get_SAT_id(f), f}); // {key, value}
+		formula_s_map_.insert({get_SAT_id(f), f->to_string()});
     }
 
     /**

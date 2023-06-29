@@ -132,6 +132,9 @@ namespace aalta
      */
     void Solver::get_assumption_from(aalta_formula *f, bool global)
     {
+        af_list.clear(),
+        af_s_list.clear(),
+        sat_id_list.clear(),
         assumption_.clear();
         af_prt_set ands = f->to_set();
         /**
@@ -148,6 +151,9 @@ namespace aalta
                     assumption_.push(id_to_lit(get_SAT_id(*it)));
             }
             else
+                af_list.push_back(*it),
+                af_s_list.push_back((*it)->to_string()),
+                sat_id_list.push_back(get_SAT_id(*it)),
                 assumption_.push(id_to_lit(get_SAT_id(*it)));
         }
         // don't forget tail!!
@@ -455,8 +461,12 @@ namespace aalta
     // used in `sat_once()` func
     bool Solver::check_tail(aalta_formula *f)
     {
+        get_assumption_from(f);
+        af_list.push_back(aalta_formula::TAIL()),
+        af_s_list.push_back(aalta_formula::TAIL()->to_string()),
+        sat_id_list.push_back(tail_),
         assumption_.push(id_to_lit(tail_));
-        return solve_by_assumption(f);
+        return solve_assumption();
     }
 
     /**
