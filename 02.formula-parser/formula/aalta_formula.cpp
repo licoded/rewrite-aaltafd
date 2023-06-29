@@ -82,38 +82,6 @@ namespace aalta
         return unique_;
     }
 
-    inline int
-    aalta_formula::get_id_by_name(const char *name)
-    {
-        int id; // NOTE: this is operator id, not af id
-        const auto &it = name_id_map.find(name);
-        if (it == name_id_map.end())
-        { // 此变量名未出现过，添加之
-            id = names.size();
-            name_id_map.insert(std::make_pair(name, id));
-            names.push_back(name);
-        }
-        else
-            id = it->second;
-        return id;
-    }
-
-    /**
-     * 添加原子变量
-     * @param name
-     * @param is_not -- 该变量是有用到的, build函数中调用时可能传入true也可能传入false
-     */
-    inline void
-    aalta_formula::build_atom(const char *name, bool is_not)
-    {
-        int id = get_id_by_name(name); // will add name to names, if no exist/added before
-
-        if (is_not)
-            op_ = e_not, right_ = aalta_formula(id).unique();
-        else
-            op_ = id;
-    }
-
     /**
      * 将ltl_formula转成aalta_formula结构，
      * 并处理！运算，使其只会出现在原子前
@@ -249,6 +217,8 @@ namespace aalta
         }
     }
 
+
+
     /* 初始化非静态成员变量 */
     /* 初始化静态成员变量 */
     std::vector<std::string> aalta_formula::names = {
@@ -363,54 +333,6 @@ namespace aalta
     bool aalta_formula::is_unary() const
     {
         return left_ == nullptr;
-    }
-
-    // is true or false
-    inline bool aalta_formula::is_tf() const
-    {
-        return oper() == e_true || oper() == e_false;
-    }
-
-    // is true or false
-    inline bool aalta_formula::is_U_or_R() const
-    {
-        return oper() == e_until || oper() == e_release;
-    }
-
-    // is and or or
-    inline bool aalta_formula::is_and_or_or() const
-    {
-        return oper() == e_and || oper() == e_or;
-    }
-
-    // check whether it's a G formula
-    inline bool aalta_formula::is_globally() const
-    {
-        /**
-         * G(a) = false R a
-         *  - 'check `oper() = R` firstly' is very important!
-         */
-        return oper() == e_release && left_->oper() == e_false;
-    }
-
-    // include more cases than `is_globally()` func
-    // e.g. G(a) & G(b), G(a) | G(b)
-    inline bool aalta_formula::is_wider_globally() const
-    {
-        if(is_globally())
-            return true;
-        if(is_and_or_or())
-            return left_->is_wider_globally() && right_->is_wider_globally();
-        return false;
-    }
-
-    inline bool aalta_formula::is_future() const
-    {
-        /**
-         * F(a) = true U a
-         *  - 'check `oper() = U` firstly' is very important!
-         */
-        return oper() == e_until && left_->oper() == e_true;
     }
 
     std::string aalta_formula::to_string() const

@@ -308,11 +308,6 @@ namespace aalta
         shrink_coi(ids);
     }
 
-    inline bool Solver::need_record(aalta_formula *f)
-    {
-        return f->oper() == e_until || f->oper() == e_release || f->oper() == e_or;
-    }
-
     // used in `compute_full_coi()` func
     void Solver::coi_find_and_merge(aalta_formula *f, std::vector<int> &v)
     {
@@ -492,72 +487,5 @@ namespace aalta
     void Solver::shrink_to_partial(std::vector<int> &assign)
     {
         //@TO BE DONE
-    }
-
-    ///////////inline functions
-    /**
-     * Check if `af *f` is in `clauses_added_`
-     */
-    inline bool Solver::clauses_added(aalta_formula *f)
-    {
-        if (clauses_added_.find(f) != clauses_added_.end())
-            return true;
-        return false;
-    }
-
-    /**
-     * Insert `af *f` into `clauses_added_`
-     */
-    inline void Solver::mark_clauses_added(aalta_formula *f)
-    {
-        clauses_added_.insert(f);
-    }
-
-    /**
-     * Insert `af *f` into `formula_map_`, just {key: SAT_id of f, value: f}
-     */
-    inline void Solver::build_formula_map(aalta_formula *f)
-    {
-        formula_map_.insert({get_SAT_id(f), f}); // {key, value}
-    }
-
-    /**
-     * Return the SAT_id of `af *f`
-     * NOTE: for !a, use -id (a) rather than id (!a);
-     *
-     * TODO: Why use `inline` instead of `static inline` to define this function?
-     *          - may because `static inline` cannot act as `inline` expectation
-     */
-    inline int Solver::get_SAT_id(aalta_formula *f)
-    {
-        /**
-         * (OLD)COMMENTS: for !a, use `-id (a)` rather than `id (!a)`;
-         * TODO: What is the difference of the two?
-         *          - I just think the logic of `-id(a)` is more natural.
-         *          - And the former may save a new id than the latter.
-         */
-        if (f->oper() == e_not)
-            return -f->r_af()->id();
-        return f->id();
-    }
-
-    inline int Solver::get_l_SAT_id(aalta_formula *f)
-    {
-        assert(f->l_af() != nullptr);
-        return get_SAT_id(f->l_af());
-    }
-
-    inline int Solver::get_r_SAT_id(aalta_formula *f)
-    {
-        assert(f->r_af() != nullptr);
-        return get_SAT_id(f->r_af());
-    }
-
-    /**
-     * Act as its name!
-     */
-    inline void Solver::terminate_with_unsat()
-    {
-        unsat_forever_ = true;
     }
 }
