@@ -133,9 +133,9 @@ namespace aalta
     void Solver::get_assumption_from(aalta_formula *f, bool global)
     {
         af_list.clear(),
-        af_s_list.clear(),
-        sat_id_list.clear(),
-        assumption_.clear();
+            af_s_list.clear(),
+            sat_id_list.clear(),
+            assumption_.clear();
         af_prt_set ands = f->to_set();
         /**
          * explain for `id_to_lit(get_SAT_id(*it)`
@@ -152,9 +152,9 @@ namespace aalta
             }
             else
                 af_list.push_back(*it),
-                af_s_list.push_back((*it)->to_string()),
-                sat_id_list.push_back(get_SAT_id(*it)),
-                assumption_.push(id_to_lit(get_SAT_id(*it)));
+                    af_s_list.push_back((*it)->to_string()),
+                    sat_id_list.push_back(get_SAT_id(*it)),
+                    assumption_.push(id_to_lit(get_SAT_id(*it)));
         }
         // don't forget tail!!
         if (global)
@@ -463,9 +463,9 @@ namespace aalta
     {
         get_assumption_from(f);
         af_list.push_back(aalta_formula::TAIL()),
-        af_s_list.push_back(aalta_formula::TAIL()->to_string()),
-        sat_id_list.push_back(tail_),
-        assumption_.push(id_to_lit(tail_));
+            af_s_list.push_back(aalta_formula::TAIL()->to_string()),
+            sat_id_list.push_back(tail_),
+            assumption_.push(id_to_lit(tail_));
         return solve_assumption();
     }
 
@@ -525,7 +525,7 @@ namespace aalta
     }
 
     /**
-     * @brief set assign[i] = 0, if/when coi[i] = 0 or coi[i] not exists
+     * @brief TODO: I can't understand now!
      */
     void Solver::shrink_to_coi(std::vector<int> &assign)
     {
@@ -533,9 +533,12 @@ namespace aalta
         for (int i = 0; i < assign.size(); i++)
         {
             if (i < coi.size())
-                assign[i] &= coi[i]; // set assign[i] = 0, if/when coi[i] = 0
+            {
+                if (coi[i] == 0) // is not a coi
+                    assign[i] = 0;
+            }
             else
-                assign[i] = 0; // set assign[i] = 0, if/when coi[i] not exists
+                assign[i] = 0;
         }
     }
 
