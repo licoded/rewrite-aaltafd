@@ -77,8 +77,8 @@ namespace aalta
     {
         if (unique_ != NULL)
             return unique_;
+        this->af_s_ = this->to_string();
         afp_set::const_iterator iter = all_afs.find(this);
-        iter = all_afs.find(this);
         unique_ = (iter != all_afs.end())
                       ? (*iter)
                       : aalta_formula::add_into_all_afs(this);

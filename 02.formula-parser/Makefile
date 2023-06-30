@@ -8,7 +8,7 @@ SOLVER		= minisat/core/Solver.cc aaltasolver.cpp solver.cpp
 CHECKING	= ltlfchecker.cpp
 
 ALLFILES     =	$(CHECKING) $(SOLVER) $(FORMULAFILES) $(PARSERFILES) main.cpp
-TESTFILES     =	$(CHECKING) $(SOLVER) $(FORMULAFILES) $(PARSERFILES) tests/formula/main.cpp
+TESTFILES     =	$(FORMULAFILES) $(PARSERFILES) tests/formula/to_string.cpp
 
 
 CC	    =   g++
@@ -36,7 +36,7 @@ release :   $(ALLFILES)
 debug :	$(ALLFILES)
 	$(CC) $(FLAG) $(DEBUGFLAG) $(ALLFILES) -lz -o aaltafd
 
-test : 	$(ALLFILES)
+test : 	$(TESTFILES)
 	$(CC) $(FLAG) $(DEBUGFLAG) $(TESTFILES) -lz -o test
 
 clean :
