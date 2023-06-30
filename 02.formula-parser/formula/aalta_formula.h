@@ -16,6 +16,7 @@
 #include "ltlparser/ltl_formula.h"
 #include <cstdlib>
 #include <unordered_map>
+#include <map>
 #include <unordered_set>
 #include <vector>
 
@@ -96,6 +97,8 @@ namespace aalta {
         static std::vector<std::string> names; // 存储操作符的名称以及原子变量的名称
         static std::unordered_map<std::string, int> name_id_map; // 名称和对应的位置映射
         static afp_set all_afs;
+        static std::map<int, aalta_formula *> id_to_af;
+        static std::map<int, std::string> id_to_afs;
         //////////////////////////////////////////////////
 
     public:

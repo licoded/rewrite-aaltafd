@@ -8,6 +8,7 @@
 #include "formula/aalta_formula.h"
 #include "ltlparser/trans.h"
 #include <unordered_map>
+#include <map>
 #include <unordered_set>
 #include <vector>
 
@@ -67,6 +68,8 @@ namespace aalta
         aalta_formula::all_afs.insert(new_unique_ptr);
         new_unique_ptr->id_ = max_id_++;
         new_unique_ptr->unique_ = new_unique_ptr;
+        aalta_formula::id_to_af.insert({new_unique_ptr->id_, new_unique_ptr});
+        aalta_formula::id_to_afs.insert({new_unique_ptr->id_, new_unique_ptr->to_string()});
         return new_unique_ptr;
     }
 
@@ -227,6 +230,8 @@ namespace aalta
     std::unordered_map<std::string, int> aalta_formula::name_id_map;                 // 名称和对应的位置映射
     int aalta_formula::max_id_ = 1;
     aalta_formula::afp_set aalta_formula::all_afs;
+    std::map<int, aalta_formula *> aalta_formula::id_to_af;
+    std::map<int, std::string> aalta_formula::id_to_afs;
     aalta_formula *aalta_formula::TRUE_ = nullptr;
     aalta_formula *aalta_formula::FALSE_ = nullptr;
     aalta_formula *aalta_formula::TAIL_ = nullptr;
