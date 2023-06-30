@@ -19,6 +19,7 @@ namespace aalta
           left_(nullptr),
           right_(nullptr)
     {
+        calc_hash();
     } // new 时调用
 
     aalta_formula::aalta_formula(const aalta_formula &orig) // 拷贝构造函数
@@ -31,13 +32,17 @@ namespace aalta
           left_(nullptr),
           right_(nullptr)
     {
+        calc_hash();
     }
     aalta_formula::aalta_formula(int op,
                                  aalta_formula *left,
                                  aalta_formula *right)
         : op_(op),
           left_(left),
-          right_(right) {}
+          right_(right)
+    {
+        calc_hash();
+    }
 
     aalta_formula::aalta_formula(const char *input)
     {
@@ -47,12 +52,14 @@ namespace aalta
          */
         // *this = aalta_formula(getAST(input), false);
         build(getAST(input), false); // 这样少一次 ctor 创建对象的消耗
+        calc_hash();
     }
 
     aalta_formula::aalta_formula(const ltl_formula *formula, bool is_not)
     // TODO: variable `is_not`, I want to change a more clear/articulate name
     {
         build(formula, is_not);
+        calc_hash();
     }
 
     aalta_formula::~aalta_formula() {}
@@ -221,8 +228,6 @@ namespace aalta
         }
     }
 
-
-
     /* 初始化非静态成员变量 */
     /* 初始化静态成员变量 */
     std::vector<std::string> aalta_formula::names = {
@@ -264,6 +269,23 @@ namespace aalta
         if (NTAIL_ == nullptr)
             NTAIL_ = aalta_formula(e_not, NULL, TAIL()).unique();
         return NTAIL_;
+    }
+
+    /**
+     * 计算hash值
+     */
+    inline void
+    aalta_formula::calc_hash()
+    {
+        hash_ = 1315423911; // HASH_INIT;
+        hash_ = (hash_ << 5) ^ (hash_ >> 27) ^ op_;
+
+        if (left_ != NULL)
+            hash_ = (hash_ << 5) ^ (hash_ >> 27) ^ left_->hash_;
+        if (right_ != NULL)
+            hash_ = (hash_ << 5) ^ (hash_ >> 27) ^ right_->hash_;
+
+        hash_ = (hash_ << 5) ^ (hash_ >> 27);
     }
 
     /**
@@ -441,9 +463,9 @@ namespace aalta
     }
 
     /**
-     * @param &ands vector<af *> 
+     * @param &ands vector<af *>
      * @return \/ (ands[i]) or TRUE (if ands is empty)
-    */
+     */
     aalta_formula *formula_from(std::vector<aalta_formula *> &ands)
     {
         if (ands.empty())
@@ -451,7 +473,7 @@ namespace aalta
         aalta_formula *res = NULL;
         for (std::vector<aalta_formula *>::iterator it = ands.begin(); it != ands.end(); it++)
         {
-            if (res == NULL)    // just to proceed the first item of ands
+            if (res == NULL) // just to proceed the first item of ands
                 res = *it;
             else
                 res = aalta_formula(e_and, res, *it).unique();

@@ -133,6 +133,7 @@ namespace aalta {
         // added for af_prt_set TYPE identification, _id is set in unique ()
         int id_;
         static int max_id_; // id count for af ptr
+        void calc_hash();
     public:
         // added for afp_set TYPE identification
         bool operator == (const aalta_formula& af) const; 
