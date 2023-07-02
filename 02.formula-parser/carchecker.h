@@ -19,7 +19,7 @@ namespace aalta
     class CARChecker
     {
     public:
-        CARChecker(aalta_formula *f, bool verbose = false) {}
+        CARChecker(aalta_formula *f, bool verbose = false) : to_check_(f) {}
         ~CARChecker() {}
 
         bool check();
@@ -27,6 +27,7 @@ namespace aalta
     private:
         // members
         CARSolver *carsolver_;
+        aalta_formula *to_check_;
         typedef std::vector<std::vector<int>> Frame;
         std::vector<Frame> frames_; // frame sequence
         Frame tmp_frame_;           // temporal frame to store the UCs before it is pushed into frames_
@@ -34,6 +35,7 @@ namespace aalta
         // CARSolver *solver_;
 
         // functions
+        void push_formula_to_explored (aalta_formula* f);
         // main checking function
         bool car_check(aalta_formula *f);
         // try to find a model with the length of \@frame_level

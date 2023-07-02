@@ -462,6 +462,22 @@ namespace aalta
         return result;
     }
 
+    // TODO: understand it and optimize
+    aalta_formula::af_prt_set aalta_formula::to_or_set()
+    {
+        af_prt_set res;
+        if (oper() != e_or)
+            res.insert(this);
+        else
+        {
+            af_prt_set tmp = left_->to_or_set();
+            res.insert(tmp.begin(), tmp.end());
+            tmp = right_->to_or_set();
+            res.insert(tmp.begin(), tmp.end());
+        }
+        return res;
+    }
+
     /**
      * @param &ands vector<af *>
      * @return \/ (ands[i]) or TRUE (if ands is empty)
