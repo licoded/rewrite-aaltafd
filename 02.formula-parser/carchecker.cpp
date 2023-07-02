@@ -12,49 +12,6 @@ using namespace Minisat;
 
 namespace aalta
 {
-
-    void InvSolver::create_flag_for_frame(int frame_level)
-    {
-        assert(frame_flags_.size() == frame_level);
-        frame_flags_.push_back(++flag_id_);
-    }
-    void InvSolver::add_clauses_for_frame(std::vector<int> &uc, int frame_level)
-    {
-        assert(frame_level < frame_flags_.size());
-        std::vector<int> v;
-        // if v is (a1, a2, ..., an), create clause (flag, -a1, -a2, ..., -an)
-        v.push_back(frame_flags_[frame_level]);
-        for (int i = 0; i < uc.size(); i++)
-            v.push_back(-uc[i]);
-        add_clause(v);
-
-        // create clauses (-flag, a1),(-flag, a2) ... (-flag, an)
-        v.clear();
-        for (int i = 0; i < uc.size(); i++)
-            add_clause(-frame_flags_[frame_level], uc[i]);
-    }
-
-    bool InvSolver::solve_with_assumption(int frame_level)
-    {
-        assumption_.clear();
-        for (int i = 0; i < frame_level; i++)
-            assumption_.push(id_to_lit(frame_flags_[i]));
-        assumption_.push(id_to_lit(-frame_flags_[frame_level]));
-        return solve_assumption();
-    }
-
-    void InvSolver::update_assumption_for_constraint(int id)
-    {
-        assumption_.push(id_to_lit(id));
-    }
-
-    void InvSolver::disable_frame_and()
-    {
-        Lit l = assumption_.last();
-        assumption_.pop();
-        assumption_.push(~l);
-    }
-
     aalta_formula *CARChecker::target_atom(aalta_formula *g)
     {
         if (!g->is_wider_globally())
@@ -111,29 +68,18 @@ namespace aalta
         return car_check(to_check_);
     }
 
-    void CARChecker::push_formula_to_explored (aalta_formula* f)
-	{
-		carsolver_->block_formula (f);
-	}
-
     bool CARChecker::car_check(aalta_formula *f)
     {
         if (sat_once(f))
             return true;
-        else if (f->is_wider_globally())
+        if (f->is_wider_globally())
         {
-            push_formula_to_explored(f);
-            return false;
+            carsolver_->block_formula(f); // 同样也是因为有 sat_once(f) is false
+            return false;                // 这里可以判定 false, 是因为之前有 sat_once(f) is false
         }
 
-        /**
-         * 问题: 为什么下面就开始 get_uc 了
-         * - 凭什么就可以认为当前 SAT 解出的方案不 OK, 应该去 get_uc 了
-         *     - sat_once 函数中, 调用了 SAT 求解一个方案?
-         */
-
         // initialize the first frame
-        std::vector<int> uc = get_selected_uc();
+        std::vector<int> uc = get_selected_uc();    // has invoked sat_once(f) before, so uc has been generated
         tmp_frame_.push_back(uc);
         add_new_frame();
 

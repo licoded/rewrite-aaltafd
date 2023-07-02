@@ -35,7 +35,6 @@ namespace aalta
         // CARSolver *solver_;
 
         // functions
-        void push_formula_to_explored (aalta_formula* f);
         // main checking function
         bool car_check(aalta_formula *f);
         // try to find a model with the length of \@frame_level
