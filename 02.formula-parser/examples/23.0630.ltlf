@@ -2,6 +2,10 @@ a & !a
 X(a & !a)
 X(a) & X(!a)
 
+false
+true
+!tail U false
+
 (!Tail) U a & (!Tail) U (!a)
 (!Tail) U a & (!Tail) U (!a) & (!Tail) U b & (!Tail) U (!b)
 (!Tail) U a & (!Tail) U (!a) & (!Tail) U b & (!Tail) U (!b) & (!Tail) U c 

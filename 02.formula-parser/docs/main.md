@@ -1,0 +1,2 @@
+- `blsc` has BUG or is incomplete, it can't cope with `false` -> UNSAT
+- my plan is: stop `blsc` temporarily, do CDLSC first and then adapt the method from CDLSC to `blsc`
