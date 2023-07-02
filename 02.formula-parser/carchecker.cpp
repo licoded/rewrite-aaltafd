@@ -12,53 +12,6 @@ using namespace Minisat;
 
 namespace aalta
 {
-    aalta_formula *CARChecker::target_atom(aalta_formula *g)
-    {
-        if (!g->is_wider_globally())
-            return NULL;
-        aalta_formula *f = NULL;
-        af_prt_set formula_set = g->r_af()->to_or_set();
-        int count = 0;
-        for (af_prt_set::iterator it = formula_set.begin(); it != formula_set.end(); it++)
-        {
-            if ((*it)->oper() == e_not)
-            {
-                count++;
-                f = *it;
-            }
-            else if ((*it)->oper() > e_undefined)
-                return NULL;
-        }
-        if (count == 1)
-            return f->r_af();
-        return NULL;
-    }
-    aalta_formula *CARChecker::extract_for_partial_unsat()
-    {
-        af_prt_set formula_set = to_check_->to_set();
-        for (af_prt_set::iterator it = formula_set.begin(); it != formula_set.end(); it++)
-        {
-            aalta_formula *f = target_atom(*it);
-            if (f != NULL)
-            {
-                if (formula_set.find(f) != formula_set.end())
-                    return aalta_formula(e_and, f, *it).unique();
-            }
-        }
-        return NULL;
-    }
-
-    bool CARChecker::partial_unsat()
-    {
-        aalta_formula *f = extract_for_partial_unsat();
-        if (f == NULL)
-            return false;
-        CARChecker checker(f);
-        if (!checker.car_check(f))
-            return true;
-        return false;
-    }
-
     bool CARChecker::check()
     {
         if (to_check_->oper() == e_true)
@@ -79,7 +32,7 @@ namespace aalta
         }
 
         // initialize the first frame
-        std::vector<int> uc = get_selected_uc();    // has invoked sat_once(f) before, so uc has been generated
+        std::vector<int> uc = carsolver_->get_selected_uc();    // has invoked sat_once(f) before, so uc has been generated
         tmp_frame_.push_back(uc);
         add_new_frame();
 
@@ -107,23 +60,23 @@ namespace aalta
     {
         int frame_level = frames_.size() - 1;
         carsolver_->create_flag_for_frame(frame_level);
-        // inv_solver_->create_flag_for_frame (frame_level);
         for (int i = 0; i < tmp_frame_.size(); i++)
-            solver_add_frame_element(tmp_frame_[i], frame_level);
+            carsolver_->add_clause_for_frame(tmp_frame_[i], frame_level);   // tmp_frame_[i] is uc
     }
 
     bool CARChecker::try_satisfy(aalta_formula *f, int frame_level)
     {
-        while (try_satisfy_at(f, frame_level))
+        // check whether \@f has a next state that can block constraints at level \@frame_level
+        while (carsolver_->solve_with_assumption(f, frame_level))
         {
-            Transition *t = get_transition();
+            Transition *t = carsolver_->get_transition();
             if (frame_level == 0)
             {
                 if (sat_once(t->next()))
                     return true;
                 else
                 {
-                    std::vector<int> uc = get_selected_uc();
+                    std::vector<int> uc = carsolver_->get_selected_uc();
                     add_frame_element(frame_level, uc);
                     continue;
                 }
@@ -131,7 +84,7 @@ namespace aalta
             if (try_satisfy(t->next(), frame_level - 1))
                 return true;
         }
-        std::vector<int> uc = get_selected_uc();
+        std::vector<int> uc = carsolver_->get_selected_uc();
         add_frame_element(frame_level + 1, uc);
         return false;
     }
@@ -146,7 +99,7 @@ namespace aalta
         else
         {
             frames_[frame_level].push_back(uc);
-            solver_add_frame_element(uc, frame_level);
+            carsolver_->add_clause_for_frame(uc, frame_level);
         }
     }
 

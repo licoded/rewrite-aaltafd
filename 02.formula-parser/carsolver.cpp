@@ -26,6 +26,12 @@ namespace aalta
         return res;
     }
 
+    void CARSolver::create_flag_for_frame (int frame_level)
+	{
+		assert (frame_flags_.size () == frame_level);
+		frame_flags_.push_back (++max_used_id_);
+	}
+
     bool CARSolver::check_final(aalta_formula *f)
     {
         set_selected_assumption(f); // just used in get_selected_uc() func

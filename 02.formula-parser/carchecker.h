@@ -26,13 +26,12 @@ namespace aalta
 
     private:
         // members
-        CARSolver *carsolver_;
         aalta_formula *to_check_;
         typedef std::vector<std::vector<int>> Frame;
         std::vector<Frame> frames_; // frame sequence
         Frame tmp_frame_;           // temporal frame to store the UCs before it is pushed into frames_
+        CARSolver *carsolver_;
         InvSolver *inv_solver_;     // SAT solver to check invariant
-        // CARSolver *solver_;
 
         // functions
         // main checking function
@@ -50,37 +49,6 @@ namespace aalta
         // check whether an invariant is found at frame \@ i
         bool inv_found_at(int i);
 
-        // specilized heursitics
-        typedef aalta_formula::af_prt_set af_prt_set;
-        bool partial_unsat();
-        aalta_formula *target_atom(aalta_formula *g);
-        aalta_formula *extract_for_partial_unsat();
-
-        // get the UC of solver_
-        inline std::vector<int> get_selected_uc()
-        {
-            return carsolver_->get_selected_uc();
-        }
-
-        // check whether \@f has a next state that can block constraints at level \@frame_level
-        inline bool try_satisfy_at(aalta_formula *f, int frame_level)
-        {
-            return carsolver_->solve_with_assumption(f, frame_level); // need specialized?
-        }
-
-        // get a transition from SAT solver.
-        inline Transition *get_transition()
-        {
-            return carsolver_->get_transition(); // need specialized?
-        }
-
-        // add the frame \@frame_level a new element to block \@uc in next states
-        inline void solver_add_frame_element(std::vector<int> &uc, int frame_level)
-        {
-            carsolver_->add_clause_for_frame(uc, frame_level);
-            // inv_solver_->add_clauses_for_frame (uc, frame_level);
-        }
-
         // check whether \@ f can be a final state
         bool sat_once(aalta_formula *f);
 
@@ -89,8 +57,6 @@ namespace aalta
         void add_clauses_to_inv_solver(int level);
         void add_clauses_to_inv_solver_for_frame_or(Frame &frame);
         void add_clauses_to_inv_solver_for_frame_and(Frame &frame);
-
-        void print_frame(int);
     };
 }
 
