@@ -22,20 +22,31 @@ namespace aalta
         return solve_assumption();
     }
 
+    /**
+     * `add_clause()` -- frame_id -> ! /\ uc[i]
+    */
     void CARSolver::add_clause_for_frame(std::vector<int> &uc, int frame_level)
     {
         assert(frame_level < frame_flags_.size());
-        af_prt_set ands = formula_set_of(uc);
+        af_prt_set ands = formula_set_of(uc); // just for remove repeat and NULL items
         // if there is a conjuct A in f such that (A, X A) is not founded in X_map_, then discard blocking f
         if (block_discard_able(ands))
             return;
+        /**
+         * TODO: The following/remain codes can be replaced by `add_equivalence_wisely()` func!
+        */
         std::vector<int> v;
         for (af_prt_set::const_iterator it = ands.begin(); it != ands.end(); it++)
             v.push_back(-SAT_id_of_next(*it));
         v.push_back(-(frame_flags_[frame_level]));
-        add_clause(v);
+        add_clause(v);  // frame_id -> \/ !uc[i]
+                        //        ==== ! /\ uc[i]
     }
 
+    /**
+     * return uc=get_uc(), but filterd with `selected_assumption_`
+     * OR return get_uc() /\ selected_assumption_
+    */
     std::vector<int> CARSolver::get_selected_uc()
     {
         std::vector<int> uc = get_uc();

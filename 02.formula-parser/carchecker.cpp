@@ -32,6 +32,7 @@ namespace aalta
         }
 
         // initialize the first frame
+        tmp_frame_.clear();
         std::vector<int> uc = carsolver_->get_selected_uc(); // has invoked sat_once(f) before, so uc has been generated
         tmp_frame_.push_back(uc);
         add_new_frame();
@@ -60,8 +61,8 @@ namespace aalta
     {
         int frame_level = frames_.size() - 1;
         carsolver_->create_flag_for_frame(frame_level);
-        for (int i = 0; i < tmp_frame_.size(); i++)
-            carsolver_->add_clause_for_frame(tmp_frame_[i], frame_level); // tmp_frame_[i] is uc
+        for (int i = 0; i < tmp_frame_.size(); i++) // tmp_frame_ is a set of multiple uc(s) -- a two-dimensional array
+            carsolver_->add_clause_for_frame(tmp_frame_[i], frame_level); // tmp_frame_[i] is a uc -- a one-dimensional array
     }
 
     bool CARChecker::try_satisfy(aalta_formula *f, int frame_level)
