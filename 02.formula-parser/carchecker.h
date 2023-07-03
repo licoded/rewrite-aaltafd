@@ -41,7 +41,7 @@ namespace aalta
         // add \@uc to frame \@frame_level
         void add_frame_element(int frame_level, std::vector<int> &uc);
         // check whether an invariant can be found in up to \@frame_level steps.
-        bool inv_found(int frame_level);
+        bool inv_found();
         // add a new frame to frames_
         void add_new_frame();
         // add a new frame to SAT solver
@@ -54,9 +54,6 @@ namespace aalta
 
         // handle inv_solver_
         bool solve_inv_at(int frame_level);
-        void add_clauses_to_inv_solver(int level);
-        void add_clauses_to_inv_solver_for_frame_or(Frame &frame);
-        void add_clauses_to_inv_solver_for_frame_and(Frame &frame);
     };
 }
 

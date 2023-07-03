@@ -28,11 +28,11 @@ namespace aalta
         if (f->is_wider_globally())
         {
             carsolver_->block_formula(f); // 同样也是因为有 sat_once(f) is false
-            return false;                // 这里可以判定 false, 是因为之前有 sat_once(f) is false
+            return false;                 // 这里可以判定 false, 是因为之前有 sat_once(f) is false
         }
 
         // initialize the first frame
-        std::vector<int> uc = carsolver_->get_selected_uc();    // has invoked sat_once(f) before, so uc has been generated
+        std::vector<int> uc = carsolver_->get_selected_uc(); // has invoked sat_once(f) before, so uc has been generated
         tmp_frame_.push_back(uc);
         add_new_frame();
 
@@ -42,7 +42,7 @@ namespace aalta
             tmp_frame_.clear();
             if (try_satisfy(f, frame_level))
                 return true;
-            if (inv_found(frame_level))
+            if (inv_found())
                 return false;
             add_new_frame();
             frame_level++;
@@ -61,7 +61,7 @@ namespace aalta
         int frame_level = frames_.size() - 1;
         carsolver_->create_flag_for_frame(frame_level);
         for (int i = 0; i < tmp_frame_.size(); i++)
-            carsolver_->add_clause_for_frame(tmp_frame_[i], frame_level);   // tmp_frame_[i] is uc
+            carsolver_->add_clause_for_frame(tmp_frame_[i], frame_level); // tmp_frame_[i] is uc
     }
 
     bool CARChecker::try_satisfy(aalta_formula *f, int frame_level)
@@ -101,66 +101,57 @@ namespace aalta
         }
     }
 
-    bool CARChecker::inv_found(int frame_level)
+    // check whether an invariant can be found in up to \@frame_level steps.
+    // if `return false`, means UNSAT
+    bool CARChecker::inv_found()
     {
         bool res = false;
         inv_solver_ = new InvSolver(to_check_->id());
-        for (int i = 0; i < frames_.size(); i++)
-        {
-            if (inv_found_at(i))
-            {
-                res = true;
-                break;
-            }
-        }
+        int cur_frame_level = 0;
+        while (cur_frame_level < frames_.size() && !res)
+            res = inv_found_at(cur_frame_level);
         delete inv_solver_;
         return res;
     }
 
+    /**
+     * Algorithm after reduction: whether /\ (1<=j<=i) C[j] -> C[i] is SAT
+     * NOTE: Attention that the codes may not correspond to the paper, may not do the reduction!
+     *          - I think it indeedly do as the paper said, because the `solve_inv_at()` func has param frame_level.
+     * NOTE: the type of C[i][j] in C[i] (type: Frame is two-dimensional array) is vector<int> is one-dimensional array
+    */
     bool CARChecker::inv_found_at(int frame_level)
     {
         if (frame_level == 0)
         {
-            add_clauses_to_inv_solver_for_frame_or(frames_[frame_level]);
-            return false;
+            // add_clause -- C[i] ==== \/ /\ frame[i][j]
+            inv_solver_->add_clauses_for_frame_or(frames_[frame_level]);
+            return false; // because if i==1, we should return false, as it doesn't have previous level/frame
         }
         return solve_inv_at(frame_level);
     }
 
+    /**
+     * ATTENTION: inv_found = !solve_assumption(), so solve_assumption() should check !( /\ (1<=j<=i) C[j] -> C[i] )
+     *                                                                          ====  
+    */
     bool CARChecker::solve_inv_at(int frame_level)
     {
-        add_clauses_to_inv_solver_for_frame_and(frames_[frame_level]);
-        bool res = !(inv_solver_->solve_assumption());
+        // add_clause -- !C[i] ==== ! \/ /\ frame[i][j]
+        inv_solver_->add_clauses_for_frame_and(frames_[frame_level]);
+        bool inv_found = !(inv_solver_->solve_assumption()); // TODO: Analyse the logic here!
+        /**
+         * change previous to: add_clause -- C[i] ==== \/ /\ frame[i][j]?
+         *      - this idea/understanding should be false, because in `add_cluases_for_frame_and()` func, it just add `->` not `<->`
+         * OR
+         * just disable/remove the previous !C[i]
+         * 
+         * BUT why not just remove it from assumptions_? why just overturn/reverse it?
+        */
         inv_solver_->disable_frame_and();
-        add_clauses_to_inv_solver_for_frame_or(frames_[frame_level]);
-        return res;
-    }
-
-    void CARChecker::add_clauses_to_inv_solver_for_frame_or(Frame &frame)
-    {
-        std::vector<int> v;
-        for (int i = 0; i < frame.size(); i++)
-        {
-            int clause_flag = inv_solver_->new_var();
-            v.push_back(clause_flag);
-            for (int j = 0; j < frame[i].size(); j++)
-                inv_solver_->add_clause(-clause_flag, frame[i][j]);
-        }
-        inv_solver_->add_clause(v);
-    }
-
-    void CARChecker::add_clauses_to_inv_solver_for_frame_and(Frame &frame)
-    {
-        int frame_flag = inv_solver_->new_var();
-        for (int i = 0; i < frame.size(); i++)
-        {
-            std::vector<int> v;
-            for (int j = 0; j < frame[i].size(); j++)
-                v.push_back(-frame[i][j]);
-            v.push_back(-frame_flag);
-            inv_solver_->add_clause(v);
-        }
-        inv_solver_->update_assumption_for_constraint(frame_flag);
+        // add_clause -- C[i] ==== \/ /\ frame[i][j]
+        inv_solver_->add_clauses_for_frame_or(frames_[frame_level]);
+        return inv_found;
     }
 
     bool CARChecker::sat_once(aalta_formula *f)
