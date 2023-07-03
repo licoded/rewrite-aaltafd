@@ -28,8 +28,6 @@ namespace aalta
         void add_clauses_for_frame_and(Frame &frame);
 
     protected:
-        // ids in SAT solver to represent each frame, i.e. frame_flags[i] represents frame i;
-        std::vector<int> frame_flags_;
         // the flag id to represent the flags of each frame
         int flag_id_;
         /**

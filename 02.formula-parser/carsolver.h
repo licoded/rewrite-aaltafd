@@ -30,6 +30,7 @@ namespace aalta
 	protected:
 		// members
 		// ids to flag each frame, i.e. frame_flags[i] represent the id for frames_[i]
+		// 								so, the meaning of the word 'flag(s)' is equivalent to 'represent'.
 		std::vector<int> frame_flags_;
 		unordered_set<int> selected_assumption_; // get the UC from elements stored in this set
 
