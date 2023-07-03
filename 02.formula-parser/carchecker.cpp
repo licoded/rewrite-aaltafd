@@ -132,20 +132,17 @@ namespace aalta
     }
 
     /**
-     * ATTENTION: inv_found = !solve_assumption(), so solve_assumption() should check !( /\ (1<=j<=i) C[j] -> C[i] )
-     *               ( PROOF: !(a->b) = !(!a \/ b) = a /\ !b )                   ====    /\ (1<=j<=i) C[j] /\ !C[i]
-     * NOTE: the clauses added by `add_clause()` are /\ not \\/ !!!
+     * check whether /\ (1<=j<=i) C[j] -> C[i] is true.
+     * ATTENTION: inv_found = !solve_assumption(), so solve_assumption() should check SAT of !( /\ (1<=j<=i) C[j] -> C[i] )
+     *                  ( PROOF: !(a->b) = !(!a \/ b) = a /\ !b )                       ====    /\ (1<=j<=i) C[j] /\ !C[i]
+     * ATTENTION: Let φ be a formula of propositional logic. Then φ is satisﬁable iff ¬φ is not valid.
+     *            So in order to prove φ is not valid, we just need to prove ¬φ is SAT. !!!
+     * ATTENTION: the clauses added by `add_clause()` are /\ not \\/ !!!
     */
     bool CARChecker::solve_inv_at(int frame_level)
     {
         // add_clause -- !C[i] ==== ! \/ uc[i]
         inv_solver_->add_clauses_for_frame_and(frames_[frame_level]);
-        /**
-         * add_clause(a1); add_clause(a2);
-         * After the codes of above line, the relation is a1 /\ a2
-         * 
-         * SO, the `solve_assumption()` in following line check, !( /\ (1<=j<=i) C[j] -> C[i] )
-        */
         bool inv_found = !(inv_solver_->solve_assumption());
         /**
          * just disable/remove the previous !C[i]
