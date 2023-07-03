@@ -1,0 +1,4 @@
+- we just need to ensure that the id of formula f to be checked is the biggest
+    - then since the solver we use is different, so everything else is OK
+- `a` /\ `a -> b` -> `b`, while `!a` /\ `a->b` -> empty
+    - it's cunning/subtly!
