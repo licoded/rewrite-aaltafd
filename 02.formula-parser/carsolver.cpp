@@ -12,14 +12,20 @@ using namespace std;
 
 namespace aalta
 {
+    /**
+     * return SAT of `ψ ∧ xnf(φ)`, in which ψ = C[frame level] = /\ uc[i]
+     * 
+     * TODO: seems selected_assumption is not used here, can we remove it?
+     *       But maybe it will be used after this func...
+    */
     bool CARSolver::solve_with_assumption(aalta_formula *f, int frame_level)
     {
         assert(frame_level < frame_flags_.size());
         assert(!unsat_forever_);
         set_selected_assumption(f);
-        get_assumption_from(f, false);
-        assumption_.push(id_to_lit(frame_flags_[frame_level]));
-        return solve_assumption();
+        get_assumption_from(f, false);  // f = φ
+        assumption_.push(id_to_lit(frame_flags_[frame_level])); // ψ = C[frame level] = /\ uc[i]
+        return solve_assumption(); // ψ ∧ xnf(φ)
     }
 
     /**
@@ -72,6 +78,7 @@ namespace aalta
         return Solver::check_tail(f);
     }
 
+    // selected_assumption_ = f->to_set(), which is splited by e_and operator
     void CARSolver::set_selected_assumption(aalta_formula *f)
     {
         selected_assumption_.clear();

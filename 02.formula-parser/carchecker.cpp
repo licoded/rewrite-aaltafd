@@ -60,6 +60,11 @@ namespace aalta
         tmp_frame_.clear();
     }
 
+    /**
+     * try to find a model with the length of @frame_level
+     * NOTE: we always starts with the input formula f at each beginning of our recursion !!!
+     *       the difference is the expected length of the SAT path to the final/close state
+    */
     bool CARChecker::try_satisfy(aalta_formula *f, int frame_level)
     {
         // check whether \@f has a next state that can block constraints at level \@frame_level
@@ -71,10 +76,7 @@ namespace aalta
                 if (sat_once(t->next()))
                     return true;
                 else
-                {
                     add_frame_element(frame_level);
-                    continue;
-                }
             }
             if (try_satisfy(t->next(), frame_level - 1))
                 return true;

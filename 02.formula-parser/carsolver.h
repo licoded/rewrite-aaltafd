@@ -19,7 +19,6 @@ namespace aalta
 	public:
 		CARSolver(aalta_formula *f, bool verbose = false, bool partial_on = false, bool uc_on = true) : Solver(f, verbose, partial_on, uc_on){};
 
-		// functions
 		bool solve_with_assumption(aalta_formula *f, int frame_level);
 		void add_clause_for_frame(std::vector<int> &uc, int frame_level);
 		void create_flag_for_frame(int frame_level);
