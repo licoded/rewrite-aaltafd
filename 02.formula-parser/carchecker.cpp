@@ -124,7 +124,7 @@ namespace aalta
     {
         if (frame_level == 0)
         {
-            // add_clause -- C[i] ==== \/ /\ frame[i][j]
+            // add_clause -- C[i] ==== \/ uc[i]
             inv_solver_->add_clauses_for_frame_or(frames_[frame_level]);
             return false; // because if i==1, we should return false, as it doesn't have previous level/frame
         }
@@ -133,23 +133,29 @@ namespace aalta
 
     /**
      * ATTENTION: inv_found = !solve_assumption(), so solve_assumption() should check !( /\ (1<=j<=i) C[j] -> C[i] )
-     *                                                                          ====  
+     *               ( PROOF: !(a->b) = !(!a \/ b) = a /\ !b )                   ====    /\ (1<=j<=i) C[j] /\ !C[i]
+     * NOTE: the clauses added by `add_clause()` are /\ not \\/ !!!
     */
     bool CARChecker::solve_inv_at(int frame_level)
     {
-        // add_clause -- !C[i] ==== ! \/ /\ frame[i][j]
+        // add_clause -- !C[i] ==== ! \/ uc[i]
         inv_solver_->add_clauses_for_frame_and(frames_[frame_level]);
-        bool inv_found = !(inv_solver_->solve_assumption()); // TODO: Analyse the logic here!
         /**
-         * change previous to: add_clause -- C[i] ==== \/ /\ frame[i][j]?
-         *      - this idea/understanding should be false, because in `add_cluases_for_frame_and()` func, it just add `->` not `<->`
-         * OR
-         * just disable/remove the previous !C[i]
+         * add_clause(a1); add_clause(a2);
+         * After the codes of above line, the relation is a1 /\ a2
          * 
-         * BUT why not just remove it from assumptions_? why just overturn/reverse it?
+         * SO, the `solve_assumption()` in following line check, !( /\ (1<=j<=i) C[j] -> C[i] )
+        */
+        bool inv_found = !(inv_solver_->solve_assumption());
+        /**
+         * just disable/remove the previous !C[i]
+         * NOTE: why not just remove it from assumptions_?
+         *       - because it is more clean and efficient
+         *         to specify `!a` to be true to remove `a` and `a->b`
+         *         as `!a` make `a->b` always be true.
         */
         inv_solver_->disable_frame_and();
-        // add_clause -- C[i] ==== \/ /\ frame[i][j]
+        // add_clause -- C[i] ==== \/ uc[i]
         inv_solver_->add_clauses_for_frame_or(frames_[frame_level]);
         return inv_found;
     }

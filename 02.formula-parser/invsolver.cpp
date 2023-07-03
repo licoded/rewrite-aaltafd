@@ -22,6 +22,7 @@ namespace aalta
 
     /**
      * CONCLUSION: add_clause -- \\/ /\ frame[i][j] in frame (param)
+     *                      ==== \\/ uc[i]
      * 
      * (0<=i<frame_len) cluase_flag[i] -> /\ frame[i][j]
      * add_clause -- \\/ clause_flag[i] 
@@ -44,11 +45,21 @@ namespace aalta
     }
 
     /**
-     * CONCLUSEION: add_clause -- ! \\/ /\ frame[i][j] in frame (param)
+     * CONCLUSEION: add_clause -- /\ ! /\ frame[i][j] in frame (param)
+     *                       ==== /\ ! uc[i]
+     *                       ==== ! \\/ uc[i]
      * 
      * (0<=i<frame_len) frame_flag -> /\ ! /\ frame[i][j]
-     *                           ==== ! \\/ /\ frame[i][j]
      * NOTE: with `assumption_.push(id_to_lit(frame_flag))` ==== `add_clause(frame_flag)`
+     * 
+     * TODO: We can very easily merge the two and/or funcs, since we just add C[i] or !C[i] each time.
+     *       e.g. we can rewrite or func by using and func -- and func: and(); disable_frame_and();
+     *      - Oh, it's false! Because, although `a` and `a->b` can imply `b`, 
+     *                          `!a` and `a->b` cannot imply anything as we can let `!a` be true 
+     *                          since `a` is just a id we generated.
+     *      - btw, note that `a->b` is true when (and just need only this) `a` is false.
+     *          - so, `disable_frame_and()` to clean/disable/remove previous added clause is equivalently clean to just remove the clause from assumption_
+     *              - It (`disable_frame_and()` func) is more clean, specified and efficient, as it assign `!a` to be true. (i.e. `a` to be false).
     */
     void InvSolver::add_clauses_for_frame_and(Frame &frame)
     {
@@ -68,6 +79,7 @@ namespace aalta
          * but the final effect may be the same, so 
          * TODO: I think we should replace this with `add_clause()`
          * but why id_to_lit? Oh, I know. Because `add_clause()` also do id_to_lit before push.
+         * ATTENTION: it is bound with `disable_frame_and()` func! They should be modified simultaneously/synchronously.
         */
         assumption_.push(id_to_lit(frame_flag));
     }
