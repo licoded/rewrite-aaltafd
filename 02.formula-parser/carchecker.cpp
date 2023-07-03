@@ -31,16 +31,14 @@ namespace aalta
             return false;                 // 这里可以判定 false, 是因为之前有 sat_once(f) is false
         }
 
+        int frame_level = 0;
         // initialize the first frame
-        tmp_frame_.clear();
-        std::vector<int> uc = carsolver_->get_selected_uc(); // has invoked sat_once(f) before, so uc has been generated
-        tmp_frame_.push_back(uc);
+        // tmp_frame_.clear(); // don't need this, as the default initial frame_ is just empty
+        add_frame_element(frame_level);
         add_new_frame();
 
-        int frame_level = 0;
         while (true)
         {
-            tmp_frame_.clear();
             if (try_satisfy(f, frame_level))
                 return true;
             if (inv_found())
@@ -54,15 +52,12 @@ namespace aalta
     void CARChecker::add_new_frame()
     {
         frames_.push_back(tmp_frame_);
-        solver_add_new_frame();
-    }
-
-    void CARChecker::solver_add_new_frame()
-    {
+        // add/copy/sync a new frame to SAT solver (CARSolver)
         int frame_level = frames_.size() - 1;
         carsolver_->create_flag_for_frame(frame_level);
         for (int i = 0; i < tmp_frame_.size(); i++) // tmp_frame_ is a set of multiple uc(s) -- a two-dimensional array
             carsolver_->add_clause_for_frame(tmp_frame_[i], frame_level); // tmp_frame_[i] is a uc -- a one-dimensional array
+        tmp_frame_.clear();
     }
 
     bool CARChecker::try_satisfy(aalta_formula *f, int frame_level)
@@ -77,21 +72,24 @@ namespace aalta
                     return true;
                 else
                 {
-                    std::vector<int> uc = carsolver_->get_selected_uc();
-                    add_frame_element(frame_level, uc);
+                    add_frame_element(frame_level);
                     continue;
                 }
             }
             if (try_satisfy(t->next(), frame_level - 1))
                 return true;
         }
-        std::vector<int> uc = carsolver_->get_selected_uc();
-        add_frame_element(frame_level + 1, uc);
+        add_frame_element(frame_level + 1);
         return false;
     }
 
-    void CARChecker::add_frame_element(int frame_level, std::vector<int> &uc)
+    /**
+     * add `uc=get_uc()` into specified frame, and update corresponding frame in CARSolver if needed
+     * when update is needed: the frame, which uc is added into, has been pushed into frames_ and generated in CARSolver
+    */
+    void CARChecker::add_frame_element(int frame_level)
     {
+        std::vector<int> uc = carsolver_->get_selected_uc(); // has invoked sat_once(f) before, so uc has been generated
         assert(!uc.empty());
         if (frame_level == frames_.size())
             tmp_frame_.push_back(uc);

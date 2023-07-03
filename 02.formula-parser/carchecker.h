@@ -39,13 +39,11 @@ namespace aalta
         // try to find a model with the length of \@frame_level
         bool try_satisfy(aalta_formula *f, int frame_level);
         // add \@uc to frame \@frame_level
-        void add_frame_element(int frame_level, std::vector<int> &uc);
+        void add_frame_element(int frame_level);
         // check whether an invariant can be found in up to \@frame_level steps.
         bool inv_found();
         // add a new frame to frames_
         void add_new_frame();
-        // add a new frame to SAT solver
-        void solver_add_new_frame();
         // check whether an invariant is found at frame \@ i
         bool inv_found_at(int i);
 
