@@ -7,3 +7,4 @@
     - multiple versions of `add_equivalence()`
     - `add_clause_for_frame()`
     - `add_clauses_for_frame_or/and()`
+    - NOTE: first ensure it can run successfully! and then opt it.
