@@ -2,5 +2,6 @@
     - then since the solver we use is different, so everything else is OK
 - `a` /\ `a -> b` -> `b`, while `!a` /\ `a->b` -> empty
     - it's cunning/subtly!
-- there is something different in the codes to the paper!
-    - `ψ = C[frame level] = /\ uc[i]` instead of `ψ = ¬X(C[frame level])`
+- there is ~~something different~~ in the codes to the paper!
+    - previous understanding is wrong, some details are omitted/misunderstood
+    - BUT still with serval problems left about the `get_uc()` func.

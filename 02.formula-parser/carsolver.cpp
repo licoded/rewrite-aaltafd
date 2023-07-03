@@ -13,7 +13,7 @@ using namespace std;
 namespace aalta
 {
     /**
-     * return SAT of `ψ ∧ xnf(φ)`, in which ψ = C[frame level] = /\ uc[i]
+     * return SAT of `ψ ∧ xnf(φ)`, in which ψ = C[frame level] = ! /\ X(uc[i])
      * 
      * TODO: seems selected_assumption is not used here, can we remove it?
      *       But maybe it will be used after this func...
@@ -24,12 +24,12 @@ namespace aalta
         assert(!unsat_forever_);
         set_selected_assumption(f);
         get_assumption_from(f, false);  // f = φ
-        assumption_.push(id_to_lit(frame_flags_[frame_level])); // ψ = C[frame level] = /\ uc[i]
+        assumption_.push(id_to_lit(frame_flags_[frame_level])); // ψ = C[frame level] = ! /\ X(uc[i])
         return solve_assumption(); // ψ ∧ xnf(φ)
     }
 
     /**
-     * `add_clause()` -- frame_id -> ! /\ uc[i]
+     * `add_clause()` -- frame_id -> ! /\ X(uc[i])
     */
     void CARSolver::add_clause_for_frame(std::vector<int> &uc, int frame_level)
     {
@@ -43,10 +43,10 @@ namespace aalta
         */
         std::vector<int> v;
         for (af_prt_set::const_iterator it = ands.begin(); it != ands.end(); it++)
-            v.push_back(-SAT_id_of_next(*it));
+            v.push_back(-SAT_id_of_next(*it));  // NOTE: next and negative !!!
         v.push_back(-(frame_flags_[frame_level]));
-        add_clause(v);  // frame_id -> \/ !uc[i]
-                        //        ==== ! /\ uc[i]
+        add_clause(v);  // frame_id -> \/ !X(uc[i])
+                        //        ==== ! /\ X(uc[i])
     }
 
     /**
