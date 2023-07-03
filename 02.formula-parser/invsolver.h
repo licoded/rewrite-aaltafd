@@ -18,9 +18,7 @@ namespace aalta
     public:
         InvSolver(int id, bool verbose = false) : AaltaSolver(verbose), flag_id_(id) {}
         // functions
-        void create_flag_for_frame(int frame_level);
-        void add_clauses_for_frame(std::vector<int> &uc, int frame_level);
-        bool solve_with_assumption(int frame_level);
+        // create a new var; occupy a flag_id_
         inline int new_var() { return ++flag_id_; }
         void update_assumption_for_constraint(int id);
         void disable_frame_and();
@@ -30,6 +28,15 @@ namespace aalta
         std::vector<int> frame_flags_;
         // the flag id to represent the flags of each frame
         int flag_id_;
+        /**
+         * TODO: ABOUT flag_id_, it's very strange
+         *          - Why this is not static? Because this class will only have one instance?
+         *              - I think this is true! And we should make a Singleton Pattern in the future. (TODO)
+         *          - flag_id_ is initialized with the (what) id of the formula to be checked, and then it will increase in InvSolver. !!!
+         *              - (what) id: id in SAT solver
+         * ALREADY KNOW:
+         *          - the meaning of the word 'flag(s)' is equivalent to 'represent'.
+        */
     };
 }
 
