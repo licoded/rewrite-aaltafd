@@ -93,9 +93,7 @@ namespace aalta
     {
         assert(!uc.empty());
         if (frame_level == frames_.size())
-        {
             tmp_frame_.push_back(uc);
-        }
         else
         {
             frames_[frame_level].push_back(uc);

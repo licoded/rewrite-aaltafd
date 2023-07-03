@@ -12,6 +12,29 @@ using namespace std;
 
 namespace aalta
 {
+    bool CARSolver::solve_with_assumption(aalta_formula *f, int frame_level)
+    {
+        assert(frame_level < frame_flags_.size());
+        assert(!unsat_forever_);
+        set_selected_assumption(f);
+        get_assumption_from(f, false);
+        assumption_.push(id_to_lit(frame_flags_[frame_level]));
+        return solve_assumption();
+    }
+
+    void CARSolver::add_clause_for_frame(std::vector<int> &uc, int frame_level)
+    {
+        assert(frame_level < frame_flags_.size());
+        af_prt_set ands = formula_set_of(uc);
+        // if there is a conjuct A in f such that (A, X A) is not founded in X_map_, then discard blocking f
+        if (block_discard_able(ands))
+            return;
+        std::vector<int> v;
+        for (af_prt_set::const_iterator it = ands.begin(); it != ands.end(); it++)
+            v.push_back(-SAT_id_of_next(*it));
+        v.push_back(-(frame_flags_[frame_level]));
+        add_clause(v);
+    }
 
     std::vector<int> CARSolver::get_selected_uc()
     {
@@ -26,11 +49,11 @@ namespace aalta
         return res;
     }
 
-    void CARSolver::create_flag_for_frame (int frame_level)
-	{
-		assert (frame_flags_.size () == frame_level);
-		frame_flags_.push_back (++max_used_id_);
-	}
+    void CARSolver::create_flag_for_frame(int frame_level)
+    {
+        assert(frame_flags_.size() == frame_level);
+        frame_flags_.push_back(++max_used_id_);
+    }
 
     bool CARSolver::check_final(aalta_formula *f)
     {
