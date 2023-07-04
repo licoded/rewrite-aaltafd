@@ -1,2 +1,10 @@
 - `blsc` has BUG or is incomplete, it can't cope with `false` -> UNSAT
 - my plan is: stop `blsc` temporarily, do CDLSC first and then adapt the method from CDLSC to `blsc`
+- now, I have found that `CDLSC` still couldn't cope with many cases without `simplify()` func
+    - maybe it just couldn't copy with `tail` literal, which is not a formal literal
+        - try to find more proofs or counterexamples
+    - and the `simplify()` func is so complex that I think it's just a bad patch to make the whole program runs successfully
+        - As there is no statements in paper AAAI2019
+        - Is there any other approaches to archieve/implement a simpler `simplify()`?
+        - Or can I bypass/skip it?
+        - If continue to use the old codes of `simplify()`, there is a big problem that I couldn't stand/bear that there is a black box without godd interface in my codes/program.
