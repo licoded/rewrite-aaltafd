@@ -93,6 +93,117 @@ namespace aalta
         return unique_;
     }
 
+    aalta_formula *aalta_formula::simplify()
+    {
+        if (simp_ != NULL)
+            return simp_;
+
+        switch (op_)
+        {
+        // case e_and: // &
+        //     simp_ = aalta_formula::simplify_and(left_, right_);
+        //     break;
+        // case e_or: // |
+        //     simp_ = aalta_formula::simplify_or(left_, right_);
+        //     break;
+        // case e_next: // X
+        //     simp_ = aalta_formula::simplify_next(right_);
+        //     break;
+        case e_until: // U
+            simp_ = simplify_until(left_, right_);
+            break;
+        case e_release: // R
+            simp_ = simplify_release(left_, right_);
+            break;
+        case e_not: // ! 只会出现在原子前，因此可不做处理
+                    // break;
+        default:    // atom
+            simp_ = unique();
+            break;
+        }
+
+        /* TOOD: the below line may could be optimized */
+        simp_->unique_ = simp_->simp_ = simp_;
+        return simp_;
+    }
+
+    /**
+     * NOTE: a U b
+     *  - `a U b` only requires `F(b)` instead of `F(G(b))`, i.e. b only needs to be true at a time point
+     *  - G(b) is enough, so it could start with b is true, a could be false forever
+     *  - F(b) must be true, i.e. b must be true at some future time point
+     * NOTE: don't forget to check simp cannot be nullptr
+    */
+    aalta_formula *aalta_formula::simplify_until(aalta_formula *l, aalta_formula *r)
+    {
+        aalta_formula *l_simp = l->simplify();
+        aalta_formula *r_simp = r->simplify();
+        aalta_formula *simp;
+
+        if (false
+            || l_simp->oper() == e_false // false U b = b, as b must be true at current time point, and it's enough to make `false U b` to be true
+            || r_simp->oper() == e_false // a U false = false, as F(b) must be true and F(b) === F(false) === false now
+            || r_simp->oper() == e_true  // a U true = true, as G(b) is enough and G(b) === G(true) === true now
+        )
+            simp = r_simp;
+
+        else
+            simp = aalta_formula(e_until, l_simp, r_simp).unique();
+
+        return simp;
+    }
+
+    /**
+     * NOTE: a R b
+     *  - both a and b is required at some time point
+     *  - b must be true at first/before released
+     *  - G(b) is enough, so a can always be false, as only as b is true forever
+     * NOTE: don't forget to check simp cannot be nullptr
+    */
+    aalta_formula *aalta_formula::simplify_release(aalta_formula *l, aalta_formula *r)
+    {
+        aalta_formula *l_simp = l->simplify();
+        aalta_formula *r_simp = r->simplify();
+        aalta_formula *simp;
+
+        if (false 
+            //l_simp->oper() == e_false    // false R b = G(b) != b !!!, as b can never be released in this case, since a === false
+            || l_simp->oper() == e_true  // true R b = b, as b must be true at current time point (because b must be true at first/before released), and it's enough to make `true R b` to be true 
+            || r_simp->oper() == e_false // a R false = false, as false must be true at first/before release, and it's enought to judge `a R false` is false
+            || r_simp->oper() == e_true  // a R true = true, as G(b) is enough, and G(b) === G(true) === true now
+        )
+            simp = r_simp;
+
+        // Both `a R !a` and `!a R a` are equivalent to `false R right_formula` (i.e. G(right_formula))
+        else if (false
+            || (l_simp->oper() == e_not && l_simp->right_ == r_simp)    // !a R a  === G( a) === false R  a, as  a can never be released, since the released time point required `!a & a`
+            || (r_simp->oper() == e_not && r_simp->right_ == l_simp)    //  a R !a === G(!a) === false R !a, as !a can never be released, since the released time point required ` a & !a`
+        )
+            simp = aalta_formula(e_release, FALSE(), r_simp).simplify();
+        
+        else
+            simp = aalta_formula(e_release, l_simp, r_simp).unique();
+
+        return simp;
+    }
+
+    /* I think `simplify_and()` func is meaningless, at least not so important, as SAT can handle this. */
+    // aalta_formula *aalta_formula::simplify_and(aalta_formula *l, aalta_formula *r)
+    // {
+    //     aalta_formula *l_simp = l->simplify();
+    //     aalta_formula *r_simp = r->simplify();
+
+    //     /* This case ( true & true ) is included in the below two cases */
+    //     // if(l_simp->oper() == e_true && r_simp->oper() == e_true)
+    //     //     return TRUE();
+    //     if(l_simp->oper() == e_true)
+    //         return r_simp;
+    //     if(r_simp->oper() == e_true)
+    //         return l_simp;
+    //     if(l_simp->oper() == e_false || r_simp->oper() == e_false)
+    //         return FALSE();
+    // }
+
     /**
      * 将ltl_formula转成aalta_formula结构，
      * 并处理！运算，使其只会出现在原子前

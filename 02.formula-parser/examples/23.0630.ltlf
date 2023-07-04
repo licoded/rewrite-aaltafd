@@ -4,11 +4,15 @@ X(a) & X(!a)
 
 false
 true
+tail
+!tail               -- also SAT, as e.g. path `!tail, tail` is OK.
 a
-false R a
-a R false
-a U false
-!tail U false
+false R a           -- SAT, e.g. path `a & tail`
+a R false           -- UNSAT, as b in `a R b` is `false`, and b must be true at first/before released
+a U false           -- UNSAT, as b in `a U b` is `false`, and F(b) must be true, i.e. b must be true at some time point, and b in `a U b` is `false`
+!tail U false       -- UNSAT, the same reason/proof/explanation as the above line/case
+false R !tail       -- UNSAT, as it is euqivalent to `G(!tail)`
+G(!tail)            -- UNSAT, the same reason/proof/explanation as the above line/case
 
 (!Tail) U a & (!Tail) U (!a)
 (!Tail) U a & (!Tail) U (!a) & (!Tail) U b & (!Tail) U (!b)

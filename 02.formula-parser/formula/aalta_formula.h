@@ -92,6 +92,7 @@ namespace aalta {
         aalta_formula *right_ = nullptr; // 操作符右端公式
         // int length_; //公式长度
         aalta_formula *unique_ = nullptr; // 指向唯一指针标识
+        aalta_formula *simp_ = nullptr;   // 指向简化后的公式指针
         std::string af_s_;
         // aalta_formula *simp_ = nullptr; // 指向化简后的公式指针
         static std::vector<std::string> names; // 存储操作符的名称以及原子变量的名称
@@ -111,6 +112,7 @@ namespace aalta {
         ~aalta_formula();
         static aalta_formula* add_into_all_afs(const aalta_formula *formula); // used in unique() func
         aalta_formula* unique();
+        aalta_formula* simplify();
         void build (const ltl_formula *formula, bool is_not = false);
         void build_atom(const char *name, bool is_not = false);
         static int get_id_by_name(const char *name);
@@ -127,6 +129,11 @@ namespace aalta {
         static aalta_formula* FALSE();
         static aalta_formula* TAIL();
         static aalta_formula* NTAIL();
+        static aalta_formula *simplify_next(aalta_formula *af);
+        static aalta_formula *simplify_and(aalta_formula *l, aalta_formula *r);
+        static aalta_formula *simplify_or(aalta_formula *l, aalta_formula *r);
+        static aalta_formula *simplify_until(aalta_formula *l, aalta_formula *r);
+        static aalta_formula *simplify_release(aalta_formula *l, aalta_formula *r);
 
     private:
         size_t hash_; // hash值
