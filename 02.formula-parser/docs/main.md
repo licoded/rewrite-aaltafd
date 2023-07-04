@@ -8,3 +8,6 @@
         - Is there any other approaches to archieve/implement a simpler `simplify()`?
         - Or can I bypass/skip it?
         - If continue to use the old codes of `simplify()`, there is a big problem that I couldn't stand/bear that there is a black box without godd interface in my codes/program.
+- add plenty of printfs to see why `(!Tail) U a & (!Tail) U (!a)` is SAT now
+    - may about `simplify()` func
+    - NOTE: use simple case `(!Tail & b) U b` to write printfs successfully and then debug `(!Tail) U a & (!Tail) U (!a)`
