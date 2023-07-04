@@ -19,7 +19,9 @@ namespace aalta
     class CARChecker
     {
     public:
-        CARChecker(aalta_formula *f, bool verbose = false) : to_check_(f) {}
+        CARChecker(aalta_formula *f, bool verbose = false) : to_check_(f) {
+            carsolver_ = new CARSolver(f);
+        }
         ~CARChecker() {}
 
         bool check();
