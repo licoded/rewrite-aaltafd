@@ -5,7 +5,7 @@ PARSERFILES  =	ltlparser/ltl_formula.c ltlparser/ltllexer.c ltlparser/ltlparser.
 
 SOLVER		= minisat/core/Solver.cc aaltasolver.cpp solver.cpp
 
-CHECKING	= ltlfchecker.cpp
+CHECKING	= ltlfchecker.cpp carchecker.cpp invsolver.cpp carsolver.cpp
 
 ALLFILES     =	$(CHECKING) $(SOLVER) $(FORMULAFILES) $(PARSERFILES) main.cpp
 TESTFILES     =	$(FORMULAFILES) $(PARSERFILES) tests/formula/to_string.cpp
