@@ -10,3 +10,7 @@
     - NO, it doesn't have any problems indeed.
         - because there is no `max_id_` for names, `id = names.size()` in `get_id_by_name(s)()` funcs
         - although, I still changes the codes of `get_id_by_names()` func
+
+- [ ] First, test advanced cases in old codes of `simplify()` func
+- [ ] Then, try to identify `(!Tail) U a & (!Tail) U (!a)` to UNSAT
+    - It's unnecessary, as it won't be input directly!!!
