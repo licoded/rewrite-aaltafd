@@ -1,0 +1,9 @@
+- question about `tail, Tail, TAIL`
+    - the current approach/solution may have problem?
+        - only run `id=++max_id_` once, but push all three strings into `names` arr
+    - YES, it really has problem. BUT not totally.
+        - `get_id_by_names()` func is WRONG
+            - because it breaks the CONVENTION that
+                - in `to_string()` func, `literal = aalta_formula::names[oper()]`
+        - while the patch in 'aaltaf(d)' is OK.
+            - because it runs before `max_id_ = names.size()`
