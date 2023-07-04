@@ -4,6 +4,10 @@ X(a) & X(!a)
 
 false
 true
+a
+false R a
+a R false
+a U false
 !tail U false
 
 (!Tail) U a & (!Tail) U (!a)

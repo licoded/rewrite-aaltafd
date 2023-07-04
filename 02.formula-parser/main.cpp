@@ -11,8 +11,16 @@ char in[MAXN];
 
 using namespace aalta;
 
-int main()
+int main(int argc, char** argv)
 {
+    bool BLSC = false;
+
+    for (int i = argc; i > 1; i --)
+	{
+		if (strcmp (argv[i-1], "-blsc") == 0)
+			BLSC = true;
+    }
+
     aalta_formula::TAIL(); // set tail id to be 1
 
     puts("please input the formula:");
@@ -32,8 +40,6 @@ int main()
 
     std::cout << "=== after all transfer" << std::endl;
     std::cout << af->to_string() << std::endl;
-
-    const bool BLSC = false;
 
     bool res;
     if (BLSC)
