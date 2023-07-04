@@ -25,6 +25,10 @@ namespace aalta
 
 		std::vector<int> get_selected_uc();
 		bool check_final(aalta_formula *f);
+		aalta_formula::af_prt_set to_afs(std::vector<int> &uc)
+		{
+			return formula_set_of(uc);
+		}
 
 	protected:
 		// members

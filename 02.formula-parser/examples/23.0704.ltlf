@@ -1,3 +1,7 @@
 a U (a U false)     -- UNSAT, this case is very simple as the computer/machine simplify it from the inner level/layer, `a U false` === `false`
 false U (false U a) -- SAT, also very simple, the details are also the same as before
 !tail U (!tail U false) -- UNSAT, also very simple
+
+(!Tail & a) U b
+(!Tail & a) U (b & !Tail)
+!Tail

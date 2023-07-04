@@ -1,0 +1,4 @@
+- how to get uc from SAT solver, why negative?
+    - just SKIP this now
+- convert uc to af_s!!!
+    - necessary

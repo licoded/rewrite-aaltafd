@@ -39,6 +39,7 @@ namespace aalta
 
         while (true)
         {
+            // clear graph
             if (try_satisfy(f, frame_level))
                 return true;
             if (inv_found())
@@ -71,6 +72,7 @@ namespace aalta
         while (carsolver_->solve_with_assumption(f, frame_level))
         {
             Transition *t = carsolver_->get_transition();
+            // add to graph
             if (frame_level == 0)
             {
                 if (sat_once(t->next()))
@@ -92,6 +94,11 @@ namespace aalta
     void CARChecker::add_frame_element(int frame_level)
     {
         std::vector<int> uc = carsolver_->get_selected_uc(); // has invoked sat_once(f) before, so uc has been generated
+        // === set uc_afs
+        std::cout << "===" << std::endl;
+        for(auto af:carsolver_->to_afs(uc))
+            std::cout << af->to_string() << std::endl;
+        std::cout << "===" << std::endl;
         assert(!uc.empty());
         if (frame_level == frames_.size())
             tmp_frame_.push_back(uc);
