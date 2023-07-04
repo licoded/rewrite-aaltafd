@@ -192,16 +192,21 @@ namespace aalta {
         return id;
     }
 
+    /**
+     * bind all elems in `name_arr` with `id = names.size()`, and just/only push the first elem into `names` for `af->to_string()` func
+     * NOTE: 
+     *  - `id = names.size()` instead of `++max_id_`
+     *  - there is no `max_id_` for names
+     *  - the `max_id_` variable is for (unique) af ptr
+    */
     inline int
     aalta_formula::get_id_by_names(const std::vector<const char *> &name_arr)
     {
         // TODO: check if some names in `vector<const char*> names` already exist in `aalta_formula::names`
         const int id = names.size();
+        names.push_back(name_arr.front());
         for (auto name : name_arr)
-        {
             name_id_map.insert({name, id});
-            names.push_back(name);
-        }
         return id;
     }
 
