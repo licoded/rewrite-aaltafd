@@ -19,7 +19,13 @@ MINISAT_TARGETS	=	minisat_solver.o
 # ===	LTLPARSER	===
 LTL_FORMULA_FILE	=	ltl_formula.c
 LTL_PARSER_FILE		=	ltlparser.c
-LTLPARSER_TARGETS	=	ltl_formula.o ltl_parser.o
+LTL_TRANS_FILE		=	trans.c
+LTLPARSER_TARGETS	=	ltl_formula.o ltl_parser.o ltl_trans.o
+PARSER_FILES		=	ltlparser/ltl_formula.c ltlparser/ltllexer.c ltlparser/ltlparser.c ltlparser/trans.c 
+
+# ===	FORMULA		===
+FORMULA_FILE	=	formula/aalta_formula.cpp
+FORMULA_TARGETS	=	aalta_formula.o
 
 # g++ formula/aalta_formula.cpp -I./ -c -o tmp/aalta_formula.o
 
@@ -30,9 +36,11 @@ all: depend hello
 hello:
 	echo $(OBJS)
 
-main:			$(OBJS)
-	$(CC) main.cpp $(CFLAGS) -c -o $(TARGET_DIR)/main.o
-	$(CC) $(TARGET_DIR)/main.o $(addprefix $(TARGET_DIR)/, $(MINISAT_TARGETS)) $(addprefix $(TARGET_DIR)/, $(LTLPARSER_TARGETS)) $^ $(CFLAGS) $(DEBUGFLAGS) -lz -o aaltafd
+main:			$(OBJS) $(PARSER_FILES)
+	$(CC)	\
+		$(addprefix $(TARGET_DIR)/, $(MINISAT_TARGETS))		\
+		$(addprefix $(TARGET_DIR)/, $(FORMULA_TARGETS))		\
+		$^ $(CFLAGS) $(DEBUGFLAGS) -lz -o aaltafd
 
 # ===	MINISAT		===
 minisat_build:	$(MINISAT_TARGETS:.o=)
@@ -58,6 +66,9 @@ ltl_formula:	$(LTLPARSER_DIR)/$(LTL_FORMULA_FILE)
 ltl_parser:		$(LTLPARSER_DIR)/$(LTL_PARSER_FILE)
 	$(CC) $^ $(CFLAGS) -c -o $(TARGET_DIR)/$@.o
 
+ltl_trans:		$(LTLPARSER_DIR)/$(LTL_TRANS_FILE)
+	$(CC) $^ $(CFLAGS) -c -o $(TARGET_DIR)/$@.o
+
 ltlparser/ltllexer.c :
 	ltlparser/grammar/ltllexer.l
 	flex ltlparser/grammar/ltllexer.l
@@ -65,6 +76,14 @@ ltlparser/ltllexer.c :
 ltlparser/ltlparser.c :
 	ltlparser/grammar/ltlparser.y
 	bison ltlparser/grammar/ltlparser.y
+
+
+# ===	FORMULA		===
+formula_build:	$(FORMULA_TARGETS:.o=)
+
+aalta_formula:	$(FORMULA_FILE)
+	$(CC) $^ $(CFLAGS) -c -o $(TARGET_DIR)/$@.o
+
 
 depend: $(SRCS)
 	rm -f "$@"
