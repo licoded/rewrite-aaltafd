@@ -29,12 +29,10 @@ FORMULA_TARGETS	=	aalta_formula.o
 
 # g++ formula/aalta_formula.cpp -I./ -c -o tmp/aalta_formula.o
 
-.PHONY : clean hello depend
+.PHONY : clean depend
 
-all: depend hello
-
-hello:
-	echo $(OBJS)
+# first run `make depend` and paste/replace in the end of this file (Makefile)
+all: main
 
 main:			$(OBJS) $(PARSER_FILES)
 	$(CC)	\
@@ -49,25 +47,12 @@ minisat_solver:	$(MINISAT_SOLVER_FILE)
 	$(CC) $^ $(CFLAGS) -c -o $(TARGET_DIR)/$@.o
 
 
-# ===	LTLPARSER	===
-ltlparser_build: $(LTLPARSER_TARGETS:.o=)
+# ===	FORMULA		===
+formula_build:	$(FORMULA_TARGETS:.o=)
 
-# ltl_formula:	$(TARGET_DIR)/ltl_formula
-# $(TARGET_DIR)/ltl_formula: $(LTLPARSER_DIR)/$(LTL_FORMULA_FILE)
-# 	$(CC) $^ $(CFLAGS) -c -o $@.o
-
-ltl_formula:	$(LTLPARSER_DIR)/$(LTL_FORMULA_FILE)
+aalta_formula:	$(FORMULA_FILE)
 	$(CC) $^ $(CFLAGS) -c -o $(TARGET_DIR)/$@.o
 
-# ltl_parser:	$(TARGET_DIR)/ltlparser
-# $(TARGET_DIR)/ltlparser: $(LTLPARSER_DIR)/$(LTL_PARSER_FILE)
-# 	$(CC) $^ $(CFLAGS) -c -o $@.o
-
-ltl_parser:		$(LTLPARSER_DIR)/$(LTL_PARSER_FILE)
-	$(CC) $^ $(CFLAGS) -c -o $(TARGET_DIR)/$@.o
-
-ltl_trans:		$(LTLPARSER_DIR)/$(LTL_TRANS_FILE)
-	$(CC) $^ $(CFLAGS) -c -o $(TARGET_DIR)/$@.o
 
 ltlparser/ltllexer.c :
 	ltlparser/grammar/ltllexer.l
@@ -78,17 +63,14 @@ ltlparser/ltlparser.c :
 	bison ltlparser/grammar/ltlparser.y
 
 
-# ===	FORMULA		===
-formula_build:	$(FORMULA_TARGETS:.o=)
-
-aalta_formula:	$(FORMULA_FILE)
-	$(CC) $^ $(CFLAGS) -c -o $(TARGET_DIR)/$@.o
-
-
 depend: $(SRCS)
 	rm -f "$@"
 	$(CC) $(CFLAGS) -MM $^ > ".$@"
 	sed -i '/^[^ ]/ s/^/tmp\//' ".$@"
+
+clean :
+	rm $(PROG) $(OBJS)
+
 
 tmp/aaltasolver.o: aaltasolver.cpp aaltasolver.h minisat/core/Solver.h \
  formula/aalta_formula.h ltlparser/ltl_formula.h
@@ -115,8 +97,3 @@ tmp/main.o: main.cpp formula/aalta_formula.h ltlparser/ltl_formula.h \
  ltlfchecker.h solver.h aaltasolver.h minisat/core/Solver.h transition.h \
  carchecker.h carsolver.h invsolver.h
 	$(CC) $< $(CFLAGS) -c -o $@
-
-clean :
-	rm $(PROG) $(OBJS)
-
-aaltasolver.o: aaltasolver.cpp 
