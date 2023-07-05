@@ -40,6 +40,17 @@ main:			$(OBJS) $(PARSER_FILES)
 		$(addprefix $(TARGET_DIR)/, $(FORMULA_TARGETS))		\
 		$^ $(CFLAGS) $(DEBUGFLAGS) -lz -o aaltafd
 
+# test aalta_formula
+test-af-main:		tests/formula/main.cpp formula_build
+	$(CC)	\
+		$(addprefix $(TARGET_DIR)/, $(FORMULA_TARGETS))		\
+		$< $(PARSER_FILES) $(CFLAGS) $(DEBUGFLAGS) -lz -o $@
+
+test-af-tostring:	tests/formula/to_string.cpp formula_build
+	$(CC)	\
+		$(addprefix $(TARGET_DIR)/, $(FORMULA_TARGETS))		\
+		$< $(PARSER_FILES) $(CFLAGS) $(DEBUGFLAGS) -lz -o $@
+
 # ===	MINISAT		===
 minisat_build:	$(MINISAT_TARGETS:.o=)
 
