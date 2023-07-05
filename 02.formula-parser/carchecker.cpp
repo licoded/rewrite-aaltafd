@@ -22,6 +22,14 @@ namespace aalta
         return car_check(to_check_);
     }
 
+    void CARChecker::record_transition(aalta_formula *f, Transition *t)
+    {
+        Hjson::Value *hjson_ = make_hjson(t);
+        (*hjson_)["cur"] = f->to_string();
+        std::cout << Hjson::Marshal(*hjson_, {quoteAlways: true, quoteKeys: true, separator: true}) << std::endl;
+        hjson_transitions_.push_back(hjson_);
+    }
+
     bool CARChecker::car_check(aalta_formula *f)
     {
         if (sat_once(f))
@@ -74,10 +82,7 @@ namespace aalta
         {
             Transition *t = carsolver_->get_transition();
             // add to graph
-            Hjson::Value tMap;
-            tMap["label"] = t->label()->to_string();
-            tMap["next"] = t->next()->to_string();
-            std::cout << Hjson::Marshal(tMap, {quoteAlways: true, quoteKeys: true, separator: true}) << std::endl;
+            record_transition(f, t);
 
             if (frame_level == 0)
             {
@@ -174,5 +179,13 @@ namespace aalta
     bool CARChecker::sat_once(aalta_formula *f)
     {
         return carsolver_->check_final(f);
+    }
+
+    Hjson::Value *make_hjson(Transition *t)
+    {
+        Hjson::Value *tMap = new Hjson::Value();
+        (*tMap)["label"] = t->label()->to_string();
+        (*tMap)["next"] = t->next()->to_string();
+        return tMap;
     }
 }

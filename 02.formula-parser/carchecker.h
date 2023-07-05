@@ -13,6 +13,7 @@
 #include "invsolver.h"
 #include "formula/aalta_formula.h"
 #include <vector>
+#include <hjson/hjson.h>
 
 namespace aalta
 {
@@ -25,6 +26,8 @@ namespace aalta
         ~CARChecker() {}
 
         bool check();
+        std::vector<Hjson::Value *> hjson_transitions_;
+        void record_transition(aalta_formula *f, Transition *t);
 
     private:
         // members
@@ -55,6 +58,8 @@ namespace aalta
         // handle inv_solver_
         bool solve_inv_at(int frame_level);
     };
+
+    Hjson::Value *make_hjson(Transition *t);
 }
 
 #endif
