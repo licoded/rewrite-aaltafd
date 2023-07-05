@@ -494,6 +494,20 @@ namespace aalta
         return "(" + inner_s + ")";
     }
 
+    // to_s_string
+    std::string aalta_formula::to_set_string()
+    {
+        std::string s = "";
+        const af_prt_set af_prt_set_ = to_set();
+        for(auto label_af:af_prt_set_)
+        {
+            if(s!="")
+                s += ", ";
+            s += label_af->to_string();
+        }
+        return s;
+    }
+
     /**
      * add (/\ !Tail) for all Next formulas/occurences
      *  - 在所有出现 Next(X) 的位置, 添加 /\ !Tail

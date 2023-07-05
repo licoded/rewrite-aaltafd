@@ -159,6 +159,7 @@ namespace aalta {
         inline bool is_wider_globally() const;    // used in `Solver`
         inline bool is_future() const;    // used in `Solver`
         std::string to_string () const;
+        std::string to_set_string ();
         inline int id() { return id_; }
         inline aalta_formula* l_af() { return left_; }
         inline aalta_formula* r_af() { return right_; }

@@ -25,7 +25,7 @@ namespace aalta
     void CARChecker::record_transition(aalta_formula *f, Transition *t)
     {
         Hjson::Value *hjson_ = make_hjson(t);
-        (*hjson_)["cur"] = f->to_string();
+        (*hjson_)["cur"] = f->to_set_string();
         std::cout << Hjson::Marshal(*hjson_, {quoteAlways: true, quoteKeys: true, separator: true}) << std::endl;
         hjson_transitions_.push_back(hjson_);
     }
@@ -187,7 +187,7 @@ namespace aalta
             // carsolver_->shrink_model(assign);
             Transition *t = carsolver_->get_transition();
             Hjson::Value *hjson_ = make_hjson(t);   // next should be `true`
-            (*hjson_)["cur"] = f->to_string();
+            (*hjson_)["cur"] = f->to_set_string();
             print_hjson(hjson_);
         }
         return ret;
