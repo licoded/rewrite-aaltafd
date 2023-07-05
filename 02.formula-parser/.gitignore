@@ -3,3 +3,5 @@ aaltaf*
 .vscode/settings.json
 test*
 !tests
+.depend
+tmp

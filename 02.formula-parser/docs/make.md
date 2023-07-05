@@ -1,1 +1,4 @@
 - [ ] fully leverage the property of make to accelerate the speed of rebuild program
+- `-fpermissive`
+    - Downgrade some diagnostics about nonconformant code from errors to warnings. Thus, using `-fpermissive` will allow some nonconforming code to compile.
+- `lz` means link `libz` library
