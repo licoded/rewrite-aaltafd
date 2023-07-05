@@ -6,8 +6,8 @@
  */
 
 #include "carchecker.h"
+#include "myhjson.h"
 #include <iostream>
-#include <hjson/hjson.h>
 using namespace std;
 using namespace Minisat;
 
@@ -179,13 +179,5 @@ namespace aalta
     bool CARChecker::sat_once(aalta_formula *f)
     {
         return carsolver_->check_final(f);
-    }
-
-    Hjson::Value *make_hjson(Transition *t)
-    {
-        Hjson::Value *tMap = new Hjson::Value();
-        (*tMap)["label"] = t->label()->to_string();
-        (*tMap)["next"] = t->next()->to_string();
-        return tMap;
     }
 }

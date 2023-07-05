@@ -28,6 +28,10 @@ PARSER_FILES		=	ltlparser/ltl_formula.c ltlparser/ltllexer.c ltlparser/ltlparser
 FORMULA_FILE	=	formula/aalta_formula.cpp
 FORMULA_TARGETS	=	aalta_formula.o
 
+# ===	MYHJSON		===
+MYHJSON_FILE	=	myhjson.cpp
+MYHJSON_TARGETS	=	myhjson.o
+
 # g++ formula/aalta_formula.cpp -I./ -c -o tmp/aalta_formula.o
 
 .PHONY : clean depend
@@ -39,6 +43,7 @@ main:			$(OBJS) $(PARSER_FILES)
 	$(CC)	\
 		$(addprefix $(TARGET_DIR)/, $(MINISAT_TARGETS))		\
 		$(addprefix $(TARGET_DIR)/, $(FORMULA_TARGETS))		\
+		$(addprefix $(TARGET_DIR)/, $(MYHJSON_TARGETS))		\
 		$^ $(CFLAGS) $(CFLAG_HJSON) -lz -o aaltafd
 
 # test aalta_formula
@@ -63,6 +68,13 @@ minisat_solver:	$(MINISAT_SOLVER_FILE)
 formula_build:	$(FORMULA_TARGETS:.o=)
 
 aalta_formula:	$(FORMULA_FILE)
+	$(CC) $^ $(CFLAGS) -c -o $(TARGET_DIR)/$@.o
+
+
+# ===	MYHJSON		===
+myhjson_build:	$(MYHJSON_TARGETS:.o=)
+
+myhjson:	$(MYHJSON_FILE)
 	$(CC) $^ $(CFLAGS) -c -o $(TARGET_DIR)/$@.o
 
 

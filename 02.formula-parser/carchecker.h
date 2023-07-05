@@ -13,7 +13,6 @@
 #include "invsolver.h"
 #include "formula/aalta_formula.h"
 #include <vector>
-#include <hjson/hjson.h>
 
 namespace aalta
 {
@@ -58,8 +57,6 @@ namespace aalta
         // handle inv_solver_
         bool solve_inv_at(int frame_level);
     };
-
-    Hjson::Value *make_hjson(Transition *t);
 }
 
 #endif
