@@ -11,6 +11,7 @@ CFLAG_nonconforming	=	-fpermissive
 CFLAG_ignore_Warn	=	-isystem minisat -isystem ltlparser
 DEBUGFLAGS			=	-D DEBUG -g -pg
 CFLAGS				=	-Wall $(CFLAG_INCLUDE_DIRS) $(CFLAG_nonconforming) $(CFLAG_ignore_Warn) $(DEBUGFLAGS)
+CFLAG_HJSON			=	-lhjson
 
 # ===	MINISAT		===
 MINISAT_SOLVER_FILE	=	minisat/core/Solver.cc
@@ -38,7 +39,7 @@ main:			$(OBJS) $(PARSER_FILES)
 	$(CC)	\
 		$(addprefix $(TARGET_DIR)/, $(MINISAT_TARGETS))		\
 		$(addprefix $(TARGET_DIR)/, $(FORMULA_TARGETS))		\
-		$^ $(CFLAGS) -lz -o aaltafd
+		$^ $(CFLAGS) $(CFLAG_HJSON) -lz -o aaltafd
 
 # test aalta_formula
 test-af-main:		tests/formula/main.cpp formula_build

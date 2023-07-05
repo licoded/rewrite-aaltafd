@@ -7,6 +7,7 @@
 
 #include "carchecker.h"
 #include <iostream>
+#include <hjson/hjson.h>
 using namespace std;
 using namespace Minisat;
 
@@ -73,6 +74,11 @@ namespace aalta
         {
             Transition *t = carsolver_->get_transition();
             // add to graph
+            Hjson::Value tMap;
+            tMap["label"] = t->label()->to_string();
+            tMap["next"] = t->next()->to_string();
+            std::cout << Hjson::Marshal(tMap, {quoteAlways: true, quoteKeys: true, separator: true}) << std::endl;
+
             if (frame_level == 0)
             {
                 if (sat_once(t->next()))
