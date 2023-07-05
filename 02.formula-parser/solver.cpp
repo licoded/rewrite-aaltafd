@@ -498,8 +498,11 @@ namespace aalta
                     nexts.push_back(f->r_af());
             }
             else if ((*it) > 0) // handle the variables created for Next of Unitl, Release formulas
-                                // TODO: why f == NULL while (*it) != 0? Maybe the id is temporarily generated when/in add_clauses_for!
-                                // TODO: why judge `(*it) > 0, why don't deal with negative ones?
+                                // NOTE: why f == NULL while (*it) != 0? Maybe the id is temporarily generated when/in add_clauses_for!
+                                //       We know some afs are created temporarily. They are not recorded in all_afs.
+                                //       e.g. X(a U b) for `a U b`!!!
+                                // NOTE: why judge `(*it) > 0, why don't deal with negative ones?
+                                //       Because we just care about positive formulas/assumps
                 push_next_inner(*it, nexts);
         }
 
