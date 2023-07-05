@@ -225,8 +225,12 @@ namespace aalta {
     aalta_formula::get_af_by_SAT_id(int fid)
     {
         for(auto afp:all_afs)
+        {
             if(afp->id() == fid)
                 return afp;
+            if(afp->id() == -fid)
+                return (new aalta_formula(e_not, nullptr, afp))->unique();
+        }
         std::cout << "not found" << std::endl;
         exit(0);
     }

@@ -307,7 +307,7 @@ namespace aalta
         // We also build the X_map and formula_map during the process of adding clauses
 
         //     null    || true or false || has added
-        if (f == nullptr || f->is_tf() || clauses_added(f))
+        if (f == nullptr || clauses_added(f))
             return;
         assert(f->oper() != e_w_next);
 
