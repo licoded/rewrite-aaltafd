@@ -487,7 +487,7 @@ namespace aalta
         std::vector<aalta_formula *> labels, nexts;
         for (std::vector<int>::iterator it = assign.begin(); it != assign.end(); it++)
         {
-            if ((*it) == 0) // TODO: means what?
+            if ((*it) == 0) // in shrink_model/shrink_to_coi(), `=0` means clear/remove/delete this item
                 continue;
             aalta_formula *f = formula_of(*it);
             if (f != NULL)

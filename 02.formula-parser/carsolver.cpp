@@ -66,7 +66,13 @@ namespace aalta
         std::vector<int> res;
         for (int i = 0; i < uc.size(); i++)
         {
-            if (selected_assumption_.find(uc[i]) != selected_assumption_.end()) // TODO: why check this, I think it's very easy to get empty ERROR!
+            /**
+             * 需要筛选说明, `minisat::conflict` may contains both clauses and assumps, 而我们只需要在 assumps 中的
+             * TODO: 另一个疑问, res很容易为空? 
+             *          - 可能并不会, 因为 clauses 只添加了辅助 minisat 求解的等价关系, 
+             *          - 相当于让他聪明一点, 多了解点知识, 但这些应该都是已知的真理, 不会错的
+            */
+            if (selected_assumption_.find(uc[i]) != selected_assumption_.end())
                 res.push_back(uc[i]);
         }
         assert(!res.empty());

@@ -497,11 +497,16 @@ namespace aalta
     // to_s_string
     std::string aalta_formula::to_set_string()
     {
-        std::string s = "";
-        const af_prt_set af_prt_set_ = to_set();
-        for(auto label_af:af_prt_set_)
+        return aalta_formula::to_set_string(to_set());
+    }
+
+    // to_s_string
+    std::string aalta_formula::to_set_string(const af_prt_set &af_prt_set_)
+    {
+        std::string s;
+        for (auto label_af : af_prt_set_)
         {
-            if(s!="")
+            if (s != "")
                 s += ", ";
             s += label_af->to_string();
         }

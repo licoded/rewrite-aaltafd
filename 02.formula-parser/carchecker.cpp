@@ -22,10 +22,12 @@ namespace aalta
         return car_check(to_check_);
     }
 
-    void CARChecker::record_transition(aalta_formula *f, Transition *t)
+    void CARChecker::record_transition(aalta_formula *f, Transition *t, int frame_level)
     {
         Hjson::Value *hjson_ = make_hjson(t);
         (*hjson_)["cur"] = f->to_set_string();
+        (*hjson_)["flag"] = "try_satisfy";
+        (*hjson_)["frame_level"] = frame_level;
         std::cout << Hjson::Marshal(*hjson_, {quoteAlways: true, quoteKeys: true, separator: true}) << std::endl;
         hjson_transitions_.push_back(hjson_);
     }
@@ -82,7 +84,7 @@ namespace aalta
         {
             Transition *t = carsolver_->get_transition();
             // add to graph
-            record_transition(f, t);
+            record_transition(f, t, frame_level);
 
             if (frame_level == 0)
             {
@@ -105,11 +107,13 @@ namespace aalta
     void CARChecker::add_frame_element(int frame_level)
     {
         std::vector<int> uc = carsolver_->get_selected_uc(); // has invoked sat_once(f) before, so uc has been generated
-        // === set uc_afs
-        std::cout << "===" << std::endl;
-        for(auto af:carsolver_->to_afs(uc))
-            std::cout << af->to_string() << std::endl;
-        std::cout << "===" << std::endl;
+
+        Hjson::Value *hjson_ptr = new Hjson::Value();
+        (*hjson_ptr)["uc_af_s"] = aalta_formula::to_set_string(carsolver_->to_afs(uc));
+        (*hjson_ptr)["flag"] = "add_frame_element";
+        (*hjson_ptr)["frame_level"] = frame_level;
+        print_hjson(hjson_ptr);
+        
         assert(!uc.empty());
         if (frame_level == frames_.size())
             tmp_frame_.push_back(uc);
@@ -188,6 +192,7 @@ namespace aalta
             Transition *t = carsolver_->get_transition();
             Hjson::Value *hjson_ = make_hjson(t);   // next should be `true`
             (*hjson_)["cur"] = f->to_set_string();
+            (*hjson_)["flag"] = "sat_once";
             print_hjson(hjson_);
         }
         return ret;

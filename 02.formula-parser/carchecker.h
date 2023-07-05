@@ -27,7 +27,7 @@ namespace aalta
 
         bool check();
         std::vector<Hjson::Value *> hjson_transitions_;
-        void record_transition(aalta_formula *f, Transition *t);
+        void record_transition(aalta_formula *f, Transition *t, int frame_level);
 
     private:
         // members

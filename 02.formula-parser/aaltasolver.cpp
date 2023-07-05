@@ -39,11 +39,14 @@ namespace aalta
     /**
      * return the UC from SAT solver when it provides UNSAT
      * NOTE: it is change into negative/opposite before added to reason/uc!
-     *       TODO: but we don't need negative, we negative it in `add_clause_for_frame()` func.
+     *       NOTE: but we don't need negative, we negative it in `add_clause_for_frame()` func.
      *             so why there is a negative/opposite operator?
      *             JUST SKIP it, needn't to understand so deeply/detailly!
+     *       ANSWER: maybe beacause `conflict` shows the assumptions which are not true now
+     *              so it (`conflict`) stores the negation of elems in `assumption_` which are not true now.
      * NOTE: but still have the X problem, we should have X(uc) when try_satisfy
      *       - the X problem is also copied in `add_clause_for_frame()` func.
+     * 
     */
     std::vector<int> AaltaSolver::get_uc()
     {
