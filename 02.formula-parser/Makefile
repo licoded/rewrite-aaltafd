@@ -14,14 +14,13 @@ DEBUGFLAGS			=	-D DEBUG -g -pg
 
 # ===	MINISAT		===
 MINISAT_SOLVER_FILE	=	minisat/core/Solver.cc
-MINISAT_TARGETS	=	minisat_solver.o
+MINISAT_TARGETS		=	minisat_solver.o
 
 # ===	LTLPARSER	===
-LTL_FORMULA_FILE	=	ltl_formula.c
-LTL_PARSER_FILE		=	ltlparser.c
-LTL_TRANS_FILE		=	trans.c
-LTLPARSER_TARGETS	=	ltl_formula.o ltl_parser.o ltl_trans.o
-PARSER_FILES		=	ltlparser/ltl_formula.c ltlparser/ltllexer.c ltlparser/ltlparser.c ltlparser/trans.c 
+LTL_PARSER_FILES	=	ltlparser/ltl_formula.c ltlparser/ltllexer.c ltlparser/ltlparser.c ltlparser/trans.c 
+_LTL_PARSER_OBJECTS	=	$(LTL_PARSER_FILES:.c=.o)
+LTL_PARSER_OBJECTS	=	$(_LTL_PARSER_OBJECTS:ltlparser/%=%)
+LTL_PARSER_TARGETS	=	ltl_parser.a
 
 # ===	FORMULA		===
 FORMULA_FILE	=	formula/aalta_formula.cpp
@@ -36,9 +35,10 @@ all: depend hello
 hello:
 	echo $(OBJS)
 
-main:			$(OBJS) $(PARSER_FILES)
+main:			$(OBJS)
 	$(CC)	\
 		$(addprefix $(TARGET_DIR)/, $(MINISAT_TARGETS))		\
+		$(addprefix $(TARGET_DIR)/, $(LTL_PARSER_TARGETS))		\
 		$(addprefix $(TARGET_DIR)/, $(FORMULA_TARGETS))		\
 		$^ $(CFLAGS) $(DEBUGFLAGS) -lz -o aaltafd
 
@@ -50,24 +50,12 @@ minisat_solver:	$(MINISAT_SOLVER_FILE)
 
 
 # ===	LTLPARSER	===
-ltlparser_build: $(LTLPARSER_TARGETS:.o=)
+ltl_parser_build: $(LTL_PARSER_TARGETS:.a=)
 
-# ltl_formula:	$(TARGET_DIR)/ltl_formula
-# $(TARGET_DIR)/ltl_formula: $(LTLPARSER_DIR)/$(LTL_FORMULA_FILE)
-# 	$(CC) $^ $(CFLAGS) -c -o $@.o
-
-ltl_formula:	$(LTLPARSER_DIR)/$(LTL_FORMULA_FILE)
-	$(CC) $^ $(CFLAGS) -c -o $(TARGET_DIR)/$@.o
-
-# ltl_parser:	$(TARGET_DIR)/ltlparser
-# $(TARGET_DIR)/ltlparser: $(LTLPARSER_DIR)/$(LTL_PARSER_FILE)
-# 	$(CC) $^ $(CFLAGS) -c -o $@.o
-
-ltl_parser:		$(LTLPARSER_DIR)/$(LTL_PARSER_FILE)
-	$(CC) $^ $(CFLAGS) -c -o $(TARGET_DIR)/$@.o
-
-ltl_trans:		$(LTLPARSER_DIR)/$(LTL_TRANS_FILE)
-	$(CC) $^ $(CFLAGS) -c -o $(TARGET_DIR)/$@.o
+ltl_parser:		$(LTL_PARSER_FILES)
+	$(CC) $^ $(CFLAGS) -c
+	ar cr $(TARGET_DIR)/$@.a $(LTL_PARSER_OBJECTS)
+	rm $(LTL_PARSER_OBJECTS)
 
 ltlparser/ltllexer.c :
 	ltlparser/grammar/ltllexer.l
