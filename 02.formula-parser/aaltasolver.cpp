@@ -13,6 +13,12 @@ using namespace Minisat;
 
 namespace aalta
 {
+    void AaltaSolver::init_solver()
+    {
+        add_clause(aalta_formula::TRUE()->id());
+        add_clause(-aalta_formula::FALSE()->id());
+    }
+
     bool AaltaSolver::solve_assumption()
     {
         Minisat::lbool ret = solveLimited(assumption_);

@@ -18,8 +18,12 @@ namespace aalta
 	class AaltaSolver : public Minisat::Solver
 	{
 	public:
-		AaltaSolver() {}
-		AaltaSolver(bool verbose) : verbose_(verbose) {}
+		AaltaSolver() {
+            init_solver();
+        }
+		AaltaSolver(bool verbose) : verbose_(verbose) {
+            init_solver();
+        }
 
 		// variables
 		bool verbose_;
@@ -29,6 +33,7 @@ namespace aalta
         std::vector<int> sat_id_list;
 
 		// functions
+        void init_solver();           // !false true
 		bool solve_assumption();	  // invoke Solver::solveLimited() with assumption_
 		std::vector<int> get_model(); // get the model from SAT solver
 		std::vector<int> get_uc();	  // get UC from SAT solver
