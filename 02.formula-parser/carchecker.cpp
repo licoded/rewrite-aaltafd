@@ -132,7 +132,7 @@ namespace aalta
         inv_solver_ = new InvSolver(to_check_->id());
         int cur_frame_level = 0;
         while (cur_frame_level < frames_.size() && !res)
-            res = inv_found_at(cur_frame_level);
+            res = inv_found_at(cur_frame_level++);
         delete inv_solver_;
         return res;
     }
