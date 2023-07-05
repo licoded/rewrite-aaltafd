@@ -7,6 +7,7 @@
 
 #include "transition.h"
 #include "myhjson.h"
+#include "debug.h"
 #include <iostream>
 
 namespace aalta {
@@ -23,6 +24,6 @@ namespace aalta {
     }
     void print_hjson(Hjson::Value hjson_)
     {
-        std::cout << Hjson::Marshal(hjson_, {quoteAlways: true, quoteKeys: true, separator: true}) << std::endl;
+        dout << Hjson::Marshal(hjson_, {quoteAlways: true, quoteKeys: true, separator: true}) << std::endl;
     }
 };

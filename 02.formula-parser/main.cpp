@@ -22,6 +22,15 @@ int main(int argc, char** argv)
     }
 
     aalta_formula::TAIL(); // set tail id to be 1
+    aalta_formula(e_not, nullptr, aalta_formula::TAIL()).unique(); // set tail id to be 1
+    aalta_formula::FALSE(); // set FALSE id to be 2
+    aalta_formula::TRUE(); // set TRUE id to be 3
+    aalta_formula("a").unique();
+    aalta_formula(e_not, nullptr, aalta_formula("a").unique()).unique(); // set tail id to be 1
+    aalta_formula(e_next, nullptr, aalta_formula("a").unique()).unique(); // set tail id to be 1
+    aalta_formula("b").unique();
+    aalta_formula(e_not, nullptr, aalta_formula("b").unique()).unique(); // set tail id to be 1
+    aalta_formula(e_next, nullptr, aalta_formula("b").unique()).unique(); // set tail id to be 1
 
     puts("please input the formula:");
     if (fgets(in, MAXN, stdin) == NULL)

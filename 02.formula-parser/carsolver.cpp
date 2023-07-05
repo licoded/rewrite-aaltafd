@@ -6,6 +6,7 @@
  */
 
 #include "carsolver.h"
+#include "debug.h"
 #include <iostream>
 #include <assert.h>
 using namespace std;
@@ -27,7 +28,7 @@ namespace aalta
         // selected_assumption
         for(auto fid:selected_assumption_)
         {
-            std::cout << aalta_formula::get_af_by_SAT_id(fid)->to_string() << std::endl;
+            dout << aalta_formula::get_af_by_SAT_id(fid)->to_string() << std::endl;
         }
 
         get_assumption_from(f, false);  // f = φ

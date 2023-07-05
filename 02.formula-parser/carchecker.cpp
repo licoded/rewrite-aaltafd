@@ -28,7 +28,7 @@ namespace aalta
         (*hjson_)["cur"] = f->to_set_string();
         (*hjson_)["flag"] = "try_satisfy";
         (*hjson_)["frame_level"] = frame_level;
-        std::cout << Hjson::Marshal(*hjson_, {quoteAlways: true, quoteKeys: true, separator: true}) << std::endl;
+        print_hjson(hjson_);
         hjson_transitions_.push_back(hjson_);
     }
 

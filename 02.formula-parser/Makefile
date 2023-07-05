@@ -10,7 +10,7 @@ CFLAG_INCLUDE_DIRS	=	-I ./ -I ./minisat
 CFLAG_nonconforming	=	-fpermissive
 CFLAG_ignore_Warn	=	-isystem minisat -isystem ltlparser
 DEBUGFLAGS			=	-D DEBUG -g -pg
-CFLAGS				=	-Wall $(CFLAG_INCLUDE_DIRS) $(CFLAG_nonconforming) $(CFLAG_ignore_Warn) $(DEBUGFLAGS)
+CFLAGS				=	-Wall $(CFLAG_INCLUDE_DIRS) $(CFLAG_nonconforming) $(CFLAG_ignore_Warn)
 CFLAG_HJSON			=	-lhjson
 
 # ===	MINISAT		===
@@ -39,12 +39,16 @@ MYHJSON_TARGETS	=	myhjson.o
 # first run `make depend` and paste/replace in the end of this file (Makefile)
 all: main
 
-main:			$(OBJS) $(PARSER_FILES)
+maind:			$(OBJS) $(PARSER_FILES)
 	$(CC)	\
 		$(addprefix $(TARGET_DIR)/, $(MINISAT_TARGETS))		\
 		$(addprefix $(TARGET_DIR)/, $(FORMULA_TARGETS))		\
 		$(addprefix $(TARGET_DIR)/, $(MYHJSON_TARGETS))		\
-		$^ $(CFLAGS) $(CFLAG_HJSON) -lz -o aaltafd
+		$^ $(CFLAGS) $(CFLAG_HJSON) $(DEBUGFLAGS) -lz -o aaltafd
+
+main:			$(SRCS) $(PARSER_FILES) $(FORMULA_FILE) $(MYHJSON_FILE) $(MINISAT_SOLVER_FILE)
+	$(CC)	\
+		$^ $(CFLAGS) $(CFLAG_HJSON) -lz -o aaltaf
 
 # test aalta_formula
 test-af-main:		tests/formula/main.cpp formula_build

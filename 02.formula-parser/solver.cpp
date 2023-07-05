@@ -6,6 +6,7 @@
  */
 
 #include "solver.h"
+#include "debug.h"
 
 namespace aalta
 {
@@ -469,7 +470,7 @@ namespace aalta
         // selected_assumption
         for(auto fid:sat_id_list)
         {
-            std::cout << aalta_formula::get_af_by_SAT_id(fid)->to_string() << std::endl;
+            dout << aalta_formula::get_af_by_SAT_id(fid)->to_string() << std::endl;
         }
         return solve_assumption();
     }
