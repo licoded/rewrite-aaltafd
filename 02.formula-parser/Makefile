@@ -9,8 +9,8 @@ CC					=	g++
 CFLAG_INCLUDE_DIRS	=	-I ./ -I ./minisat
 CFLAG_nonconforming	=	-fpermissive
 CFLAG_ignore_Warn	=	-isystem minisat -isystem ltlparser
-CFLAGS				=	-Wall $(CFLAG_INCLUDE_DIRS) $(CFLAG_nonconforming) $(CFLAG_ignore_Warn)
 DEBUGFLAGS			=	-D DEBUG -g -pg
+CFLAGS				=	-Wall $(CFLAG_INCLUDE_DIRS) $(CFLAG_nonconforming) $(CFLAG_ignore_Warn) $(DEBUGFLAGS)
 
 # ===	MINISAT		===
 MINISAT_SOLVER_FILE	=	minisat/core/Solver.cc
@@ -38,18 +38,18 @@ main:			$(OBJS) $(PARSER_FILES)
 	$(CC)	\
 		$(addprefix $(TARGET_DIR)/, $(MINISAT_TARGETS))		\
 		$(addprefix $(TARGET_DIR)/, $(FORMULA_TARGETS))		\
-		$^ $(CFLAGS) $(DEBUGFLAGS) -lz -o aaltafd
+		$^ $(CFLAGS) -lz -o aaltafd
 
 # test aalta_formula
 test-af-main:		tests/formula/main.cpp formula_build
 	$(CC)	\
 		$(addprefix $(TARGET_DIR)/, $(FORMULA_TARGETS))		\
-		$< $(PARSER_FILES) $(CFLAGS) $(DEBUGFLAGS) -lz -o $@
+		$< $(PARSER_FILES) $(CFLAGS) -lz -o $@
 
 test-af-tostring:	tests/formula/to_string.cpp formula_build
 	$(CC)	\
 		$(addprefix $(TARGET_DIR)/, $(FORMULA_TARGETS))		\
-		$< $(PARSER_FILES) $(CFLAGS) $(DEBUGFLAGS) -lz -o $@
+		$< $(PARSER_FILES) $(CFLAGS) -lz -o $@
 
 # ===	MINISAT		===
 minisat_build:	$(MINISAT_TARGETS:.o=)
