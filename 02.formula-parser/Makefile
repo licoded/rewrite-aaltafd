@@ -6,7 +6,7 @@ OBJS				=	$(addprefix $(TARGET_DIR)/, $(_OBJS))
 
 PROG				=	aaltaf
 CC					=	g++
-CFLAG_INCLUDE_DIRS	=	-I ./ -I ./minisat
+CFLAG_INCLUDE_DIRS	=	-I ./ -I ./minisat -I ./tmp
 CFLAG_nonconforming	=	-fpermissive
 CFLAG_ignore_Warn	=	-isystem minisat -isystem ltlparser
 DEBUGFLAGS			=	-D DEBUG -g -pg
@@ -18,11 +18,10 @@ MINISAT_SOLVER_FILE	=	minisat/core/Solver.cc
 MINISAT_TARGETS	=	minisat_solver.o
 
 # ===	LTLPARSER	===
-LTL_FORMULA_FILE	=	ltl_formula.c
-LTL_PARSER_FILE		=	ltlparser.c
-LTL_TRANS_FILE		=	trans.c
-LTLPARSER_TARGETS	=	ltl_formula.o ltl_parser.o ltl_trans.o
-PARSER_FILES		=	ltlparser/ltl_formula.c ltlparser/ltllexer.c ltlparser/ltlparser.c ltlparser/trans.c 
+LTL_PARSER_FILES	=	ltlparser/ltl_formula.c ltlparser/ltllexer.c ltlparser/ltlparser.c ltlparser/trans.c 
+_LTL_PARSER_OBJECTS	=	$(LTL_PARSER_FILES:.c=.o)
+LTL_PARSER_OBJECTS	=	$(_LTL_PARSER_OBJECTS:ltlparser/%=%)
+LTL_PARSER_TARGETS	=	ltl_parser.a
 
 # ===	FORMULA		===
 FORMULA_FILE	=	formula/aalta_formula.cpp
@@ -35,11 +34,13 @@ FORMULA_TARGETS	=	aalta_formula.o
 # first run `make depend` and paste/replace in the end of this file (Makefile)
 all: main
 
-main:			$(OBJS) $(PARSER_FILES)
+main:			$(OBJS)
 	$(CC)	\
 		$(addprefix $(TARGET_DIR)/, $(MINISAT_TARGETS))		\
 		$(addprefix $(TARGET_DIR)/, $(FORMULA_TARGETS))		\
-		$^ $(CFLAGS) $(CFLAG_HJSON) -lz -o aaltafd
+		$^ $(CFLAGS) $(CFLAG_HJSON) \
+		-l:$(LTL_PARSER_TARGETS:.a=)	\
+		-lz -o aaltafd
 
 # test aalta_formula
 test-af-main:		tests/formula/main.cpp formula_build
@@ -64,6 +65,15 @@ formula_build:	$(FORMULA_TARGETS:.o=)
 
 aalta_formula:	$(FORMULA_FILE)
 	$(CC) $^ $(CFLAGS) -c -o $(TARGET_DIR)/$@.o
+
+
+# ===	LTLPARSER	===
+ltl_parser_build: $(LTL_PARSER_TARGETS:.a=)
+
+ltl_parser:		$(LTL_PARSER_FILES)
+	$(CC) $^ $(CFLAGS) -c
+	ar cr $(TARGET_DIR)/$@.a $(LTL_PARSER_OBJECTS)
+	rm $(LTL_PARSER_OBJECTS)
 
 
 ltlparser/ltllexer.c :
