@@ -178,6 +178,18 @@ namespace aalta
 
     bool CARChecker::sat_once(aalta_formula *f)
     {
-        return carsolver_->check_final(f);
+        bool ret = carsolver_->check_final(f);
+        if(ret) // model is not empty, only when SAT
+        {
+            // cur: f
+            // model: [] vector
+            // std::vector<int> assign = carsolver_->get_model();
+            // carsolver_->shrink_model(assign);
+            Transition *t = carsolver_->get_transition();
+            Hjson::Value *hjson_ = make_hjson(t);   // next should be `true`
+            (*hjson_)["cur"] = f->to_string();
+            print_hjson(hjson_);
+        }
+        return ret;
     }
 }

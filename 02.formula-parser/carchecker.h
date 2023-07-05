@@ -12,6 +12,7 @@
 #include "carsolver.h"
 #include "invsolver.h"
 #include "formula/aalta_formula.h"
+#include "myhjson.h"
 #include <vector>
 
 namespace aalta

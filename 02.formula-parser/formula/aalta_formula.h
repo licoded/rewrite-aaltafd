@@ -19,6 +19,7 @@
 #include <map>
 #include <unordered_set>
 #include <vector>
+#include <iostream>
 
 namespace aalta {
     /* 操作符类型 */
@@ -117,6 +118,7 @@ namespace aalta {
         void build_atom(const char *name, bool is_not = false);
         static int get_id_by_name(const char *name);
         static int get_id_by_names(const std::vector<const char *> &name_arr);
+        static aalta_formula *get_af_by_SAT_id(int fid);
 
     private:
         static aalta_formula *FALSE_;
@@ -215,6 +217,16 @@ namespace aalta {
         for (auto name : name_arr)
             name_id_map.insert({name, id});
         return id;
+    }
+
+    inline aalta_formula*
+    aalta_formula::get_af_by_SAT_id(int fid)
+    {
+        for(auto afp:all_afs)
+            if(afp->id() == fid)
+                return afp;
+        std::cout << "not found" << std::endl;
+        exit(0);
     }
 
     /**

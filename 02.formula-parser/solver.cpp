@@ -466,6 +466,11 @@ namespace aalta
             af_s_list.push_back(aalta_formula::TAIL()->to_string()),
             sat_id_list.push_back(tail_),
             assumption_.push(id_to_lit(tail_));
+        // selected_assumption
+        for(auto fid:sat_id_list)
+        {
+            std::cout << aalta_formula::get_af_by_SAT_id(fid)->to_string() << std::endl;
+        }
         return solve_assumption();
     }
 

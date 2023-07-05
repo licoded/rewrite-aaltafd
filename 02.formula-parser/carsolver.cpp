@@ -23,6 +23,13 @@ namespace aalta
         assert(frame_level < frame_flags_.size());
         assert(!unsat_forever_);
         set_selected_assumption(f);
+        
+        // selected_assumption
+        for(auto fid:selected_assumption_)
+        {
+            std::cout << aalta_formula::get_af_by_SAT_id(fid)->to_string() << std::endl;
+        }
+
         get_assumption_from(f, false);  // f = φ
         assumption_.push(id_to_lit(frame_flags_[frame_level])); // ψ = C[frame level] = ! /\ X(uc[i])
         return solve_assumption(); // ψ ∧ xnf(φ)
