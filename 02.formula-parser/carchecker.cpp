@@ -91,7 +91,7 @@ namespace aalta
                 else
                     add_frame_element(frame_level);
             }
-            if (try_satisfy(t->next(), frame_level - 1))
+            else if (try_satisfy(t->next(), frame_level - 1))
                 return true;
         }
         add_frame_element(frame_level + 1);
