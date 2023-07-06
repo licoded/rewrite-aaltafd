@@ -84,7 +84,7 @@ namespace aalta
         {
             Transition *t = carsolver_->get_transition();
             // add to graph
-            record_transition(f, t, frame_level);
+            // record_transition(f, t, frame_level);
 
             if (frame_level == 0)
             {
@@ -108,11 +108,11 @@ namespace aalta
     {
         std::vector<int> uc = carsolver_->get_selected_uc(); // has invoked sat_once(f) before, so uc has been generated
 
-        Hjson::Value *hjson_ptr = new Hjson::Value();
-        (*hjson_ptr)["uc_af_s"] = aalta_formula::to_set_string(carsolver_->to_afs(uc));
-        (*hjson_ptr)["flag"] = "add_frame_element";
-        (*hjson_ptr)["frame_level"] = frame_level;
-        print_hjson(hjson_ptr);
+        // Hjson::Value *hjson_ptr = new Hjson::Value();
+        // (*hjson_ptr)["uc_af_s"] = aalta_formula::to_set_string(carsolver_->to_afs(uc));
+        // (*hjson_ptr)["flag"] = "add_frame_element";
+        // (*hjson_ptr)["frame_level"] = frame_level;
+        // print_hjson(hjson_ptr);
         
         assert(!uc.empty());
         if (frame_level == frames_.size())
@@ -189,11 +189,11 @@ namespace aalta
             // model: [] vector
             // std::vector<int> assign = carsolver_->get_model();
             // carsolver_->shrink_model(assign);
-            Transition *t = carsolver_->get_transition();
-            Hjson::Value *hjson_ = make_hjson(t);   // next should be `true`
-            (*hjson_)["cur"] = f->to_set_string();
-            (*hjson_)["flag"] = "sat_once";
-            print_hjson(hjson_);
+            // Transition *t = carsolver_->get_transition();
+            // Hjson::Value *hjson_ = make_hjson(t);   // next should be `true`
+            // (*hjson_)["cur"] = f->to_set_string();
+            // (*hjson_)["flag"] = "sat_once";
+            // print_hjson(hjson_);
         }
         return ret;
     }

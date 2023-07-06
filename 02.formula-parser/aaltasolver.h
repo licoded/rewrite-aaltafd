@@ -28,9 +28,6 @@ namespace aalta
 		// variables
 		bool verbose_;
 		Minisat::vec<Minisat::Lit> assumption_; // Assumption for SAT solver
-        std::vector<aalta_formula *> af_list;
-        std::vector<std::string> af_s_list;
-        std::vector<int> sat_id_list;
 
 		// functions
         void init_solver();           // !false true
