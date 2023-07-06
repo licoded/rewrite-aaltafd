@@ -32,7 +32,7 @@
             "cwd": ".",
             "program": "${workspaceFolder}/aaltafd",
             "MIMode": "gdb",
-            "args": [],
+            "args": ["(!Tail) U a & (!Tail) U (!a)"],
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",

@@ -5,3 +5,4 @@ test*
 !tests
 .depend
 tmp
+res.txt
