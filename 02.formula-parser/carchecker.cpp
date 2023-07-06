@@ -93,8 +93,9 @@ namespace aalta
     */
     bool CARChecker::try_satisfy(aalta_formula *f, int frame_level)
     {
+        bool satisfy_flag = false;
         // check whether \@f has a next state that can block constraints at level \@frame_level
-        while (carsolver_->solve_with_assumption(f, frame_level))
+        while (!satisfy_flag && carsolver_->solve_with_assumption(f, frame_level))
         {
             Transition *t = carsolver_->get_transition();
             // add to graph
@@ -105,21 +106,22 @@ namespace aalta
             if (frame_level == 0)
             {
                 if (sat_once(t->next()))
-                    return true;
+                    satisfy_flag = true;
                 else
                 {
                     add_frame_element(frame_level);
                     if (evidence_)
-                        traces_.pop_back();
+                        traces_.pop_back(); // pop 的不是 sat_once, 而是 get_transition
                 }
             }
             else if (try_satisfy(t->next(), frame_level - 1))
-                return true;
-            if (evidence_)
+                satisfy_flag = true;
+            if (!satisfy_flag && evidence_)
                 traces_.pop_back();
         }
-        add_frame_element(frame_level + 1);
-        return false;
+        if(!satisfy_flag)
+            add_frame_element(frame_level + 1);
+        return satisfy_flag;
     }
 
     /**
