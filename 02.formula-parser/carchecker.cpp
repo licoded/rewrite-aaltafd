@@ -36,6 +36,15 @@ namespace aalta
         hjson_transitions_.push_back(hjson_);
     }
 
+    void CARChecker::record_external_while(int frame_level)
+    {
+        Hjson::Value *hjson_ = new Hjson::Value();
+        (*hjson_)["flag"] = "external_while";
+        (*hjson_)["frame_level"] = frame_level;
+        print_hjson(hjson_);
+        hjson_transitions_.push_back(hjson_);
+    }
+
     bool CARChecker::car_check(aalta_formula *f)
     {
         if (sat_once(f))
@@ -54,6 +63,7 @@ namespace aalta
 
         while (true)
         {
+            record_external_while(frame_level);
             // clear graph
             if (try_satisfy(f, frame_level))
                 return true;

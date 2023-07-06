@@ -30,6 +30,7 @@ namespace aalta
         bool check();
         std::vector<Hjson::Value *> hjson_transitions_;
         void record_transition(aalta_formula *f, Transition *t, int frame_level);
+        void record_external_while(int frame_level);
         void print_evidence();
 
     private:
