@@ -14,12 +14,15 @@ using namespace aalta;
 int main(int argc, char** argv)
 {
     bool BLSC = false;
+    bool evidence = false;
     int input_count = 0;
 
     for (int i = argc; i > 1; i --)
 	{
 		if (strcmp (argv[i-1], "-blsc") == 0)
 			BLSC = true;
+		if (strcmp (argv[i-1], "-e") == 0)
+			evidence = true;
         else //for input
 		{
 			if (input_count > 1)
@@ -95,8 +98,10 @@ int main(int argc, char** argv)
     }
     else
     {
-        CARChecker checker(af);
+        CARChecker checker(af, false, evidence);
         res = checker.check();
+        if (evidence && res)
+            checker.print_evidence();
     }
     printf("%s\n", res ? "sat" : "unsat");
 
