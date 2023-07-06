@@ -20,7 +20,9 @@ namespace aalta
     class CARChecker
     {
     public:
-        CARChecker(aalta_formula *f, bool verbose = false) : to_check_(f) {
+        CARChecker(aalta_formula *f, bool verbose = false, bool evidence = false)
+            : to_check_(f), evidence_(evidence)
+        {
             carsolver_ = new CARSolver(f);
         }
         ~CARChecker() {}
@@ -28,6 +30,7 @@ namespace aalta
         bool check();
         std::vector<Hjson::Value *> hjson_transitions_;
         void record_transition(aalta_formula *f, Transition *t, int frame_level);
+        void print_evidence();
 
     private:
         // members
@@ -37,6 +40,10 @@ namespace aalta
         Frame tmp_frame_;           // temporal frame to store the UCs before it is pushed into frames_
         CARSolver *carsolver_;
         InvSolver *inv_solver_;     // SAT solver to check invariant
+
+        // === flags
+        std::vector<std::string> traces_;
+        bool evidence_;             // whether record SAT path
 
         // functions
         // main checking function

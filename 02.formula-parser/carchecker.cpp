@@ -16,7 +16,11 @@ namespace aalta
     bool CARChecker::check()
     {
         if (to_check_->oper() == e_true)
+        {
+            if (evidence_)
+                traces_.push_back("True");
             return true;
+        }
         if (to_check_->oper() == e_false)
             return false;
         return car_check(to_check_);
@@ -85,16 +89,24 @@ namespace aalta
             Transition *t = carsolver_->get_transition();
             // add to graph
             record_transition(f, t, frame_level);
+            if (evidence_)
+                traces_.push_back(t->label()->to_set_string());
 
             if (frame_level == 0)
             {
                 if (sat_once(t->next()))
                     return true;
                 else
+                {
                     add_frame_element(frame_level);
+                    if (evidence_)
+                        traces_.pop_back();
+                }
             }
             else if (try_satisfy(t->next(), frame_level - 1))
                 return true;
+            if (evidence_)
+                traces_.pop_back();
         }
         add_frame_element(frame_level + 1);
         return false;
@@ -187,12 +199,25 @@ namespace aalta
         {
             // cur: f
             // model: [] vector
+            // std::vector<int> assign = carsolver_->get_model();
+            // carsolver_->shrink_model(assign);
             Transition *t = carsolver_->get_transition();
             Hjson::Value *hjson_ = make_hjson(t);   // next should be `true`
             (*hjson_)["cur"] = f->to_set_string();
             (*hjson_)["flag"] = "sat_once";
             print_hjson(hjson_);
+            if (evidence_)
+                traces_.push_back(t->label()->to_set_string());
         }
         return ret;
+    }
+
+    void CARChecker::print_evidence()
+    {
+        std::cout << "print evidence path:" << std::endl;
+        for (int i = 0; i < traces_.size(); i++)
+        {
+            std::cout << traces_[i] << std::endl;
+        }
     }
 }
