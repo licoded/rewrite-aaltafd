@@ -24,12 +24,12 @@ namespace aalta
 
     void CARChecker::record_transition(aalta_formula *f, Transition *t, int frame_level)
     {
-        Hjson::Value *hjson_ = make_hjson(t);
-        (*hjson_)["cur"] = f->to_set_string();
-        (*hjson_)["flag"] = "try_satisfy";
-        (*hjson_)["frame_level"] = frame_level;
-        print_hjson(hjson_);
-        hjson_transitions_.push_back(hjson_);
+        // Hjson::Value *hjson_ = make_hjson(t);
+        // (*hjson_)["cur"] = f->to_set_string();
+        // (*hjson_)["flag"] = "try_satisfy";
+        // (*hjson_)["frame_level"] = frame_level;
+        // print_hjson(hjson_);
+        // hjson_transitions_.push_back(hjson_);
     }
 
     bool CARChecker::car_check(aalta_formula *f)

@@ -99,10 +99,10 @@ namespace aalta
         Minisat::vec<Minisat::Lit> lits;
         for (std::vector<int>::iterator it = v.begin(); it != v.end(); it++)
             lits.push(id_to_lit(*it));
-        dout << "add_clause:\t";
-        for (std::vector<int>::iterator it = v.begin(); it != v.end(); it++)
-            dout << *it << ", ";
-        dout << std::endl;
+        // dout << "add_clause:\t";
+        // for (std::vector<int>::iterator it = v.begin(); it != v.end(); it++)
+        //     dout << *it << ", ";
+        // dout << std::endl;
         addClause(lits);
     }
 

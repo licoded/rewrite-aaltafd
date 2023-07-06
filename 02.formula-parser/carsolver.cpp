@@ -26,10 +26,10 @@ namespace aalta
         set_selected_assumption(f);
         
         // selected_assumption
-        for(auto fid:selected_assumption_)
-        {
-            dout << aalta_formula::get_af_by_SAT_id(fid)->to_string() << std::endl;
-        }
+        // for(auto fid:selected_assumption_)
+        // {
+        //     dout << aalta_formula::get_af_by_SAT_id(fid)->to_string() << std::endl;
+        // }
 
         get_assumption_from(f, false);  // f = φ
         assumption_.push(id_to_lit(frame_flags_[frame_level])); // ψ = C[frame level] = ! /\ X(uc[i])

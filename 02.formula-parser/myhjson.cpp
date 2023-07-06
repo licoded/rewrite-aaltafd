@@ -20,10 +20,10 @@ namespace aalta {
     }
     void print_hjson(Hjson::Value *hjson_ptr)
     {
-        print_hjson(*hjson_ptr);
+        // print_hjson(*hjson_ptr);
     }
     void print_hjson(Hjson::Value hjson_)
     {
-        dout << Hjson::Marshal(hjson_, {quoteAlways: true, quoteKeys: true, separator: true}) << std::endl;
+        // dout << Hjson::Marshal(hjson_, {quoteAlways: true, quoteKeys: true, separator: true}) << std::endl;
     }
 };
