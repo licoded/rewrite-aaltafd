@@ -14,11 +14,22 @@ using namespace aalta;
 int main(int argc, char** argv)
 {
     bool BLSC = false;
+    int input_count = 0;
 
     for (int i = argc; i > 1; i --)
 	{
 		if (strcmp (argv[i-1], "-blsc") == 0)
 			BLSC = true;
+        else //for input
+		{
+			if (input_count > 1)
+			{
+				printf ("Error: read more than one input!\n");
+        		exit (0);
+			}
+			strcpy (in, argv[i-1]);
+			input_count ++;
+		}
     }
 
     aalta_formula::TAIL(); // set tail id to be 1
@@ -32,12 +43,16 @@ int main(int argc, char** argv)
     aalta_formula(e_not, nullptr, aalta_formula("b").unique()).unique(); // set tail id to be 1
     aalta_formula(e_next, nullptr, aalta_formula("b").unique()).unique(); // set tail id to be 1
 
-    puts("please input the formula:");
-    if (fgets(in, MAXN, stdin) == NULL)
+    if(input_count == 0)
     {
-        printf("Error: read input!\n");
-        exit(0);
+        puts("please input the formula:");
+        if (fgets(in, MAXN, stdin) == NULL)
+        {
+            printf("Error: read input!\n");
+            exit(0);
+        }
     }
+
     aalta_formula *af = aalta_formula(in).unique();
     std::cout << af->to_string() << std::endl;
 
