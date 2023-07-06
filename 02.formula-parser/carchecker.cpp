@@ -45,6 +45,27 @@ namespace aalta
         hjson_transitions_.push_back(hjson_);
     }
 
+    void CARChecker::record_try_sat_begin(aalta_formula *f, int frame_level)
+    {
+        Hjson::Value *hjson_ = new Hjson::Value();
+        (*hjson_)["cur"] = f->to_set_string();
+        (*hjson_)["flag"] = "try_sat_begin";
+        (*hjson_)["frame_level"] = frame_level;
+        print_hjson(hjson_);
+        hjson_transitions_.push_back(hjson_);
+    }
+
+    void CARChecker::record_try_sat_end(aalta_formula *f, int frame_level, bool sat)
+    {
+        Hjson::Value *hjson_ = new Hjson::Value();
+        (*hjson_)["cur"] = f->to_set_string();
+        (*hjson_)["flag"] = "try_sat_end";
+        (*hjson_)["frame_level"] = frame_level;
+        (*hjson_)["sat"] = sat ? "SAT" : "UNSAT";
+        print_hjson(hjson_);
+        hjson_transitions_.push_back(hjson_);
+    }
+
     bool CARChecker::car_check(aalta_formula *f)
     {
         if (sat_once(f))
@@ -93,6 +114,7 @@ namespace aalta
     */
     bool CARChecker::try_satisfy(aalta_formula *f, int frame_level)
     {
+        record_try_sat_begin(f, frame_level);
         bool satisfy_flag = false;
         // check whether \@f has a next state that can block constraints at level \@frame_level
         while (!satisfy_flag && carsolver_->solve_with_assumption(f, frame_level))
@@ -121,6 +143,7 @@ namespace aalta
         }
         if(!satisfy_flag)
             add_frame_element(frame_level + 1);
+        record_try_sat_end(f, frame_level, satisfy_flag);
         return satisfy_flag;
     }
 
