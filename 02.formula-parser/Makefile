@@ -10,7 +10,7 @@ CFLAG_INCLUDE_DIRS	=	-I ./ -I ./minisat
 CFLAG_nonconforming	=	-fpermissive
 CFLAG_ignore_Warn	=	-isystem minisat -isystem ltlparser
 DEBUGFLAGS			=	-D DEBUG -g -pg
-CFLAGS				=	-Wall $(CFLAG_INCLUDE_DIRS) $(CFLAG_nonconforming) $(CFLAG_ignore_Warn)
+CFLAGS				=	-Wall $(CFLAG_INCLUDE_DIRS) $(CFLAG_nonconforming) $(CFLAG_ignore_Warn) $(DEBUGFLAGS)
 CFLAG_HJSON			=	-lhjson
 
 # ===	MINISAT		===
@@ -44,7 +44,7 @@ maind:			$(OBJS) $(PARSER_FILES)
 		$(addprefix $(TARGET_DIR)/, $(MINISAT_TARGETS))		\
 		$(addprefix $(TARGET_DIR)/, $(FORMULA_TARGETS))		\
 		$(addprefix $(TARGET_DIR)/, $(MYHJSON_TARGETS))		\
-		$^ $(CFLAGS) $(CFLAG_HJSON) $(DEBUGFLAGS) -lz -o aaltafd
+		$^ $(CFLAGS) $(CFLAG_HJSON) -lz -o aaltafd
 
 main:			$(SRCS) $(PARSER_FILES) $(FORMULA_FILE) $(MYHJSON_FILE) $(MINISAT_SOLVER_FILE)
 	$(CC)	\
@@ -97,7 +97,18 @@ depend: $(SRCS)
 	sed -i '/^[^ ]/ s/^/tmp\//' ".$@"
 
 clean :
-	rm $(PROG) $(OBJS)
+	rm $(PROG) $(OBJS) > /dev/null || true
+
+rebuild-debug:
+	make clean
+	make myhjson_build
+	make minisat_build
+	make formula_build
+	make maind
+
+rebuild-all:
+	make rebuild-debug
+	make main
 
 
 tmp/aaltasolver.o: aaltasolver.cpp aaltasolver.h minisat/core/Solver.h \
