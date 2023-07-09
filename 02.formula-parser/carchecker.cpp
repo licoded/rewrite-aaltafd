@@ -202,9 +202,9 @@ namespace aalta
     }
 
     /**
-     * check whether /\ (1<=j<=i) C[j] -> C[i] is true.
-     * ATTENTION: inv_found = !solve_assumption(), so solve_assumption() should check SAT of !( /\ (1<=j<=i) C[j] -> C[i] )
-     *                  ( PROOF: !(a->b) = !(!a \/ b) = a /\ !b )                       ====    /\ (1<=j<=i) C[j] /\ !C[i]
+     * check whether /\ (1<=j<=i) C[j] -> C[i+1] is true.
+     * ATTENTION: inv_found = !solve_assumption(), so solve_assumption() should check SAT of !( /\ (1<=j<=i) C[j] -> C[i+1] )
+     *                  ( PROOF: !(a->b) = !(!a \/ b) = a /\ !b )                       ====    /\ (1<=j<=i) C[j] /\ !C[i+1]
      * ATTENTION: Let φ be a formula of propositional logic. Then φ is satisﬁable iff ¬φ is not valid.
      *            So in order to prove φ is not valid, we just need to prove ¬φ is SAT. !!!
      * ATTENTION: the clauses added by `add_clause()` are /\ not \\/ !!!

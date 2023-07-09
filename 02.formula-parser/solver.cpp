@@ -85,6 +85,7 @@ namespace aalta
              *  - Can it repeat? And if repeats, do the two are the same? I think they are the same.
              */
             X_map_.insert({f->r_id(), f->id()});
+            // why not insert X_reverse_map_ ???
         }
         build_X_map_priliminary(f->l_af());
         build_X_map_priliminary(f->r_af());
@@ -291,6 +292,16 @@ namespace aalta
      * It's a recursive func.
      *
      * NOTE: `U` and `R` still exists after all transfers!
+     * 
+     * 1. add eqs for `U` and `R`
+     *      - build_X_map: add X(f) for `U` and `R`
+     *          - insert into X_map_ and X_reverse_map_
+     *      - add_equivalence_wise for `U` and `R`
+     *          - add_clause
+     * 2. build_formula_map
+     *      - insert into formula_map_
+     * 3. mark_clauses_added
+     *      - insert into clauses_added_
      */
     void Solver::add_clauses_for(aalta_formula *f)
     {
